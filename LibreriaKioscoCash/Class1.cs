@@ -8,5 +8,6 @@ namespace LibreriaKioscoCash
 {
     public class Class1
     {
+        //FGGG
     }
 }
