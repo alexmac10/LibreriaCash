@@ -280,7 +280,6 @@ namespace LibreriaKioscoCash.Class
                     Thread.Sleep(200);
                     getMessage();
                     setMessage(releaseRequest);
-                    Console.WriteLine("");
                     Console.WriteLine("Configuración correcta");
                     DisplayEvent("Configuración correcta");
                 }
@@ -324,7 +323,6 @@ namespace LibreriaKioscoCash.Class
                     Thread.Sleep(200);
                     getMessage();
                     setMessage(releaseRequest);
-                    Console.WriteLine("");
                     Console.WriteLine("Configuración correcta");
                     DisplayEvent("Configuración Correcta");
                 }
@@ -424,7 +422,6 @@ namespace LibreriaKioscoCash.Class
                 if (status == false)
                 {
                     Console.WriteLine("Configurando Dispositivo....");
-                    Console.WriteLine("");
                     DisplayEvent("Configurando Dispositivo....");
                     Config_inicial();
 
@@ -439,11 +436,6 @@ namespace LibreriaKioscoCash.Class
                 }
                 bandera = true;
 
-
-
-
-
-
             }
             else
             {
@@ -457,6 +449,7 @@ namespace LibreriaKioscoCash.Class
         public void returnCash(int denominationCash, int countMoney, int cantidad_20, int cantidad_50, int cantidad_100)
         {
             money = true;
+            Console.WriteLine(" ");
             Console.WriteLine("Retirando Efectivo...");
             DisplayEvent("Retirando Efectivo...");
             DisplayEvent("Billetes de $20.00: " + cantidad_20);
@@ -488,9 +481,10 @@ namespace LibreriaKioscoCash.Class
             if ((Error[0] == 0) && (Error[1] == 0))
             {
                 Console.WriteLine("Se Entrego El Dinero De Manera Correcta");
+                Console.WriteLine(" ");
 
-                Console.WriteLine("Error:{0} {1}, Adress:{2} {3},Register:{4} {5} {6}", Error[0].ToString("X"), Error[1].ToString("X"), Error[2].ToString("X"), Error[3].ToString("X"), Error[6].ToString("X"), Error[7].ToString("X"), Error[8].ToString("X"));
-                Console.WriteLine("Sensor Register: {0} {1} {2}", Error[9].ToString("X"), Error[10].ToString("X"), Error[11].ToString("X"), Error[12].ToString("X"), Error[13].ToString("X"), Error[14].ToString("X"));
+                //Console.WriteLine("Error:{0} {1}, Adress:{2} {3},Register:{4} {5} {6}", Error[0].ToString("X"), Error[1].ToString("X"), Error[2].ToString("X"), Error[3].ToString("X"), Error[6].ToString("X"), Error[7].ToString("X"), Error[8].ToString("X"));
+                //Console.WriteLine("Sensor Register: {0} {1} {2}", Error[9].ToString("X"), Error[10].ToString("X"), Error[11].ToString("X"), Error[12].ToString("X"), Error[13].ToString("X"), Error[14].ToString("X"));
                 //Console.WriteLine("Sensor Register: {0} {1} {2} {3} {4} {5}", Error[9], Error[10], Error[11], Error[12], Error[13], Error[14]);
 
                 DisplayEvent("Se Entrego El Dinero De Manera Correcta");
@@ -503,10 +497,26 @@ namespace LibreriaKioscoCash.Class
             else
             {
                 Console.WriteLine("No se pudo entregar el dinero");
+                Console.WriteLine(" ");
 
-                Console.WriteLine("Error:{0} {1}, Adress:{2} {3},Register:{4} {5} {6}", Error[0].ToString("X"), Error[1].ToString("X"), Error[2].ToString("X"), Error[3].ToString("X"), Error[6].ToString("X"), Error[7].ToString("X"), Error[8].ToString("X"));
-                Console.WriteLine("Sensor Register: {0} {1} {2} {3} {4} {5}", Error[9].ToString("X"), Error[10].ToString("X"), Error[11].ToString("X"), Error[12].ToString("X"), Error[13].ToString("X"), Error[14].ToString("X"));
+                //Console.WriteLine("Error:{0} {1}, Adress:{2} {3},Register:{4} {5} {6}", Error[0].ToString("X"), Error[1].ToString("X"), Error[2].ToString("X"), Error[3].ToString("X"), Error[6].ToString("X"), Error[7].ToString("X"), Error[8].ToString("X"));
+                //Console.WriteLine("Sensor Register: {0} {1} {2} {3} {4} {5}", Error[9].ToString("X"), Error[10].ToString("X"), Error[11].ToString("X"), Error[12].ToString("X"), Error[13].ToString("X"), Error[14].ToString("X"));
+ 
+                switch (Error[0].ToString("X"))
+                {
+                    case "11":
+                        Console.WriteLine("Excepcion: Casset 1 Vacio");
+                        break;
 
+                    case "21":
+                        Console.WriteLine("Excepcion: Casset 2 Vacio");
+                        break;
+                    case "31":
+                        Console.WriteLine("Excepcion: Casset 3 Vacio");
+                        break;
+
+
+                }
                 DisplayEvent("No se pudo entregar el dinero");
                 DisplayEvent("Error Code: " + Error[0].ToString("X") + " " + Error[1].ToString("X"));
                 DisplayEvent("Error Adress: " + Error[2].ToString("X") + " " + Error[3].ToString("X"));

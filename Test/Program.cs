@@ -29,6 +29,7 @@ namespace Test
 
                     F53.returnCash(0, 0, Int32.Parse(cantidad20), Int32.Parse(cantidad50), Int32.Parse(cantidad100));
                     Console.WriteLine("*****************************************************");
+                    Console.WriteLine("Conexion:{0}",F53.isConnection());
                     F53.close();
                 }
                 else
