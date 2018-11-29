@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LibreriaKioscoCash
+namespace LibreriaKioscoCash.Class
 {
-    public class Class1
+    class AcceptorCBT
     {
-        //FGGG
     }
 }
