@@ -32,7 +32,7 @@ namespace LibreriaKioscoCash.Class
         private bool config = false;
         private bool bandera;
         private  List<byte> Sensors, Error;
-        private StreamWriter Log = File.AppendText("Log.txt");
+        private StreamWriter Log = File.AppendText("LogF53.txt");
         //Funciones (Codigos de acuerdo a documentación del fabricante)
         private byte[] StatusInformation = new byte[] { 0x00, 0x01, 0x1C };
         private byte[] StatusInformation_2 = new byte[] { 0x60, 0x01, 0xFF, 0x00, 0x00, 0x01, 0x00, 0x1C };
