@@ -30,7 +30,8 @@ namespace LibreriaKioscoCash.Class
         private bool status = false;
         private bool money = false;
         private bool config = false;
-        private bool bandera;
+        private bool bandera=false;
+        private bool connection = false;
         private  List<byte> Sensors, Error;
         private StreamWriter Log = File.AppendText("LogF53.txt");
         //Funciones (Codigos de acuerdo a documentación del fabricante)
@@ -56,7 +57,7 @@ namespace LibreriaKioscoCash.Class
 
             return (Parity)Enum.Parse(typeof(Parity), parity);
         }
-        private bool connection = false;
+        
         
         private bool openConnection()
         {
@@ -90,7 +91,7 @@ namespace LibreriaKioscoCash.Class
             
 
         }
-        public bool IsOpen
+        public bool IsConfig
         {
             get
             {
@@ -104,32 +105,26 @@ namespace LibreriaKioscoCash.Class
             Log.Close();
             portDispenserF53.Close();
         }
-
         public bool isConnection()
         {
-   
-            Console.WriteLine(connection);
-            return connection;
-            
-            
+            setMessage(statusRequest);
+            getMessage();
+            search(resultmessage, releaseRequest);
+            return status;
         }
-
         public void isError(byte[] parameters)
         {
             throw new NotImplementedException();
         }
-
         public void open()
         {
+            Log.WriteLine("--------------------------SICCOB SOLUTIONS-------------------------------");
             openConnection();
-            Status_Information();
         }
-
         public void receive()
         {
             throw new NotImplementedException();
         }
-
         public void send(byte[] parameters)
         {
             throw new NotImplementedException();
@@ -256,10 +251,7 @@ namespace LibreriaKioscoCash.Class
 
             //byte result = 0;
 
-            setMessage(statusRequest);
-            getMessage();
-            byte[] Free = new byte[] { 0x10, 0x06 };
-            search(resultmessage, Free);
+            isConnection();
             //Console.WriteLine(resultmessage.Length);
             if ((status == true) && (resultmessage.Length == 2))
             {
@@ -362,7 +354,7 @@ namespace LibreriaKioscoCash.Class
             createCode(ConfigDefault);
             sendMessage(mensaje_final);
         }
-        private void Mechal_Reset()
+        public void Mechal_Reset()
         {
             createCode(MechalReset);
             sendMessage(mensaje_final);
@@ -394,7 +386,7 @@ namespace LibreriaKioscoCash.Class
 
             for (int s = 0; s < Sensors.Count - 1; s++)
             {
-                if (Sensors[s] <= 8)
+                if ((Sensors[s] <= 8) &&(Sensors[s] > 0))
                 {
                     Console.WriteLine("Sensor {0}: Normal", Sensors_name[s]);
                     DisplayEvent("Sensor " + Sensors_name[s] + ":" + " Normal");
@@ -411,10 +403,8 @@ namespace LibreriaKioscoCash.Class
                 }
             }
         }
-        public void Status_Information()
+        public void CheckConfig()
         {
-            Log.WriteLine("--------------------------SICCOB SOLUTIONS-------------------------------");
-            SensorLevelInformation();
             Console.WriteLine("Checando Estatus del Dispositivo....");
             DisplayEvent("Checando Estatus del Dispositivo....");
             createCode(StatusInformation);
@@ -447,10 +437,11 @@ namespace LibreriaKioscoCash.Class
                     DisplayEvent("El dispositivo ya se encuentra configurado");
 
                 }
-                
                 bandera = true;
 
-               
+
+
+
 
 
             }
@@ -458,6 +449,7 @@ namespace LibreriaKioscoCash.Class
             {
                 Console.WriteLine("Error: Colocar Cassets");
                 DisplayEvent("Error: Colocar Cassets");
+                bandera = false;
             }
 
         }
@@ -572,7 +564,7 @@ namespace LibreriaKioscoCash.Class
                 return true;
             }
         }
-        private void DisplayEvent(string message)
+        public void DisplayEvent(string message)
         {
             string fecha = string.Format("{0:dd/MM/yyyy HH:mm}  ", DateTime.Now);
 
@@ -585,8 +577,7 @@ namespace LibreriaKioscoCash.Class
 
         }
 
-
-
+        
     }
 
 }
