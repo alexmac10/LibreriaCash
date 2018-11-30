@@ -8,14 +8,15 @@ using System.IO.Ports;
 using System.IO;
 using System.Configuration;
 using System.Threading;
+using System.Collections;
 
 namespace LibreriaKioscoCash.Class
 {
 
-    public class DispenserF53 : IDevice, IDispenser
+    public class DispenserF53 : IDispenser
     {
-        private SerialPort portDispenserF53;
-        
+        private SerialPort F53;
+
         //RS232C(Comunicación)
         private byte[] startoftext = new byte[] { 0x10, 0x02, 0x00 };
         private byte[] endoftext = new byte[] { 0x10, 0x03 };
@@ -30,9 +31,9 @@ namespace LibreriaKioscoCash.Class
         private bool status = false;
         private bool money = false;
         private bool config = false;
-        private bool bandera=false;
+        private bool bandera = false;
         private bool connection = false;
-        private  List<byte> Sensors, Error;
+        private List<byte> Sensors, Error;
         private StreamWriter Log = File.AppendText("LogF53.txt");
         //Funciones (Codigos de acuerdo a documentación del fabricante)
         private byte[] StatusInformation = new byte[] { 0x00, 0x01, 0x1C };
@@ -44,6 +45,107 @@ namespace LibreriaKioscoCash.Class
         private byte[] cancel = new byte[] { 0x00, 0x03, 0x00, 0x10, 0x1C };
         private byte[] IsoCodes = new byte[] { 48, 177, 178, 51, 180, 53, 54, 183, 184, 57 };
         private string[] Sensors_name = new string[] { "FDLS1", "FDLS2", "FDLS3", "FDLS4", "FDLS5", "FDLS6", "DFSS", "REJS", "BPS", "BRS1", "BRS2", "BRS3", "EJSR", "EJSF", "BCS" };
+
+        public void open()
+        {
+            try
+            {
+                this.openPort();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+        }
+        private void openPort()
+        {
+            string COMF53 = ConfigurationManager.AppSettings.Get("COMDispenserBill");
+            try
+            {
+                F53 = new SerialPort(COMF53, 9600, Parity.Even);
+                F53.Open();
+                Console.WriteLine("Puerto abierto : " + COMF53);
+            }
+            catch (IOException ex)
+            {
+                throw new Exception("No se puede conectar al puerto " + COMF53);
+            }
+        }
+        public bool isConnection()
+        {
+            bool status = true;
+            try
+            {
+                setMessage(statusRequest);
+                getMessage();
+                searchError(resultmessage, releaseRequest);
+            }
+            catch (Exception ex)
+            {
+                status = false;
+            }
+
+            return status;
+        }
+
+        private void sendMessageDevice(byte[] parameters)
+        {
+
+        }
+
+        private void setMessage(byte[] parameters)
+        {
+            TX = "TX: ";
+            F53.Write(parameters, 0, parameters.Length);
+
+            for (int i = 0, j = 0; i < parameters.Length; i++, j++)
+            {
+                TX += parameters[i] + " ";
+            }
+            //Console.WriteLine(TX);
+            Console.WriteLine("TX: " + ByteArrayToString(parameters));
+
+            Thread.Sleep(50);
+        }
+        private void getMessage()
+        {
+            RX = "RX :";
+            byte[] result = new byte[F53.BytesToRead];
+
+            F53.Read(result, 0, result.Length);
+            resultmessage = new byte[result.Length];
+            for (int i = 0, j = 0; i < result.Length; i++, j++)
+            {
+                resultmessage[j] = result[i];
+                RX += result[i] + " ";
+            }
+            //Console.WriteLine(RX);
+            Console.WriteLine("RX: " + ByteArrayToString(resultmessage));
+            Thread.Sleep(150);
+        }
+
+        private void searchError(byte[] haystack, byte[] needle)
+        {
+            int position = 0;
+            for (int i = 0; i < needle.Length; i++)
+            {
+                for (int j=0; j < haystack.Length; j++)
+                {
+                    if (needle[i] == haystack[j])
+                    {
+                        position = j;
+                    }
+                }     
+            }
+            
+        }
+
+
+
+
+
+
 
         //Configuracion de paridad del protocolo serial RS232
         private Parity SetPortParity(Parity defaultPortParity)
@@ -57,17 +159,17 @@ namespace LibreriaKioscoCash.Class
 
             return (Parity)Enum.Parse(typeof(Parity), parity);
         }
-        
-        
+
+
         private bool openConnection()
         {
-            string COMF53 = ConfigurationManager.AppSettings.Get("COMF53");
-            portDispenserF53 = new SerialPort(COMF53, 9600, Parity.Even);
+            string COMF53 = ConfigurationManager.AppSettings.Get("COMDispenserBill");
+            F53 = new SerialPort(COMF53, 9600, Parity.Even);
             try
             {
-                portDispenserF53.Open();
-                Console.WriteLine("Abriendo Puerto en el: {0} ",COMF53);
-                if(portDispenserF53.IsOpen)
+                F53.Open();
+                Console.WriteLine("Abriendo Puerto en el: {0} ", COMF53);
+                if (F53.IsOpen)
                 {
                     Console.WriteLine("Dispositivo Conectado");
                     connection = true;
@@ -81,14 +183,14 @@ namespace LibreriaKioscoCash.Class
 
             }
 
-            catch(IOException ex)
+            catch (IOException ex)
             {
                 Console.WriteLine("No se pudo abrir el puerto:", ex);
                 connection = false;
-                
+
             }
             return connection;
-            
+
 
         }
         public bool IsConfig
@@ -103,24 +205,10 @@ namespace LibreriaKioscoCash.Class
         {
             Log.WriteLine("-------------------------------------------------------------------------");
             Log.Close();
-            portDispenserF53.Close();
+            F53.Close();
         }
-        public bool isConnection()
-        {
-            setMessage(statusRequest);
-            getMessage();
-            search(resultmessage, releaseRequest);
-            return status;
-        }
-        public void isError(byte[] parameters)
-        {
-            throw new NotImplementedException();
-        }
-        public void open()
-        {
-            Log.WriteLine("--------------------------SICCOB SOLUTIONS-------------------------------");
-            openConnection();
-        }
+
+
         public void receive()
         {
             throw new NotImplementedException();
@@ -130,41 +218,8 @@ namespace LibreriaKioscoCash.Class
             throw new NotImplementedException();
         }
 
-        private void setMessage(byte[] parameters)
-        {
-            TX = "TX: ";
-            portDispenserF53.Write(parameters, 0, parameters.Length);
-
-            for (int i = 0, j = 0; i < parameters.Length; i++, j++)
-            {
-                TX += parameters[i] + " ";
-            }
-            //Console.WriteLine(TX);
-            //Console.WriteLine("TX: " + ByteArrayToString(parameters));
-
-            Thread.Sleep(50);
-        }
-        private byte getMessage()
-        {
-            RX = "RX :";
-            byte finalByte = 0;
-            byte[] result = new byte[portDispenserF53.BytesToRead];
-
-            portDispenserF53.Read(result, 0, result.Length);
-            resultmessage = new byte[result.Length];
-            for (int i = 0, j = 0; i < result.Length; i++, j++)
-            {
-                resultmessage[j] = result[i];
-                RX += result[i] + " ";
-                finalByte = result[i];
-            }
-            //Console.WriteLine(RX);
-            //Console.WriteLine("RX: " + ByteArrayToString(resultmessage));
-            Thread.Sleep(150);
 
 
-            return finalByte;
-        }
         private void createCode(byte[] fun)
         {
             ushort[] table = new ushort[256];
@@ -362,7 +417,7 @@ namespace LibreriaKioscoCash.Class
             createCode(cancel);
             sendMessage(mensaje_final);
         }
-        private void SensorLevelInformation()
+        public void SensorLevelInformation()
         {
             Console.WriteLine("Checando Estatus de los Sensores....");
             DisplayEvent("Checando Estatus de los Sensores....");
@@ -384,7 +439,7 @@ namespace LibreriaKioscoCash.Class
 
             for (int s = 0; s < Sensors.Count - 1; s++)
             {
-                if ((Sensors[s] <= 8) &&(Sensors[s] > 0))
+                if ((Sensors[s] <= 8) && (Sensors[s] > 0))
                 {
                     Console.WriteLine("Sensor {0}: Normal", Sensors_name[s]);
                     DisplayEvent("Sensor " + Sensors_name[s] + ":" + " Normal");
@@ -501,7 +556,7 @@ namespace LibreriaKioscoCash.Class
 
                 //Console.WriteLine("Error:{0} {1}, Adress:{2} {3},Register:{4} {5} {6}", Error[0].ToString("X"), Error[1].ToString("X"), Error[2].ToString("X"), Error[3].ToString("X"), Error[6].ToString("X"), Error[7].ToString("X"), Error[8].ToString("X"));
                 //Console.WriteLine("Sensor Register: {0} {1} {2} {3} {4} {5}", Error[9].ToString("X"), Error[10].ToString("X"), Error[11].ToString("X"), Error[12].ToString("X"), Error[13].ToString("X"), Error[14].ToString("X"));
- 
+
                 switch (Error[0].ToString("X"))
                 {
                     case "11":
@@ -554,13 +609,13 @@ namespace LibreriaKioscoCash.Class
         }
         private bool match(byte[] haystack, byte[] needle, int start)
         {
-            if (needle.Length + start > haystack.Length)
-            {
-                status = false;
-                return false;
-            }
-            else
-            {
+            //if (needle.Length + start > haystack.Length)
+            //{
+            //    status = false;
+            //    return false;
+            //}
+            //else
+            //{
                 for (int i = 0; i < needle.Length; i++)
                 {
                     if (needle[i] != haystack[i + start])
@@ -572,9 +627,9 @@ namespace LibreriaKioscoCash.Class
                 }
                 status = true;
                 return true;
-            }
+            //}
         }
-        public void DisplayEvent(string message)
+        private void DisplayEvent(string message)
         {
             string fecha = string.Format("{0:dd/MM/yyyy HH:mm}  ", DateTime.Now);
 
@@ -587,7 +642,7 @@ namespace LibreriaKioscoCash.Class
 
         }
 
-        
+
     }
 
 }

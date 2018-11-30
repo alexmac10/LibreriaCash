@@ -6,8 +6,11 @@ using System.Threading.Tasks;
 
 namespace LibreriaKioscoCash.Interfaces
 {
-    interface IDispenser
+    public interface IDispenser
     {
+        void open();
+        void close();
+        bool isConnection();
         void returnCash(int denominationCash, int countMoney, int cantidad_20, int cantidad_50, int cantidad_100);
     }
 }

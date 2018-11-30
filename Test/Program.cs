@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LibreriaKioscoCash.Class;
+using LibreriaKioscoCash.Factory;
+using LibreriaKioscoCash.Interfaces;
 
 namespace Test
 {
@@ -11,40 +13,55 @@ namespace Test
     {
         static void Main(string[] args)
         {
-            DispenserF53 F53 = new DispenserF53();
-            F53.open();
-            if(F53.isConnection()==true)
+            FactoryDevice factory = new FactoryDevice();
+            IDispenser dispenserBill = factory.GetDeviceDispenserBill();
+            try
             {
-                F53.CheckConfig();
-                if(F53.IsConfig)
+                dispenserBill.open();
+                if (dispenserBill.isConnection())
                 {
-                    Console.WriteLine();
-                    Console.WriteLine("*****************RETIRO DE EFECTIVO******************");
-                    Console.Write("Indique la cantidad de billetes de a $20.00 a retirar: ");
-                    string cantidad20 = Console.ReadLine();
-                    Console.Write("Indique la cantidad de billetes de a $50.00 a retirar: ");
-                    string cantidad50 = Console.ReadLine();
-                    Console.Write("Indique la cantidad de billetes de a $100.00 a retirar: ");
-                    string cantidad100 = Console.ReadLine();
-
-                    F53.returnCash(0, 0, Int32.Parse(cantidad20), Int32.Parse(cantidad50), Int32.Parse(cantidad100));
-                    Console.WriteLine("*****************************************************");
-                    Console.WriteLine("Conexion:{0}",F53.isConnection());
-                    F53.close();
+                    Console.WriteLine("Esta conectado");
                 }
                 else
                 {
-                    Console.WriteLine("Excepcion: Error al configurar");
-                    F53.DisplayEvent("Excepcion: Error al configurar");
-                    F53.close();
+                    Console.WriteLine("No esta conectado");
                 }
             }
-            else
+            catch (Exception ex)
             {
-                Console.WriteLine("Excepcion: El dispositivo no se encuentra alimentado");
-                F53.DisplayEvent("Excepcion: El dispositivo no se encuentra alimentado");
-                F53.close();
+                Console.WriteLine(ex.Message);
             }
+            //if(dispenserBill.isConnection()==true)
+            //{
+            //    dispenserBill.CheckConfig();
+            //    if(dispenserBill.IsConfig)
+            //    {
+            //        Console.WriteLine();
+            //        Console.WriteLine("*****************RETIRO DE EFECTIVO******************");
+            //        Console.Write("Indique la cantidad de billetes de a $20.00 a retirar: ");
+            //        string cantidad20 = Console.ReadLine();
+            //        Console.Write("Indique la cantidad de billetes de a $50.00 a retirar: ");
+            //        string cantidad50 = Console.ReadLine();
+            //        Console.Write("Indique la cantidad de billetes de a $100.00 a retirar: ");
+            //        string cantidad100 = Console.ReadLine();
+
+            //        dispenserBill.returnCash(0, 0, Int32.Parse(cantidad20), Int32.Parse(cantidad50), Int32.Parse(cantidad100));
+            //        Console.WriteLine("*****************************************************");
+            //        Console.WriteLine("Conexion:{0}",dispenserBill.isConnection());
+
+            //        dispenserBill.close();
+            //    }
+            //    else
+            //    {
+            //        Console.WriteLine("Excepcion: Error al configurar");
+            //        dispenserBill.close();
+            //    }
+            //}
+            //else
+            //{
+            //    Console.WriteLine("Excepcion: El dispositivo no se encuentra alimentado");
+            //    dispenserBill.close();
+            //}
 
         }
     }

@@ -43,16 +43,14 @@
   <ItemGroup>
     <Compile Include="Class\AcceptorSCAd.cs" />
     <Compile Include="Class\AcceptorCBT.cs" />
-    <Compile Include="Class\ComboT.cs" />
+    <Compile Include="Class\CCTalk.cs" />
     <Compile Include="Class\DispenserF53.cs" />
     <Compile Include="Class\DispenserCBT.cs" />
+    <Compile Include="Factory\FactoryDevice.cs" />
     <Compile Include="Interfaces\IAcceptor.cs" />
-    <Compile Include="Interfaces\IDevice.cs" />
     <Compile Include="Interfaces\IDispenser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Factory\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
