@@ -142,7 +142,7 @@ namespace LibreriaKioscoCash.Class
                 TX += parameters[i] + " ";
             }
             //Console.WriteLine(TX);
-            Console.WriteLine("TX: " + ByteArrayToString(parameters));
+            //Console.WriteLine("TX: " + ByteArrayToString(parameters));
 
             Thread.Sleep(50);
         }
@@ -161,7 +161,7 @@ namespace LibreriaKioscoCash.Class
                 finalByte = result[i];
             }
             //Console.WriteLine(RX);
-            Console.WriteLine("RX: " + ByteArrayToString(resultmessage));
+            //Console.WriteLine("RX: " + ByteArrayToString(resultmessage));
             Thread.Sleep(150);
 
 
@@ -255,9 +255,9 @@ namespace LibreriaKioscoCash.Class
 
             isConnection();
             //Console.WriteLine(resultmessage.Length);
-            if (status == true)
+            if ((status == true) && (resultmessage.Length == 2))
             {
-                Console.WriteLine("Se encuentra libre");
+                //Console.WriteLine("Se encuentra libre");
 
                 if (money == true)
                 {
@@ -275,8 +275,9 @@ namespace LibreriaKioscoCash.Class
                 else if (config == true)
                 {
                     setMessage(parameter);
+                    Thread.Sleep(200);
                     getMessage();
-                    Thread.Sleep(6000);
+                    Thread.Sleep(1000);
                     getMessage();
                     setMessage(releaseRequest);
                     Thread.Sleep(200);
@@ -354,7 +355,7 @@ namespace LibreriaKioscoCash.Class
             createCode(ConfigDefault);
             sendMessage(mensaje_final);
         }
-        public void Mechal_Reset()
+        private void Mechal_Reset()
         {
             createCode(MechalReset);
             sendMessage(mensaje_final);
@@ -441,9 +442,11 @@ namespace LibreriaKioscoCash.Class
             }
             else
             {
-                Console.WriteLine("Error: Colocar Cassets");
+               
                 DisplayEvent("Error: Colocar Cassets");
                 bandera = false;
+                throw new Exception("Error: Colocar Cassets");
+
             }
 
         }
@@ -498,8 +501,8 @@ namespace LibreriaKioscoCash.Class
             }
             else
             {
-                Console.WriteLine("No se pudo entregar el dinero");
-                Console.WriteLine(" ");
+                //Console.WriteLine("No se pudo entregar el dinero");
+                //Console.WriteLine(" ");
 
                 //Console.WriteLine("Error:{0} {1}, Adress:{2} {3},Register:{4} {5} {6}", Error[0].ToString("X"), Error[1].ToString("X"), Error[2].ToString("X"), Error[3].ToString("X"), Error[6].ToString("X"), Error[7].ToString("X"), Error[8].ToString("X"));
                 //Console.WriteLine("Sensor Register: {0} {1} {2} {3} {4} {5}", Error[9].ToString("X"), Error[10].ToString("X"), Error[11].ToString("X"), Error[12].ToString("X"), Error[13].ToString("X"), Error[14].ToString("X"));
@@ -509,7 +512,6 @@ namespace LibreriaKioscoCash.Class
                     case "11":
                         Console.WriteLine("Excepcion: Casset 1 Vacio");
                         break;
-
                     case "21":
                         Console.WriteLine("Excepcion: Casset 2 Vacio");
                         break;
@@ -524,6 +526,7 @@ namespace LibreriaKioscoCash.Class
                 DisplayEvent("Error Adress: " + Error[2].ToString("X") + " " + Error[3].ToString("X"));
                 DisplayEvent("Error Register: " + Error[6].ToString("X") + " " + Error[7].ToString("X") + " " + Error[8].ToString("X"));
                 DisplayEvent("Sensor Register: " + Error[9].ToString("X") + " " + Error[10].ToString("X") + " " + Error[11].ToString("X") + " " + Error[12].ToString("X") + " " + Error[13].ToString("X") + " " + Error[14].ToString("X"));
+                throw new Exception("Error: No se pudo entregar el dinero");
 
             }
 
@@ -540,7 +543,7 @@ namespace LibreriaKioscoCash.Class
         }
         private int search(byte[] haystack, byte[] needle)
         {
-            for (int i = 0; i <= (haystack.Length-needle.Length); i++)
+            for (int i = 0; i <= haystack.Length - needle.Length; i++)
             {
 
                 if (match(haystack, needle, i))
@@ -560,7 +563,8 @@ namespace LibreriaKioscoCash.Class
         {
             if (needle.Length + start > haystack.Length)
             {
-                status = false;
+                
+               
                 return false;
             }
             else
@@ -569,7 +573,7 @@ namespace LibreriaKioscoCash.Class
                 {
                     if (needle[i] != haystack[i + start])
                     {
-
+                        status = false;
                         return false;
 
                     }
@@ -577,6 +581,7 @@ namespace LibreriaKioscoCash.Class
                 status = true;
                 return true;
             }
+
         }
         public void DisplayEvent(string message)
         {
