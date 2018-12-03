@@ -46,12 +46,11 @@
     <Compile Include="Class\ComboT.cs" />
     <Compile Include="Class\DispenserF53.cs" />
     <Compile Include="Class\DispenserCBT.cs" />
+    <Compile Include="Factory\Factory.cs" />
     <Compile Include="Interfaces\IAcceptor.cs" />
     <Compile Include="Interfaces\IDispenser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Factory\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

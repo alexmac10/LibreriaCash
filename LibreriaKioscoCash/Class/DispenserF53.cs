@@ -14,7 +14,7 @@ namespace LibreriaKioscoCash.Class
 
     public class DispenserF53 : IDispenser
     {
-        private SerialPort portDispenserF53;
+        private SerialPort F53;
         
         //RS232C(Comunicación)
         private byte[] startoftext = new byte[] { 0x10, 0x02, 0x00 };
@@ -59,36 +59,20 @@ namespace LibreriaKioscoCash.Class
         }
         
         
-        private bool openConnection()
+        private void openConnection()
         {
-            string COMF53 = ConfigurationManager.AppSettings.Get("COMF53");
-            portDispenserF53 = new SerialPort(COMF53, 9600, Parity.Even);
+            string COMF53 = ConfigurationManager.AppSettings.Get("COMDispenserBill");
             try
             {
-                portDispenserF53.Open();
-                Console.WriteLine("Abriendo Puerto en el: {0} ",COMF53);
-                if(portDispenserF53.IsOpen)
-                {
-                    Console.WriteLine("Dispositivo Conectado");
-                    connection = true;
-
-                }
-                else
-                {
-                    connection = false;
-
-                }
-
+                F53 = new SerialPort(COMF53, 9600, Parity.Even);
+                F53.Open();
+                Console.WriteLine("Puerto abierto : " + COMF53);
             }
-
-            catch(IOException ex)
+            catch (IOException ex)
             {
-                Console.WriteLine("No se pudo abrir el puerto:", ex);
-                connection = false;
-                
+                throw new Exception("No se puede conectar al puerto {0}" + COMF53,ex);
             }
-            return connection;
-            
+
 
         }
         public bool IsConfig
@@ -103,7 +87,7 @@ namespace LibreriaKioscoCash.Class
         {
             Log.WriteLine("-------------------------------------------------------------------------");
             Log.Close();
-            portDispenserF53.Close();
+            F53.Close();
         }
         public bool isConnection()
         {
@@ -118,8 +102,17 @@ namespace LibreriaKioscoCash.Class
         }
         public void open()
         {
-            Log.WriteLine("--------------------------SICCOB SOLUTIONS-------------------------------");
-            openConnection();
+            try
+            {
+                Log.WriteLine("--------------------------SICCOB SOLUTIONS-------------------------------");
+                openConnection();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            
+            
         }
         public void receive()
         {
@@ -133,7 +126,7 @@ namespace LibreriaKioscoCash.Class
         private void setMessage(byte[] parameters)
         {
             TX = "TX: ";
-            portDispenserF53.Write(parameters, 0, parameters.Length);
+            F53.Write(parameters, 0, parameters.Length);
 
             for (int i = 0, j = 0; i < parameters.Length; i++, j++)
             {
@@ -148,9 +141,9 @@ namespace LibreriaKioscoCash.Class
         {
             RX = "RX :";
             byte finalByte = 0;
-            byte[] result = new byte[portDispenserF53.BytesToRead];
+            byte[] result = new byte[F53.BytesToRead];
 
-            portDispenserF53.Read(result, 0, result.Length);
+            F53.Read(result, 0, result.Length);
             resultmessage = new byte[result.Length];
             for (int i = 0, j = 0; i < result.Length; i++, j++)
             {
