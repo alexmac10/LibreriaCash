@@ -94,7 +94,16 @@ namespace LibreriaKioscoCash.Class
             setMessage(statusRequest);
             getMessage();
             search(resultmessage, releaseRequest);
-            return status;
+            if (status == true)
+            {
+                throw new Exception("Dispositivo Conectado");
+            }
+            else
+            {
+                throw new Exception("Dispositivo No Conectado");
+            }
+            //return status;
+            
         }
         public void open()
         {
@@ -520,7 +529,7 @@ namespace LibreriaKioscoCash.Class
         }
         private int search(byte[] haystack, byte[] needle)
         {
-            for (int i = 0; i <= haystack.Length; i++)
+            for (int i = 0; i <= (haystack.Length-needle.Length); i++)
             {
 
                 if (match(haystack, needle, i))

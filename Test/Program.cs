@@ -20,12 +20,9 @@ namespace Test
                 dispenserBill.open();
                 if (dispenserBill.isConnection())
                 {
-                    Console.WriteLine("Esta conectado");
+                    
                 }
-                else
-                {
-                    Console.WriteLine("No esta conectado");
-                }
+                
             }
             catch (Exception ex)
             {
