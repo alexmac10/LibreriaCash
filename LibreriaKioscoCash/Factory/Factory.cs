@@ -1,4 +1,5 @@
-﻿using LibreriaKioscoCash.Interfaces;
+﻿using LibreriaKioscoCash.Class;
+using LibreriaKioscoCash.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -8,16 +9,21 @@ using System.Threading.Tasks;
 
 namespace LibreriaKioscoCash.Factory
 {
-    class Factory
+   public class Factory
     {
-        IDispenser device = null;
-        string name = ConfigurationManager.AppSettings.Get("DispenserBill");
-        switch(name)
+        public IDispenser GetDeviceDispenserBill()
+        {
+            IDispenser device = null;
+            string name = ConfigurationManager.AppSettings.Get("DispenserBill");
+            switch (name)
             {
                 case "F53":
-                    device =  new DispenserF53();
+                    device = new DispenserF53();
                     break;
             }
-       return device;
+            return device;
+
+        }
+
     }
 }

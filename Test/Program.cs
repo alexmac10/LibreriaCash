@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LibreriaKioscoCash.Class;
+using LibreriaKioscoCash.Factory;
+using LibreriaKioscoCash.Interfaces;
 
 namespace Test
 {
