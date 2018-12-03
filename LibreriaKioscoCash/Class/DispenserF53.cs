@@ -63,8 +63,8 @@ namespace LibreriaKioscoCash.Class
             string COMF53 = ConfigurationManager.AppSettings.Get("COMDispenserBill");
             try
             {
-                F53 = new SerialPort(COMF53, 9600, Parity.Even);
-                F53.Open();
+                //F53 = new SerialPort(COMF53, 9600, Parity.Even);
+                //F53.Open();
                 Console.WriteLine("Puerto abierto : " + COMF53);
             }
             catch (IOException ex)
@@ -72,14 +72,20 @@ namespace LibreriaKioscoCash.Class
                 throw new Exception("No se puede conectar al puerto " + COMF53);
             }
         }
+
         public bool isConnection()
         {
             bool status = true;
             try
             {
-                setMessage(statusRequest);
-                getMessage();
-                searchError(resultmessage, releaseRequest);
+                //setMessage(statusRequest);
+                //getMessage();
+                resultmessage = new byte[] { 0x05,0x10,0x06,0x15, 0x8C, 0x8A, 0x89 };
+
+                byte[] positive_answer = { 0x1C, 0x10, 0x03 };
+                byte[] cassets = new byte[] { 0x8C, 0x8A, 0x89 };
+
+                searchError(releaseRequest);
             }
             catch (Exception ex)
             {
@@ -108,6 +114,7 @@ namespace LibreriaKioscoCash.Class
 
             Thread.Sleep(50);
         }
+
         private void getMessage()
         {
             RX = "RX :";
@@ -125,20 +132,76 @@ namespace LibreriaKioscoCash.Class
             Thread.Sleep(150);
         }
 
-        private void searchError(byte[] haystack, byte[] needle)
+        private void searchError(byte[] error)
         {
-            int position = 0;
-            for (int i = 0; i < needle.Length; i++)
+            ArrayList positions = this.getPositions(error);
+                      
+            if (error.Length != positions.Count)
             {
-                for (int j=0; j < haystack.Length; j++)
-                {
-                    if (needle[i] == haystack[j])
-                    {
-                        position = j;
-                    }
-                }     
+                throw new Exception("Error en el dispositivo");
             }
-            
+
+            if (!validateConsecutivePosition(positions))
+            {
+                Console.WriteLine("Se genera el error");
+                throw new Exception("Error en el dispositivo");
+            }          
+        }
+
+        private ArrayList getPositions(byte[] error)
+        {
+            ArrayList positions = new ArrayList();
+
+            for (int i = 0; i < error.Length; i++)
+            {
+                for (int j = 0; j < resultmessage.Length; j++)
+                {
+                    Console.WriteLine("{0} : {1}", error[i], resultmessage[j]);
+                    if (error[i] == resultmessage[j])
+                    {
+                        Console.WriteLine("Existe el elemento");
+                        positions.Add(j);
+                    }
+                }
+            }
+
+            return positions;
+        }
+
+        private bool validateConsecutivePosition(ArrayList positions)
+        {
+            Console.WriteLine("Cantidad de elementos : {0}", positions.Count);            
+            int? anterior = null;
+
+            if (positions.Count == 0)
+            {
+                return false;
+            }
+
+            foreach (int actual in positions)
+            {
+                Console.WriteLine("Anterior: {0} actual : {1}", anterior, actual);
+
+                if (anterior == null)
+                {
+                    anterior = actual;
+                    continue;
+                }
+                
+                if ((anterior + 1) == actual)
+                {
+                    Console.WriteLine("Es consecutivo");
+                    anterior = actual;
+                    continue;
+                }
+                else
+                {
+                    Console.WriteLine("No es consecutivo");
+                    return false;                    
+                }
+            }
+
+            return true;
         }
 
 
@@ -616,17 +679,17 @@ namespace LibreriaKioscoCash.Class
             //}
             //else
             //{
-                for (int i = 0; i < needle.Length; i++)
+            for (int i = 0; i < needle.Length; i++)
+            {
+                if (needle[i] != haystack[i + start])
                 {
-                    if (needle[i] != haystack[i + start])
-                    {
 
-                        return false;
+                    return false;
 
-                    }
                 }
-                status = true;
-                return true;
+            }
+            status = true;
+            return true;
             //}
         }
         private void DisplayEvent(string message)
