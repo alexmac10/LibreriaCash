@@ -70,7 +70,7 @@ namespace LibreriaKioscoCash.Class
             }
             catch (IOException ex)
             {
-                throw new Exception("No se puede conectar al puerto {0}" + COMF53,ex);
+                throw new Exception("No se puede conectar al puerto " + COMF53);
             }
 
 
@@ -91,17 +91,26 @@ namespace LibreriaKioscoCash.Class
         }
         public bool isConnection()
         {
-            setMessage(statusRequest);
-            getMessage();
-            search(resultmessage, releaseRequest);
-            if (status == true)
+            try
             {
-                throw new Exception("Dispositivo Conectado");
+
+                setMessage(statusRequest);
+                getMessage();
+                search(resultmessage, releaseRequest);
+                if(status==false)
+                {
+                    throw new Exception("Dispositivo No Conectado");
+                }
+                   
+                
             }
-            else
+            catch(IOException ex)
             {
-                throw new Exception("Dispositivo No Conectado");
+
             }
+            return status;
+            
+           
             //return status;
             
         }
@@ -111,6 +120,8 @@ namespace LibreriaKioscoCash.Class
             {
                 Log.WriteLine("--------------------------SICCOB SOLUTIONS-------------------------------");
                 openConnection();
+                CheckConfig();
+               
             }
             catch (Exception ex)
             {
@@ -244,9 +255,9 @@ namespace LibreriaKioscoCash.Class
 
             isConnection();
             //Console.WriteLine(resultmessage.Length);
-            if ((status == true) && (resultmessage.Length == 2))
+            if (status == true)
             {
-                //Console.WriteLine("Se encuentra libre");
+                Console.WriteLine("Se encuentra libre");
 
                 if (money == true)
                 {
@@ -392,7 +403,7 @@ namespace LibreriaKioscoCash.Class
                 }
             }
         }
-        public void CheckConfig()
+        private void CheckConfig()
         {
             Console.WriteLine("Checando Estatus del Dispositivo....");
             DisplayEvent("Checando Estatus del Dispositivo....");
@@ -541,7 +552,9 @@ namespace LibreriaKioscoCash.Class
 
             }
 
+
             return -1;
+
         }
         private bool match(byte[] haystack, byte[] needle, int start)
         {

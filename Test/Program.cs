@@ -18,10 +18,7 @@ namespace Test
             try
             {
                 dispenserBill.open();
-                if (dispenserBill.isConnection())
-                {
-                    
-                }
+                
                 
             }
             catch (Exception ex)
