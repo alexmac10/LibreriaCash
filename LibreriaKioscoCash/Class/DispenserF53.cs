@@ -12,7 +12,7 @@ using System.Threading;
 namespace LibreriaKioscoCash.Class
 {
 
-    public class DispenserF53 : IDevice, IDispenser
+    public class DispenserF53 : IDispenser
     {
         private SerialPort portDispenserF53;
         

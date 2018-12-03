@@ -47,7 +47,6 @@
     <Compile Include="Class\DispenserF53.cs" />
     <Compile Include="Class\DispenserCBT.cs" />
     <Compile Include="Interfaces\IAcceptor.cs" />
-    <Compile Include="Interfaces\IDevice.cs" />
     <Compile Include="Interfaces\IDispenser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
