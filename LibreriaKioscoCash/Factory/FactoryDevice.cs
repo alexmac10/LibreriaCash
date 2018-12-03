@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace LibreriaKioscoCash.Factory
 {
-   public class Factory
+   public class FactoryDevice
     {
         public IDispenser GetDeviceDispenserBill()
         {

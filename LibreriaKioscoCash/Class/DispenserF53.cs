@@ -96,10 +96,6 @@ namespace LibreriaKioscoCash.Class
             search(resultmessage, releaseRequest);
             return status;
         }
-        public void isError(byte[] parameters)
-        {
-            throw new NotImplementedException();
-        }
         public void open()
         {
             try
@@ -114,14 +110,7 @@ namespace LibreriaKioscoCash.Class
             
             
         }
-        public void receive()
-        {
-            throw new NotImplementedException();
-        }
-        public void send(byte[] parameters)
-        {
-            throw new NotImplementedException();
-        }
+
 
         private void setMessage(byte[] parameters)
         {
@@ -133,7 +122,7 @@ namespace LibreriaKioscoCash.Class
                 TX += parameters[i] + " ";
             }
             //Console.WriteLine(TX);
-            //Console.WriteLine("TX: " + ByteArrayToString(parameters));
+            Console.WriteLine("TX: " + ByteArrayToString(parameters));
 
             Thread.Sleep(50);
         }
@@ -152,7 +141,7 @@ namespace LibreriaKioscoCash.Class
                 finalByte = result[i];
             }
             //Console.WriteLine(RX);
-            //Console.WriteLine("RX: " + ByteArrayToString(resultmessage));
+            Console.WriteLine("RX: " + ByteArrayToString(resultmessage));
             Thread.Sleep(150);
 
 
