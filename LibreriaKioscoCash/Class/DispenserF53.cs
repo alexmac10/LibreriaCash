@@ -58,6 +58,7 @@ namespace LibreriaKioscoCash.Class
             }
 
         }
+
         private void openPort()
         {
             string COMF53 = ConfigurationManager.AppSettings.Get("COMDispenserBill");
@@ -85,7 +86,7 @@ namespace LibreriaKioscoCash.Class
                 byte[] positive_answer = { 0x1C, 0x10, 0x03 };
                 byte[] cassets = new byte[] { 0x8C, 0x8A, 0x89 };
 
-                searchError(releaseRequest);
+                searchElement(releaseRequest);                
             }
             catch (Exception ex)
             {
@@ -132,7 +133,7 @@ namespace LibreriaKioscoCash.Class
             Thread.Sleep(150);
         }
 
-        private void searchError(byte[] error)
+        private int searchElement(byte[] error)
         {
             ArrayList positions = this.getPositions(error);
                       
@@ -145,7 +146,9 @@ namespace LibreriaKioscoCash.Class
             {
                 Console.WriteLine("Se genera el error");
                 throw new Exception("Error en el dispositivo");
-            }          
+            }
+
+            return (int) positions[0];
         }
 
         private ArrayList getPositions(byte[] error)
@@ -155,11 +158,9 @@ namespace LibreriaKioscoCash.Class
             for (int i = 0; i < error.Length; i++)
             {
                 for (int j = 0; j < resultmessage.Length; j++)
-                {
-                    Console.WriteLine("{0} : {1}", error[i], resultmessage[j]);
+                {                    
                     if (error[i] == resultmessage[j])
-                    {
-                        Console.WriteLine("Existe el elemento");
+                    {                    
                         positions.Add(j);
                     }
                 }
@@ -169,8 +170,7 @@ namespace LibreriaKioscoCash.Class
         }
 
         private bool validateConsecutivePosition(ArrayList positions)
-        {
-            Console.WriteLine("Cantidad de elementos : {0}", positions.Count);            
+        {                        
             int? anterior = null;
 
             if (positions.Count == 0)
@@ -179,8 +179,7 @@ namespace LibreriaKioscoCash.Class
             }
 
             foreach (int actual in positions)
-            {
-                Console.WriteLine("Anterior: {0} actual : {1}", anterior, actual);
+            {         
 
                 if (anterior == null)
                 {
@@ -189,14 +188,12 @@ namespace LibreriaKioscoCash.Class
                 }
                 
                 if ((anterior + 1) == actual)
-                {
-                    Console.WriteLine("Es consecutivo");
+                {             
                     anterior = actual;
                     continue;
                 }
                 else
-                {
-                    Console.WriteLine("No es consecutivo");
+                {                 
                     return false;                    
                 }
             }
@@ -209,6 +206,11 @@ namespace LibreriaKioscoCash.Class
 
 
 
+
+
+
+
+        //Programacion de jesus
 
         //Configuracion de paridad del protocolo serial RS232
         private Parity SetPortParity(Parity defaultPortParity)
