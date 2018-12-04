@@ -26,8 +26,8 @@ namespace Test
                 string cantidad50 = Console.ReadLine();
                 Console.Write("Indique la cantidad de billetes de a $100.00 a retirar: ");
                 string cantidad100 = Console.ReadLine();
-
-                dispenserBill.returnCash(0, 0, Int32.Parse(cantidad20), Int32.Parse(cantidad50), Int32.Parse(cantidad100));
+                int[] BillCount = { Int32.Parse(cantidad20), Int32.Parse(cantidad50), Int32.Parse(cantidad100) };
+                dispenserBill.returnCash(0, 0,BillCount);
                 Console.WriteLine("*****************************************************");
 
                 dispenserBill.close();

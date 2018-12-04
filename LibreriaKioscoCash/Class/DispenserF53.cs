@@ -15,7 +15,7 @@ namespace LibreriaKioscoCash.Class
     public class DispenserF53 : IDispenser
     {
         private SerialPort F53;
-        
+
         //RS232C(Comunicación)
         private byte[] startoftext = new byte[] { 0x10, 0x02, 0x00 };
         private byte[] endoftext = new byte[] { 0x10, 0x03 };
@@ -30,9 +30,9 @@ namespace LibreriaKioscoCash.Class
         private bool status = false;
         private bool money = false;
         private bool config = false;
-        private bool bandera=false;
+        private bool bandera = false;
         private bool connection = false;
-        private  List<byte> Sensors, Error;
+        private List<byte> Sensors, Error;
         private StreamWriter Log = File.AppendText("LogF53.txt");
         //Funciones (Codigos de acuerdo a documentación del fabricante)
         private byte[] StatusInformation = new byte[] { 0x00, 0x01, 0x1C };
@@ -57,8 +57,8 @@ namespace LibreriaKioscoCash.Class
 
             return (Parity)Enum.Parse(typeof(Parity), parity);
         }
-        
-        
+
+
         private void openConnection()
         {
             string COMF53 = ConfigurationManager.AppSettings.Get("COMDispenserBill");
@@ -97,22 +97,22 @@ namespace LibreriaKioscoCash.Class
                 setMessage(statusRequest);
                 getMessage();
                 search(resultmessage, releaseRequest);
-                if(status==false)
+                if (status == false)
                 {
                     throw new Exception("Dispositivo No Conectado");
                 }
-                   
-                
+
+
             }
-            catch(IOException ex)
+            catch (IOException ex)
             {
 
             }
             return status;
-            
-           
+
+
             //return status;
-            
+
         }
         public void open()
         {
@@ -121,14 +121,14 @@ namespace LibreriaKioscoCash.Class
                 Log.WriteLine("--------------------------SICCOB SOLUTIONS-------------------------------");
                 openConnection();
                 CheckConfig();
-               
+
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
-            
-            
+
+
         }
 
 
@@ -142,7 +142,7 @@ namespace LibreriaKioscoCash.Class
                 TX += parameters[i] + " ";
             }
             //Console.WriteLine(TX);
-            //Console.WriteLine("TX: " + ByteArrayToString(parameters));
+            Console.WriteLine("TX: " + ByteArrayToString(parameters));
 
             Thread.Sleep(50);
         }
@@ -161,7 +161,7 @@ namespace LibreriaKioscoCash.Class
                 finalByte = result[i];
             }
             //Console.WriteLine(RX);
-            //Console.WriteLine("RX: " + ByteArrayToString(resultmessage));
+            Console.WriteLine("RX: " + ByteArrayToString(resultmessage));
             Thread.Sleep(150);
 
 
@@ -277,7 +277,7 @@ namespace LibreriaKioscoCash.Class
                     setMessage(parameter);
                     Thread.Sleep(200);
                     getMessage();
-                    Thread.Sleep(1000);
+                    Thread.Sleep(5000);
                     getMessage();
                     setMessage(releaseRequest);
                     Thread.Sleep(200);
@@ -319,8 +319,9 @@ namespace LibreriaKioscoCash.Class
                 else if (config == true)
                 {
                     setMessage(parameter);
+                    Thread.Sleep(200);
                     getMessage();
-                    Thread.Sleep(6000);
+                    Thread.Sleep(5000);
                     getMessage();
                     setMessage(releaseRequest);
                     Thread.Sleep(200);
@@ -387,7 +388,7 @@ namespace LibreriaKioscoCash.Class
 
             for (int s = 0; s < Sensors.Count - 1; s++)
             {
-                if ((Sensors[s] <= 8) &&(Sensors[s] > 0))
+                if ((Sensors[s] <= 8) && (Sensors[s] > 0))
                 {
                     Console.WriteLine("Sensor {0}: Normal", Sensors_name[s]);
                     DisplayEvent("Sensor " + Sensors_name[s] + ":" + " Normal");
@@ -442,7 +443,7 @@ namespace LibreriaKioscoCash.Class
             }
             else
             {
-               
+
                 DisplayEvent("Error: Colocar Cassets");
                 bandera = false;
                 throw new Exception("Error: Colocar Cassets");
@@ -451,18 +452,16 @@ namespace LibreriaKioscoCash.Class
 
         }
 
-        public void returnCash(int denominationCash, int countMoney, int cantidad_20, int cantidad_50, int cantidad_100)
+        public void returnCash(int denominationCash, int countMoney, int[] BillCount)
         {
             money = true;
             Console.WriteLine(" ");
             Console.WriteLine("Retirando Efectivo...");
             DisplayEvent("Retirando Efectivo...");
-            DisplayEvent("Billetes de $20.00: " + cantidad_20);
-            DisplayEvent("Billetes de $50.00: " + cantidad_50);
-            DisplayEvent("Billetes de $100.00: " + cantidad_100);
-            DispenserBill[5] = IsoCodes[cantidad_20];
-            DispenserBill[7] = IsoCodes[cantidad_50];
-            DispenserBill[9] = IsoCodes[cantidad_100];
+
+            DispenserBill[5] = IsoCodes[BillCount[0]];
+            DispenserBill[7] = IsoCodes[BillCount[1]];
+            DispenserBill[9] = IsoCodes[BillCount[2]];
 
             createCode(DispenserBill);
             sendMessage(mensaje_final);
@@ -497,7 +496,10 @@ namespace LibreriaKioscoCash.Class
                 DisplayEvent("Error Adress: " + Error[2].ToString("X") + " " + Error[3].ToString("X"));
                 DisplayEvent("Error Register: " + Error[6].ToString("X") + " " + Error[7].ToString("X") + " " + Error[8].ToString("X"));
                 DisplayEvent("Sensor Register: " + Error[9].ToString("X") + " " + Error[10].ToString("X") + " " + Error[11].ToString("X") + " " + Error[12].ToString("X") + " " + Error[13].ToString("X") + " " + Error[14].ToString("X"));
-
+                Console.WriteLine("Se entregaron los siguientes billetes:  ");
+                Console.WriteLine("Billetes de $20.00: " + BillCount[0]);
+                Console.WriteLine("Billetes de $50.00: " + BillCount[1]);
+                Console.WriteLine("Billetes de $100.00: " + BillCount[2]);
             }
             else
             {
