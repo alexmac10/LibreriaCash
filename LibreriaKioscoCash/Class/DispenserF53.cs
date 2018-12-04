@@ -96,11 +96,6 @@ namespace LibreriaKioscoCash.Class
             return status;
         }
 
-        private void sendMessageDevice(byte[] parameters)
-        {
-
-        }
-
         private void setMessage(byte[] parameters)
         {
             TX = "TX: ";
