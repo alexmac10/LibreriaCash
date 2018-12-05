@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LibreriaKioscoCash.Class
 {
-    class ComboT
+    public class CCTalk
     {
     }
 }

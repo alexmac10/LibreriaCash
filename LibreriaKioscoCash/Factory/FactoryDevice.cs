@@ -14,7 +14,7 @@ namespace LibreriaKioscoCash.Factory
         public IDispenser GetDeviceDispenserBill()
         {
             IDispenser device = null;
-            string name = ConfigurationManager.AppSettings.Get("DispenserBill");
+            string name = ConfigurationManager.AppSettings.Get("BillDispenser");
             switch (name)
             {
                 case "F53":
@@ -23,6 +23,18 @@ namespace LibreriaKioscoCash.Factory
             }
             return device;
 
+        }
+        public IAcceptor GetAcceptorBill()
+        {
+            IAcceptor device = null;
+            string name = ConfigurationManager.AppSettings.Get("BillAcceptor");
+            switch (name)
+            {
+                case "SCAdvanced":
+                    device = new AcceptorSCAd();
+                    break;
+            }
+            return device;
         }
 
     }

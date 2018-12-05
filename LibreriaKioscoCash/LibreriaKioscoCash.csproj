@@ -30,6 +30,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MPOST, Version=2.0.8.0, Culture=neutral, PublicKeyToken=c3d0ba8d3881c2f7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Debug\MPOST.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -43,7 +47,7 @@
   <ItemGroup>
     <Compile Include="Class\AcceptorSCAd.cs" />
     <Compile Include="Class\AcceptorCBT.cs" />
-    <Compile Include="Class\ComboT.cs" />
+    <Compile Include="Class\CCTalk.cs" />
     <Compile Include="Class\DispenserF53.cs" />
     <Compile Include="Class\DispenserCBT.cs" />
     <Compile Include="Factory\FactoryDevice.cs" />

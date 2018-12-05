@@ -61,7 +61,7 @@ namespace LibreriaKioscoCash.Class
 
         private void openConnection()
         {
-            string COMF53 = ConfigurationManager.AppSettings.Get("COMDispenserBill");
+            string COMF53 = ConfigurationManager.AppSettings.Get("COMBillDispenser");
             try
             {
                 F53 = new SerialPort(COMF53, 9600, Parity.Even);
@@ -487,8 +487,8 @@ namespace LibreriaKioscoCash.Class
                 Console.WriteLine("Se Entrego El Dinero De Manera Correcta");
                 Console.WriteLine(" ");
 
-                //Console.WriteLine("Error:{0} {1}, Adress:{2} {3},Register:{4} {5} {6}", Error[0].ToString("X"), Error[1].ToString("X"), Error[2].ToString("X"), Error[3].ToString("X"), Error[6].ToString("X"), Error[7].ToString("X"), Error[8].ToString("X"));
-                //Console.WriteLine("Sensor Register: {0} {1} {2}", Error[9].ToString("X"), Error[10].ToString("X"), Error[11].ToString("X"), Error[12].ToString("X"), Error[13].ToString("X"), Error[14].ToString("X"));
+                Console.WriteLine("Error:{0} {1}, Adress:{2} {3},Register:{4} {5} {6}", Error[0].ToString("X"), Error[1].ToString("X"), Error[2].ToString("X"), Error[3].ToString("X"), Error[6].ToString("X"), Error[7].ToString("X"), Error[8].ToString("X"));
+                Console.WriteLine("Sensor Register: {0} {1} {2}", Error[9].ToString("X"), Error[10].ToString("X"), Error[11].ToString("X"), Error[12].ToString("X"), Error[13].ToString("X"), Error[14].ToString("X"));
                 //Console.WriteLine("Sensor Register: {0} {1} {2} {3} {4} {5}", Error[9], Error[10], Error[11], Error[12], Error[13], Error[14]);
 
                 DisplayEvent("Se Entrego El Dinero De Manera Correcta");
@@ -506,9 +506,9 @@ namespace LibreriaKioscoCash.Class
                 //Console.WriteLine("No se pudo entregar el dinero");
                 //Console.WriteLine(" ");
 
-                //Console.WriteLine("Error:{0} {1}, Adress:{2} {3},Register:{4} {5} {6}", Error[0].ToString("X"), Error[1].ToString("X"), Error[2].ToString("X"), Error[3].ToString("X"), Error[6].ToString("X"), Error[7].ToString("X"), Error[8].ToString("X"));
-                //Console.WriteLine("Sensor Register: {0} {1} {2} {3} {4} {5}", Error[9].ToString("X"), Error[10].ToString("X"), Error[11].ToString("X"), Error[12].ToString("X"), Error[13].ToString("X"), Error[14].ToString("X"));
- 
+                Console.WriteLine("Error:{0} {1}, Adress:{2} {3},Register:{4} {5} {6}", Error[0].ToString("X"), Error[1].ToString("X"), Error[2].ToString("X"), Error[3].ToString("X"), Error[6].ToString("X"), Error[7].ToString("X"), Error[8].ToString("X"));
+                Console.WriteLine("Sensor Register: {0} {1} {2} {3} {4} {5}", Error[9].ToString("X"), Error[10].ToString("X"), Error[11].ToString("X"), Error[12].ToString("X"), Error[13].ToString("X"), Error[14].ToString("X"));
+
                 switch (Error[0].ToString("X"))
                 {
                     case "11":

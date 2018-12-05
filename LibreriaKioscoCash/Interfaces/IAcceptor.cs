@@ -6,11 +6,27 @@ using System.Threading.Tasks;
 
 namespace LibreriaKioscoCash.Interfaces
 {
-    interface IAcceptor
+    public abstract class IAcceptor
     {
-        void setConfig();//Establece la configuración de monedas a reciclar y aceptar, tambien los billetes que aceptara (denominacion).
-        bool validate();
-        void enable(); //Habilita el recibo de billetes y monedas
-        void disable(); //Deshabilita el recibo de billetes y monedas
+        public delegate void powerUpEventHandler(object sender, EventArgs e);
+        public delegate void connectEventHandler(object sender, EventArgs e);
+        public delegate void stackEventHandler(object sender, EventArgs e);
+        public delegate void powerUpCompletedEventHandler(object sender, EventArgs e);
+        public delegate void escrowEventHandler(object sender, EventArgs e);
+        public virtual event powerUpEventHandler powerUpEvent;
+        public virtual event connectEventHandler connectEvent;
+        public virtual event stackEventHandler stackEvent;
+        public virtual event powerUpCompletedEventHandler powerUpCompleteEvent;
+        public virtual event escrowEventHandler escrowEvent;
+
+        public abstract void open();
+        public abstract void close();
+        public abstract bool isConnection();
+        public abstract void enable(); //Habilita el recibo de billetes y monedas
+        public abstract void disable(); //Deshabilita el recibo de billetes y monedas
+
+        public abstract byte [] getCashDesposite(int count);
+
+
     }
 }
