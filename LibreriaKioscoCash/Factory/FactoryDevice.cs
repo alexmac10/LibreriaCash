@@ -11,7 +11,7 @@ namespace LibreriaKioscoCash.Factory
 {
    public class FactoryDevice
     {
-        public IDispenser GetDeviceDispenserBill()
+        public IDispenser GetBillDispenser()
         {
             IDispenser device = null;
             string name = ConfigurationManager.AppSettings.Get("BillDispenser");
@@ -24,7 +24,7 @@ namespace LibreriaKioscoCash.Factory
             return device;
 
         }
-        public IAcceptor GetAcceptorBill()
+        public IAcceptor GetBillAcceptor()
         {
             IAcceptor device = null;
             string name = ConfigurationManager.AppSettings.Get("BillAcceptor");

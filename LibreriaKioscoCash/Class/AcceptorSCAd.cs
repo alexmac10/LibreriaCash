@@ -47,6 +47,7 @@ namespace LibreriaKioscoCash
         {
             openConnection();
             configDefault();
+            setEvents();
 
         }
 
@@ -68,7 +69,7 @@ namespace LibreriaKioscoCash
         }
 
 
-        public void setEvents()
+        private void setEvents()
         {
             billAcceptor.OnPowerUp += new PowerUpEventHandler(powerUpEvent);
             billAcceptor.OnConnected += new ConnectedEventHandler(connectEvent);
@@ -90,18 +91,6 @@ namespace LibreriaKioscoCash
             }
             billAcceptor.SetBillValueEnables(ref enables);
         }
-
-        //Despues de validar su funcionamiento con el metod getCashDeposite se elimina esta funcion
-        //public double getDepositeBill()
-        //{
-        //    double bill = 0;
-        //    if (billAcceptor.DocType == DocumentType.Bill)
-        //    {
-        //        MPOST.Bill bills = billAcceptor.Bill;
-        //        bill = bills.Value;
-        //    }
-        //    return bill;
-        //}
 
         public override byte[] getCashDesposite(int count)
         {
