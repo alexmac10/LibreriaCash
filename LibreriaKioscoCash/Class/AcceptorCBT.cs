@@ -1,6 +1,8 @@
 ﻿using LibreriaKioscoCash.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,43 +11,52 @@ namespace LibreriaKioscoCash.Class
 {
     public class AcceptorCBT : IAcceptor
     {
-        CCTalk ccTalk = new CCTalk();
+        private CCTalk ccTalk = CCTalk.GetInstance();
+        private SerialPort ComboT;
 
-        public override void close()
+        public void close()
         {
             throw new NotImplementedException();
         }
 
-       
-
-        public override void disable()
+        public void disable()
         {
             throw new NotImplementedException();
+
+        }
+
+        public void enable()
+        {
+            throw new NotImplementedException();
+        }
+
+        public byte[] getCashDesposite(int count)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool isConnection()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void open()
+        {
+            try
+            {
+                string COM = ConfigurationManager.AppSettings.Get("COMComboT");
+
+                ComboT = ccTalk.openConnection(COM);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
             
         }
-
        
 
-        public override void enable()
-        {
-            throw new NotImplementedException();
-        }
 
-        public override byte[] getCashDesposite(int count)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool isConnection()
-        {
-            throw new NotImplementedException();
-        }
-
-        
-
-        public override void open()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

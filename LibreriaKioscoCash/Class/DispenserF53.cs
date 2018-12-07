@@ -15,7 +15,8 @@ namespace LibreriaKioscoCash.Class
     public class DispenserF53 : IDispenser
     {
         private SerialPort F53;
-
+        private CCTalk ccTalk = CCTalk.GetInstance();
+        private string COM;
         //RS232C(Comunicación)
         private byte[] startoftext = new byte[] { 0x10, 0x02, 0x00 };
         private byte[] endoftext = new byte[] { 0x10, 0x03 };
@@ -23,7 +24,8 @@ namespace LibreriaKioscoCash.Class
         private byte[] statusRequest = new byte[] { 0x10, 0x05 };
         private byte[] releaseRequest = new byte[] { 0x10, 0x06 };
         //Variables
-        private byte[] resultmessage;
+
+        //private byte[] ccTalk.resultmessage;
         private int position;
         private string RX;
         private string TX;
@@ -61,17 +63,8 @@ namespace LibreriaKioscoCash.Class
 
         private void openConnection()
         {
-            string COMF53 = ConfigurationManager.AppSettings.Get("COMBillDispenser");
-            try
-            {
-                F53 = new SerialPort(COMF53, 9600, Parity.Even);
-                F53.Open();
-                Console.WriteLine("Puerto abierto : " + COMF53);
-            }
-            catch (IOException ex)
-            {
-                throw new Exception("No se puede conectar al puerto " + COMF53);
-            }
+            COM = ConfigurationManager.AppSettings.Get("COMBillDispenser");
+            F53 = ccTalk.openConnection(COM);
 
 
         }
@@ -94,9 +87,9 @@ namespace LibreriaKioscoCash.Class
             try
             {
 
-                setMessage(statusRequest);
-                getMessage();
-                search(resultmessage, releaseRequest);
+                ccTalk.setMessage(COM,statusRequest);
+                ccTalk.getMessage();
+                search(ccTalk.resultmessage, releaseRequest);
                 if (status == false)
                 {
                     throw new Exception("Dispositivo No Conectado");
@@ -122,6 +115,7 @@ namespace LibreriaKioscoCash.Class
                 openConnection();
                 CheckConfig();
 
+
             }
             catch (Exception ex)
             {
@@ -132,41 +126,41 @@ namespace LibreriaKioscoCash.Class
         }
 
 
-        private void setMessage(byte[] parameters)
-        {
-            TX = "TX: ";
-            F53.Write(parameters, 0, parameters.Length);
+        //private void ccTalk.setMessage(COM,byte[] parameters)
+        //{
+        //    TX = "TX: ";
+        //    F53.Write(parameters, 0, parameters.Length);
 
-            for (int i = 0, j = 0; i < parameters.Length; i++, j++)
-            {
-                TX += parameters[i] + " ";
-            }
-            //Console.WriteLine(TX);
-            Console.WriteLine("TX: " + ByteArrayToString(parameters));
+        //    for (int i = 0, j = 0; i < parameters.Length; i++, j++)
+        //    {
+        //        TX += parameters[i] + " ";
+        //    }
+        //    //Console.WriteLine(TX);
+        //    //Console.WriteLine("TX: " + ByteArrayToString(parameters));
 
-            Thread.Sleep(50);
-        }
-        private byte getMessage()
-        {
-            RX = "RX :";
-            byte finalByte = 0;
-            byte[] result = new byte[F53.BytesToRead];
+        //    Thread.Sleep(50);
+        //}
+        //private byte ccTalk.getMessage()
+        //{
+        //    RX = "RX :";
+        //    byte finalByte = 0;
+        //    byte[] result = new byte[F53.BytesToRead];
 
-            F53.Read(result, 0, result.Length);
-            resultmessage = new byte[result.Length];
-            for (int i = 0, j = 0; i < result.Length; i++, j++)
-            {
-                resultmessage[j] = result[i];
-                RX += result[i] + " ";
-                finalByte = result[i];
-            }
-            //Console.WriteLine(RX);
-            Console.WriteLine("RX: " + ByteArrayToString(resultmessage));
-            Thread.Sleep(150);
+        //    F53.Read(result, 0, result.Length);
+        //    ccTalk.resultmessage = new byte[result.Length];
+        //    for (int i = 0, j = 0; i < result.Length; i++, j++)
+        //    {
+        //        ccTalk.resultmessage[j] = result[i];
+        //        RX += result[i] + " ";
+        //        finalByte = result[i];
+        //    }
+        //    //Console.WriteLine(RX);
+        //    //Console.WriteLine("RX: " + ByteArrayToString(ccTalk.resultmessage));
+        //    Thread.Sleep(150);
 
 
-            return finalByte;
-        }
+        //    return finalByte;
+        //}
         private void createCode(byte[] fun)
         {
             ushort[] table = new ushort[256];
@@ -235,18 +229,18 @@ namespace LibreriaKioscoCash.Class
         private void setFreeDevice()
         {
             createCode(cancel);
-            setMessage(mensaje_final);
-            getMessage();
-            setMessage(releaseRequest);
-            setMessage(statusRequest);
-            getMessage();
-            setMessage(releaseRequest);
-            getMessage();
-            setMessage(releaseRequest);
-            setMessage(statusRequest);
-            getMessage();
-            setMessage(statusRequest);
-            getMessage();
+            ccTalk.setMessage(COM,mensaje_final);
+            ccTalk.getMessage();
+            ccTalk.setMessage(COM,releaseRequest);
+            ccTalk.setMessage(COM,statusRequest);
+            ccTalk.getMessage();
+            ccTalk.setMessage(COM,releaseRequest);
+            ccTalk.getMessage();
+            ccTalk.setMessage(COM,releaseRequest);
+            ccTalk.setMessage(COM,statusRequest);
+            ccTalk.getMessage();
+            ccTalk.setMessage(COM,statusRequest);
+            ccTalk.getMessage();
         }
         private void sendMessage(byte[] parameter)
         {
@@ -254,49 +248,49 @@ namespace LibreriaKioscoCash.Class
             //byte result = 0;
 
             isConnection();
-            //Console.WriteLine(resultmessage.Length);
-            if ((status == true) && (resultmessage.Length == 2))
+            //Console.WriteLine(ccTalk.resultmessage.Length);
+            if ((status == true) && (ccTalk.resultmessage.Length == 2))
             {
                 //Console.WriteLine("Se encuentra libre");
 
                 if (money == true)
                 {
-                    setMessage(parameter);
-                    getMessage();
+                    ccTalk.setMessage(COM,parameter);
+                    ccTalk.getMessage();
                     Thread.Sleep(9000);
-                    getMessage();
-                    setMessage(releaseRequest);
+                    ccTalk.getMessage();
+                    ccTalk.setMessage(COM,releaseRequest);
                     Thread.Sleep(200);
-                    getMessage();
-                    setMessage(releaseRequest);
+                    ccTalk.getMessage();
+                    ccTalk.setMessage(COM,releaseRequest);
                     Console.WriteLine("");
 
                 }
                 else if (config == true)
                 {
-                    setMessage(parameter);
+                    ccTalk.setMessage(COM,parameter);
                     Thread.Sleep(200);
-                    getMessage();
+                    ccTalk.getMessage();
                     Thread.Sleep(5000);
-                    getMessage();
-                    setMessage(releaseRequest);
+                    ccTalk.getMessage();
+                    ccTalk.setMessage(COM,releaseRequest);
                     Thread.Sleep(200);
-                    getMessage();
-                    setMessage(releaseRequest);
+                    ccTalk.getMessage();
+                    ccTalk.setMessage(COM,releaseRequest);
                     Console.WriteLine("Configuración correcta");
                     DisplayEvent("Configuración correcta");
                 }
                 else
                 {
 
-                    setMessage(parameter);
+                    ccTalk.setMessage(COM,parameter);
                     Thread.Sleep(200);
-                    getMessage();
-                    getMessage();
-                    setMessage(releaseRequest);
+                    ccTalk.getMessage();
+                    ccTalk.getMessage();
+                    ccTalk.setMessage(COM,releaseRequest);
                     Thread.Sleep(200);
-                    getMessage();
-                    setMessage(releaseRequest);
+                    ccTalk.getMessage();
+                    ccTalk.setMessage(COM,releaseRequest);
                 }
             }
             else
@@ -305,42 +299,42 @@ namespace LibreriaKioscoCash.Class
                 setFreeDevice();
                 if (money == true)
                 {
-                    setMessage(parameter);
-                    getMessage();
+                    ccTalk.setMessage(COM,parameter);
+                    ccTalk.getMessage();
                     Thread.Sleep(7000);
-                    getMessage();
-                    setMessage(releaseRequest);
+                    ccTalk.getMessage();
+                    ccTalk.setMessage(COM,releaseRequest);
                     Thread.Sleep(200);
-                    getMessage();
-                    setMessage(releaseRequest);
+                    ccTalk.getMessage();
+                    ccTalk.setMessage(COM,releaseRequest);
                     Console.WriteLine("");
 
                 }
                 else if (config == true)
                 {
-                    setMessage(parameter);
+                    ccTalk.setMessage(COM,parameter);
                     Thread.Sleep(200);
-                    getMessage();
+                    ccTalk.getMessage();
                     Thread.Sleep(5000);
-                    getMessage();
-                    setMessage(releaseRequest);
+                    ccTalk.getMessage();
+                    ccTalk.setMessage(COM,releaseRequest);
                     Thread.Sleep(200);
-                    getMessage();
-                    setMessage(releaseRequest);
+                    ccTalk.getMessage();
+                    ccTalk.setMessage(COM,releaseRequest);
                     Console.WriteLine("Configuración correcta");
                     DisplayEvent("Configuración Correcta");
                 }
                 else
                 {
 
-                    setMessage(parameter);
+                    ccTalk.setMessage(COM,parameter);
                     Thread.Sleep(200);
-                    getMessage();
-                    getMessage();
-                    setMessage(releaseRequest);
+                    ccTalk.getMessage();
+                    ccTalk.getMessage();
+                    ccTalk.setMessage(COM,releaseRequest);
                     Thread.Sleep(200);
-                    getMessage();
-                    setMessage(releaseRequest);
+                    ccTalk.getMessage();
+                    ccTalk.setMessage(COM,releaseRequest);
                 }
 
             }
@@ -374,7 +368,7 @@ namespace LibreriaKioscoCash.Class
             createCode(StatusDeviceInit);
             sendMessage(mensaje_final);
             byte[] positive_answer = { 0x1C, 0x10, 0x03 };
-            search(resultmessage, positive_answer);
+            search(ccTalk.resultmessage, positive_answer);
 
             //Sensores que contiene el F53
 
@@ -382,8 +376,8 @@ namespace LibreriaKioscoCash.Class
             Sensors = new List<byte>();
             for (int l = 43, m = 0; l < position; l++, m++)
             {
-                Sensors.Add(resultmessage[l]);
-                //Console.WriteLine(resultmessage[l]);
+                Sensors.Add(ccTalk.resultmessage[l]);
+                //Console.WriteLine(ccTalk.resultmessage[l]);
             }
 
             for (int s = 0; s < Sensors.Count - 1; s++)
@@ -412,7 +406,7 @@ namespace LibreriaKioscoCash.Class
             createCode(StatusInformation);
             sendMessage(mensaje_final);
             byte[] cassets = new byte[] { 0x8C, 0x8A, 0x89 };
-            search(resultmessage, cassets);
+            search(ccTalk.resultmessage, cassets);
 
             if (status == true)
             {
@@ -420,7 +414,7 @@ namespace LibreriaKioscoCash.Class
                 Console.WriteLine("");
                 DisplayEvent("Los Cassets se encuentran colocados");
                 byte[] config = new byte[] { 130, 110, 137, 117, 147, 127 };
-                search(resultmessage, config);
+                search(ccTalk.resultmessage, config);
                 Console.WriteLine("Checando Estatus de Configuración....");
                 DisplayEvent("Checando Estatus de Configuración....");
                 if (status == false)
@@ -452,7 +446,7 @@ namespace LibreriaKioscoCash.Class
 
         }
 
-        public void returnCash(int denominationCash, int countMoney, int[] BillCount)
+        public byte[] returnCash(int denominationCash, int countMoney, int[] BillCount)
         {
             money = true;
             Console.WriteLine(" ");
@@ -466,15 +460,15 @@ namespace LibreriaKioscoCash.Class
             createCode(DispenserBill);
             sendMessage(mensaje_final);
             byte[] error_answer = { 0x8c };
-            search(resultmessage, error_answer);
+            search(ccTalk.resultmessage, error_answer);
 
             //Sensores que contiene el F53
 
             Error = new List<byte>();
             for (int l = 7, m = 0; l < position; l++, m++)
             {
-                Error.Add(resultmessage[l]);
-                //Console.WriteLine(resultmessage[l].ToString("X"));
+                Error.Add(ccTalk.resultmessage[l]);
+                //Console.WriteLine(ccTalk.resultmessage[l].ToString("X"));
             }
             int suma = 0;
             foreach (int c in Error)
@@ -497,9 +491,11 @@ namespace LibreriaKioscoCash.Class
                 DisplayEvent("Error Register: " + Error[6].ToString("X") + " " + Error[7].ToString("X") + " " + Error[8].ToString("X"));
                 DisplayEvent("Sensor Register: " + Error[9].ToString("X") + " " + Error[10].ToString("X") + " " + Error[11].ToString("X") + " " + Error[12].ToString("X") + " " + Error[13].ToString("X") + " " + Error[14].ToString("X"));
                 Console.WriteLine("Se entregaron los siguientes billetes:  ");
-                Console.WriteLine("Billetes de $20.00: " + BillCount[0]);
-                Console.WriteLine("Billetes de $50.00: " + BillCount[1]);
-                Console.WriteLine("Billetes de $100.00: " + BillCount[2]);
+                //Console.WriteLine("Billetes de $20.00: " + BillCount[0]);
+                //Console.WriteLine("Billetes de $50.00: " + BillCount[1]);
+                //Console.WriteLine("Billetes de $100.00: " + BillCount[2]);
+                byte[] entrega = { ccTalk.resultmessage[45], ccTalk.resultmessage[47], ccTalk.resultmessage[49] };
+                return entrega;
             }
             else
             {
@@ -528,6 +524,8 @@ namespace LibreriaKioscoCash.Class
                 DisplayEvent("Error Adress: " + Error[2].ToString("X") + " " + Error[3].ToString("X"));
                 DisplayEvent("Error Register: " + Error[6].ToString("X") + " " + Error[7].ToString("X") + " " + Error[8].ToString("X"));
                 DisplayEvent("Sensor Register: " + Error[9].ToString("X") + " " + Error[10].ToString("X") + " " + Error[11].ToString("X") + " " + Error[12].ToString("X") + " " + Error[13].ToString("X") + " " + Error[14].ToString("X"));
+                byte[] entrega = { ccTalk.resultmessage[45], ccTalk.resultmessage[47], ccTalk.resultmessage[49] };
+                return entrega;
                 throw new Exception("Error: No se pudo entregar el dinero");
 
             }
@@ -535,14 +533,7 @@ namespace LibreriaKioscoCash.Class
         }
 
         //Funciones complementarias de programación
-        private string ByteArrayToString(byte[] ba)
-        {
-
-            StringBuilder hex = new StringBuilder(ba.Length * 2);
-            foreach (byte b in ba)
-                hex.AppendFormat("{0:X2}" + " ", b);
-            return hex.ToString();
-        }
+        
         private int search(byte[] haystack, byte[] needle)
         {
             for (int i = 0; i <= haystack.Length - needle.Length; i++)

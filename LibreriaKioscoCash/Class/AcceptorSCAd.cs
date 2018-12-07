@@ -14,40 +14,57 @@ namespace LibreriaKioscoCash
 {
     public class AcceptorSCAd : IAcceptor
     {
-        private Acceptor billAcceptor = new Acceptor();
+        private Acceptor billAcceptor;
+        bool config;
+        //public override event powerUpEventHandler powerUpEvent;
+        //public override event connectEventHandler connectEvent;
+        //public override event stackEventHandler stackEvent;
+        //public override event powerUpCompletedEventHandler powerUpCompleteEvent;
+        //public override event escrowEventHandler escrowEvent;
 
-        public override event powerUpEventHandler powerUpEvent;
-        public override event connectEventHandler connectEvent;
-        public override event stackEventHandler stackEvent;
-        public override event powerUpCompletedEventHandler powerUpCompleteEvent;
-        public override event escrowEventHandler escrowEvent;
-
-        public override void close()
+        public AcceptorSCAd()
+        {
+            billAcceptor = new Acceptor();
+            billAcceptor.OnConnected += connectedHandle;
+        }
+        public void close()
         {
             billAcceptor.Close();
         }
 
-        public override void disable()
+        public void disable()
         {
             billAcceptor.EnableAcceptance = false;
         }
 
-        public override void enable()
+        public void enable()
         {
+
             billAcceptor.EnableAcceptance = true;
             billAcceptor.AutoStack = true;
+
+
+           
         }
 
-        public override bool isConnection()
+        public bool isConnection()
         {
-            throw new NotImplementedException();
+            return config;
         }
 
-        public override void open()
+        public void open()
         {
+            //setEvents();
             openConnection();
-            configDefault();
-            setEvents();
+            //Console.WriteLine(billAcceptor.DeviceState);
+            //connectedHandle(new object(), new EventArgs());
+            //connectEvent(new object(),new EventArgs());
+
+            //enable();
+            //Console.WriteLine(billAcceptor.DeviceState);
+
+
+
 
         }
 
@@ -62,24 +79,16 @@ namespace LibreriaKioscoCash
             }
             catch (IOException ex)
             {
-                throw new Exception("No se puede conectar al puerto " + COMSCAd);
+                throw new Exception("Unable to open the bill acceptor on com port <" + COMSCAd + "> " + ex.Message + "Open Bill Acceptor Error");
             }
 
 
         }
 
 
-        private void setEvents()
-        {
-            billAcceptor.OnPowerUp += new PowerUpEventHandler(powerUpEvent);
-            billAcceptor.OnConnected += new ConnectedEventHandler(connectEvent);
-            billAcceptor.OnStacked += new StackedEventHandler(stackEvent);
-            billAcceptor.OnPowerUpComplete += new PowerUpCompleteEventHandler(powerUpCompleteEvent);
-            billAcceptor.OnEscrow += new EscrowEventHandler(escrowEvent);
-        }
-
         private void configDefault()
         {
+            //Console.WriteLine("Configurando desde configdefault");
             MPOST.Bill[] bills = billAcceptor.BillValues;
             Boolean[] enables = billAcceptor.GetBillValueEnables();
             for (int i = 0; i < bills.Length; i++)
@@ -88,21 +97,52 @@ namespace LibreriaKioscoCash
                 {
                     enables[i] = false;
                 }
+                //Console.WriteLine("{0} :: {1}", bills[i].Value, enables[i]);
             }
             billAcceptor.SetBillValueEnables(ref enables);
         }
 
-        public override byte[] getCashDesposite(int count)
+        public byte[] getCashDesposite(int count)
         {
             byte[] bill = new byte[1];
 
             if (billAcceptor.DocType == DocumentType.Bill)
             {
                 MPOST.Bill bills = billAcceptor.Bill;
-                Console.WriteLine(bills.Value);
+                //Console.WriteLine(bills.Value);
                 bill[0] = (byte)bills.Value;
             }
             return bill;
+        }
+
+
+        private void powerUpHandle(object sender, EventArgs e)
+        {
+            Console.WriteLine("Manejador de POWER UP");
+        }
+
+        private void connectedHandle(object sender, EventArgs e)
+        {
+            //Console.WriteLine("Evento : Configuracion");
+            //Console.WriteLine(billAcceptor.DeviceState);
+            if (billAcceptor.DeviceState == State.Idling)
+            {
+                configDefault();
+                config = true;
+                
+            }
+            //Console.WriteLine(billAcceptor.DeviceState);
+
+        }
+
+        private void PowerUpCompletedHandle(object sender, EventArgs e)
+        {
+            Console.WriteLine("Evento : POWERUP_COMPLETED");
+        }
+
+        private void escrowHandle(object sender, EventArgs e)
+        {
+            Console.WriteLine("Evento : ESCROW");
         }
     }
 }

@@ -36,6 +36,31 @@ namespace LibreriaKioscoCash.Factory
             }
             return device;
         }
+        public IDispenser GetCoinDispenser()
+        {
+            IDispenser device = null;
+            string name = ConfigurationManager.AppSettings.Get("CoinDispenser");
+            switch (name)
+            {
+                case "ComboT":
+                    device = new DispenserCBT();
+                    break;
+            }
+            return device;
+
+        }
+        public IAcceptor GetCoinAcceptor()
+        {
+            IAcceptor device = null;
+            string name = ConfigurationManager.AppSettings.Get("CoinAcceptor");
+            switch (name)
+            {
+                case "ComboT":
+                    device = new AcceptorCBT();
+                    break;
+            }
+            return device;
+        }
 
     }
 }
