@@ -43,10 +43,12 @@ namespace Test
                     Console.Write("Indique la cantidad de billetes de a $100.00 a retirar: ");
                     string cantidad100 = Console.ReadLine();
                     int[] BillCount = { Int32.Parse(cantidad20), Int32.Parse(cantidad50), Int32.Parse(cantidad100) };
-                    foreach (var b in billDispenser.returnCash(0, 0, BillCount))
+                    foreach(var b in billDispenser.returnCash(0, 0, BillCount))
                     {
+
                         Console.WriteLine(b);
                     }
+                   
                     Console.WriteLine("*****************************************************");
                     
                    
