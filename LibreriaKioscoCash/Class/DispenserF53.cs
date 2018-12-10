@@ -9,6 +9,7 @@ using System.IO;
 using System.Configuration;
 using System.Threading;
 using System.Collections;
+using LibreriaKioscoCash.Exceptions;
 
 namespace LibreriaKioscoCash.Class
 {
@@ -88,7 +89,7 @@ namespace LibreriaKioscoCash.Class
             try
             {
 
-                ccTalk.setMessage(COM,statusRequest);
+                ccTalk.setMessage(COM, statusRequest);
                 ccTalk.getMessage();
                 search(ccTalk.resultmessage, releaseRequest);
                 if (status == false)
@@ -194,17 +195,17 @@ namespace LibreriaKioscoCash.Class
         private void setFreeDevice()
         {
             createCode(cancel);
-            ccTalk.setMessage(COM,mensaje_final);
+            ccTalk.setMessage(COM, mensaje_final);
             ccTalk.getMessage();
-            ccTalk.setMessage(COM,releaseRequest);
-            ccTalk.setMessage(COM,statusRequest);
+            ccTalk.setMessage(COM, releaseRequest);
+            ccTalk.setMessage(COM, statusRequest);
             ccTalk.getMessage();
-            ccTalk.setMessage(COM,releaseRequest);
+            ccTalk.setMessage(COM, releaseRequest);
             ccTalk.getMessage();
-            ccTalk.setMessage(COM,releaseRequest);
-            ccTalk.setMessage(COM,statusRequest);
+            ccTalk.setMessage(COM, releaseRequest);
+            ccTalk.setMessage(COM, statusRequest);
             ccTalk.getMessage();
-            ccTalk.setMessage(COM,statusRequest);
+            ccTalk.setMessage(COM, statusRequest);
             ccTalk.getMessage();
         }
         private void sendMessage(byte[] parameter)
@@ -220,42 +221,43 @@ namespace LibreriaKioscoCash.Class
 
                 if (money == true)
                 {
-                    ccTalk.setMessage(COM,parameter);
+                    ccTalk.setMessage(COM, parameter);
+                    Thread.Sleep(200);
                     ccTalk.getMessage();
                     Thread.Sleep(9000);
                     ccTalk.getMessage();
-                    ccTalk.setMessage(COM,releaseRequest);
+                    ccTalk.setMessage(COM, releaseRequest);
                     Thread.Sleep(200);
                     ccTalk.getMessage();
-                    ccTalk.setMessage(COM,releaseRequest);
+                    ccTalk.setMessage(COM, releaseRequest);
                     Console.WriteLine("");
 
                 }
                 else if (config == true)
                 {
-                    ccTalk.setMessage(COM,parameter);
+                    ccTalk.setMessage(COM, parameter);
                     Thread.Sleep(200);
                     ccTalk.getMessage();
                     Thread.Sleep(5000);
                     ccTalk.getMessage();
-                    ccTalk.setMessage(COM,releaseRequest);
+                    ccTalk.setMessage(COM, releaseRequest);
                     Thread.Sleep(200);
                     ccTalk.getMessage();
-                    ccTalk.setMessage(COM,releaseRequest);
+                    ccTalk.setMessage(COM, releaseRequest);
                     Console.WriteLine("Configuración correcta");
                     DisplayEvent("Configuración correcta");
                 }
                 else
                 {
 
-                    ccTalk.setMessage(COM,parameter);
+                    ccTalk.setMessage(COM, parameter);
                     Thread.Sleep(200);
                     ccTalk.getMessage();
                     ccTalk.getMessage();
-                    ccTalk.setMessage(COM,releaseRequest);
+                    ccTalk.setMessage(COM, releaseRequest);
                     Thread.Sleep(200);
                     ccTalk.getMessage();
-                    ccTalk.setMessage(COM,releaseRequest);
+                    ccTalk.setMessage(COM, releaseRequest);
                 }
             }
             else
@@ -264,42 +266,42 @@ namespace LibreriaKioscoCash.Class
                 setFreeDevice();
                 if (money == true)
                 {
-                    ccTalk.setMessage(COM,parameter);
+                    ccTalk.setMessage(COM, parameter);
                     ccTalk.getMessage();
-                    Thread.Sleep(7000);
+                    Thread.Sleep(9000);
                     ccTalk.getMessage();
-                    ccTalk.setMessage(COM,releaseRequest);
+                    ccTalk.setMessage(COM, releaseRequest);
                     Thread.Sleep(200);
                     ccTalk.getMessage();
-                    ccTalk.setMessage(COM,releaseRequest);
+                    ccTalk.setMessage(COM, releaseRequest);
                     Console.WriteLine("");
 
                 }
                 else if (config == true)
                 {
-                    ccTalk.setMessage(COM,parameter);
+                    ccTalk.setMessage(COM, parameter);
                     Thread.Sleep(200);
                     ccTalk.getMessage();
                     Thread.Sleep(5000);
                     ccTalk.getMessage();
-                    ccTalk.setMessage(COM,releaseRequest);
+                    ccTalk.setMessage(COM, releaseRequest);
                     Thread.Sleep(200);
                     ccTalk.getMessage();
-                    ccTalk.setMessage(COM,releaseRequest);
+                    ccTalk.setMessage(COM, releaseRequest);
                     Console.WriteLine("Configuración correcta");
                     DisplayEvent("Configuración Correcta");
                 }
                 else
                 {
 
-                    ccTalk.setMessage(COM,parameter);
+                    ccTalk.setMessage(COM, parameter);
                     Thread.Sleep(200);
                     ccTalk.getMessage();
                     ccTalk.getMessage();
-                    ccTalk.setMessage(COM,releaseRequest);
+                    ccTalk.setMessage(COM, releaseRequest);
                     Thread.Sleep(200);
                     ccTalk.getMessage();
-                    ccTalk.setMessage(COM,releaseRequest);
+                    ccTalk.setMessage(COM, releaseRequest);
                 }
 
             }
@@ -411,111 +413,106 @@ namespace LibreriaKioscoCash.Class
 
         }
 
-        public byte[] returnCash(int denominationCash, int countMoney, int[] BillCount)
+        public void returnCash(int denominationCash, int countMoney, int[] BillCount)
         {
             byte[] entrega = { };
-            try
+
+            money = true;
+            Console.WriteLine(" ");
+            Console.WriteLine("Retirando Efectivo...");
+            DisplayEvent("Retirando Efectivo...");
+
+            DispenserBill[5] = IsoCodes[BillCount[0]];
+            DispenserBill[7] = IsoCodes[BillCount[1]];
+            DispenserBill[9] = IsoCodes[BillCount[2]];
+
+            createCode(DispenserBill);
+            sendMessage(mensaje_final);
+            byte[] error_answer = { 0x8c };
+            search(ccTalk.resultmessage, error_answer);
+
+
+            Error = new List<byte>();
+            for (int l = 7, m = 0; l < position; l++, m++)
             {
-                money = true;
+                Error.Add(ccTalk.resultmessage[l]);
+                //Console.WriteLine(ccTalk.resultmessage[l].ToString("X"));
+            }
+            if ((Error[0] == 0) && (Error[1] == 0))
+            {
+                Console.WriteLine("Se Entrego El Dinero De Manera Correcta");
                 Console.WriteLine(" ");
-                Console.WriteLine("Retirando Efectivo...");
-                DisplayEvent("Retirando Efectivo...");
 
-                DispenserBill[5] = IsoCodes[BillCount[0]];
-                DispenserBill[7] = IsoCodes[BillCount[1]];
-                DispenserBill[9] = IsoCodes[BillCount[2]];
+                //Console.WriteLine("Error:{0} {1}, Adress:{2} {3},Register:{4} {5} {6}", Error[0].ToString("X"), Error[1].ToString("X"), Error[2].ToString("X"), Error[3].ToString("X"), Error[6].ToString("X"), Error[7].ToString("X"), Error[8].ToString("X"));
+                //Console.WriteLine("Sensor Register: {0} {1} {2}", Error[9].ToString("X"), Error[10].ToString("X"), Error[11].ToString("X"), Error[12].ToString("X"), Error[13].ToString("X"), Error[14].ToString("X"));
+                //Console.WriteLine("Sensor Register: {0} {1} {2} {3} {4} {5}", Error[9], Error[10], Error[11], Error[12], Error[13], Error[14]);
 
-                createCode(DispenserBill);
-                sendMessage(mensaje_final);
-                byte[] error_answer = { 0x8c };
-                search(ccTalk.resultmessage, error_answer);
-
-
-                Error = new List<byte>();
-                for (int l = 7, m = 0; l < position; l++, m++)
-                {
-                    Error.Add(ccTalk.resultmessage[l]);
-                    //Console.WriteLine(ccTalk.resultmessage[l].ToString("X"));
-                }
-                int suma = 0;
-                foreach (int c in Error)
-                {
-                    suma = +c;
-
-                }
-                if ((Error[0] == 0) && (Error[1] == 0))
-                {
-                    Console.WriteLine("Se Entrego El Dinero De Manera Correcta");
-                    Console.WriteLine(" ");
-
-                    //Console.WriteLine("Error:{0} {1}, Adress:{2} {3},Register:{4} {5} {6}", Error[0].ToString("X"), Error[1].ToString("X"), Error[2].ToString("X"), Error[3].ToString("X"), Error[6].ToString("X"), Error[7].ToString("X"), Error[8].ToString("X"));
-                    //Console.WriteLine("Sensor Register: {0} {1} {2}", Error[9].ToString("X"), Error[10].ToString("X"), Error[11].ToString("X"), Error[12].ToString("X"), Error[13].ToString("X"), Error[14].ToString("X"));
-                    //Console.WriteLine("Sensor Register: {0} {1} {2} {3} {4} {5}", Error[9], Error[10], Error[11], Error[12], Error[13], Error[14]);
-
-                    DisplayEvent("Se Entrego El Dinero De Manera Correcta");
-                    DisplayEvent("Error Code: " + Error[0].ToString("X") + " " + Error[1].ToString("X"));
-                    DisplayEvent("Error Adress: " + Error[2].ToString("X") + " " + Error[3].ToString("X"));
-                    DisplayEvent("Error Register: " + Error[6].ToString("X") + " " + Error[7].ToString("X") + " " + Error[8].ToString("X"));
-                    DisplayEvent("Sensor Register: " + Error[9].ToString("X") + " " + Error[10].ToString("X") + " " + Error[11].ToString("X") + " " + Error[12].ToString("X") + " " + Error[13].ToString("X") + " " + Error[14].ToString("X"));
+                DisplayEvent("Se Entrego El Dinero De Manera Correcta");
+                DisplayEvent("Error Code: " + Error[0].ToString("X") + " " + Error[1].ToString("X"));
+                DisplayEvent("Error Adress: " + Error[2].ToString("X") + " " + Error[3].ToString("X"));
+                DisplayEvent("Error Register: " + Error[6].ToString("X") + " " + Error[7].ToString("X") + " " + Error[8].ToString("X"));
+                DisplayEvent("Sensor Register: " + Error[9].ToString("X") + " " + Error[10].ToString("X") + " " + Error[11].ToString("X") + " " + Error[12].ToString("X") + " " + Error[13].ToString("X") + " " + Error[14].ToString("X"));
 
 
-                    byte[] bill_codes = { ccTalk.resultmessage[44], ccTalk.resultmessage[46], ccTalk.resultmessage[48] };
-                    entrega = getPositions(IsoCodes, bill_codes);
-                    Console.WriteLine("Se entregaron los siguientes billetes:  ");
-                    Console.WriteLine("Billetes de $20.00: " + entrega[0]);
-                    Console.WriteLine("Billetes de $50.00: " + entrega[1]);
-                    Console.WriteLine("Billetes de $100.00: " + entrega[2]);
-
-                    
-                }
-                else
-                {
-                    //Console.WriteLine("Error:Falto dinero por entregar");
-                    //Console.WriteLine(" ");
-
-                    //Console.WriteLine("Error:{0} {1}, Adress:{2} {3},Register:{4} {5} {6}", Error[0].ToString("X"), Error[1].ToString("X"), Error[2].ToString("X"), Error[3].ToString("X"), Error[6].ToString("X"), Error[7].ToString("X"), Error[8].ToString("X"));
-                    //Console.WriteLine("Sensor Register: {0} {1} {2} {3} {4} {5}", Error[9].ToString("X"), Error[10].ToString("X"), Error[11].ToString("X"), Error[12].ToString("X"), Error[13].ToString("X"), Error[14].ToString("X"));
-
-                    
-                    DisplayEvent("No se pudo entregar el dinero");
-                    DisplayEvent("Error Code: " + Error[0].ToString("X") + " " + Error[1].ToString("X"));
-                    DisplayEvent("Error Adress: " + Error[2].ToString("X") + " " + Error[3].ToString("X"));
-                    DisplayEvent("Error Register: " + Error[6].ToString("X") + " " + Error[7].ToString("X") + " " + Error[8].ToString("X"));
-                    DisplayEvent("Sensor Register: " + Error[9].ToString("X") + " " + Error[10].ToString("X") + " " + Error[11].ToString("X") + " " + Error[12].ToString("X") + " " + Error[13].ToString("X") + " " + Error[14].ToString("X"));
-
-                    byte[] bill_codes = { ccTalk.resultmessage[44], ccTalk.resultmessage[46], ccTalk.resultmessage[48] };
-
-                    entrega = getPositions(IsoCodes, bill_codes);
-                    Console.WriteLine("Se entregaron los siguientes billetes:  ");
-                    Console.WriteLine("Billetes de $20.00: " + entrega[0]);
-                    Console.WriteLine("Billetes de $50.00: " + entrega[1]);
-                    Console.WriteLine("Billetes de $100.00: " + entrega[2]);
-
-                    switch (Error[0].ToString("X"))
-                    {
-                        case "11":
-                            break;
-                            throw new Exception("Excepcion: Casset 1 Vacio");
-                        case "21":
-                            break;
-                            throw new Exception("Excepcion: Casset 2 Vacio");
-                        case "31":
-                            break;
-                            throw new Exception("Excepcion: Casset 3 Vacio");
+                //byte[] bill_codes = { ccTalk.resultmessage[44], ccTalk.resultmessage[46], ccTalk.resultmessage[48] };
+                //entrega = getPositions(IsoCodes, bill_codes);
+                //Console.WriteLine("Se entregaron los siguientes billetes:  ");
+                //Console.WriteLine("Billetes de $20.00: " + entrega[0]);
+                //Console.WriteLine("Billetes de $50.00: " + entrega[1]);
+                //Console.WriteLine("Billetes de $100.00: " + entrega[2]);
 
 
-                    }
-                    throw new Exception("Error: No se pudo entregar el dinero completamente");
-
-
-
-                }
             }
-            catch(Exception ex)
+            else
             {
-                throw new Exception(ex.Message);
+                //Console.WriteLine("Error:Falto dinero por entregar");
+                //Console.WriteLine(" ");
+
+                //Console.WriteLine("Error:{0} {1}, Adress:{2} {3},Register:{4} {5} {6}", Error[0].ToString("X"), Error[1].ToString("X"), Error[2].ToString("X"), Error[3].ToString("X"), Error[6].ToString("X"), Error[7].ToString("X"), Error[8].ToString("X"));
+                //Console.WriteLine("Sensor Register: {0} {1} {2} {3} {4} {5}", Error[9].ToString("X"), Error[10].ToString("X"), Error[11].ToString("X"), Error[12].ToString("X"), Error[13].ToString("X"), Error[14].ToString("X"));
+
+
+                DisplayEvent("No se pudo entregar el dinero");
+                DisplayEvent("Error Code: " + Error[0].ToString("X") + " " + Error[1].ToString("X"));
+                DisplayEvent("Error Adress: " + Error[2].ToString("X") + " " + Error[3].ToString("X"));
+                DisplayEvent("Error Register: " + Error[6].ToString("X") + " " + Error[7].ToString("X") + " " + Error[8].ToString("X"));
+                DisplayEvent("Sensor Register: " + Error[9].ToString("X") + " " + Error[10].ToString("X") + " " + Error[11].ToString("X") + " " + Error[12].ToString("X") + " " + Error[13].ToString("X") + " " + Error[14].ToString("X"));
+
+                byte[] bill_codes = { ccTalk.resultmessage[44], ccTalk.resultmessage[46], ccTalk.resultmessage[48] };
+                Console.WriteLine("$20.00: "+ ccTalk.resultmessage[44]);
+                Console.WriteLine("$50.00: " + ccTalk.resultmessage[46]);
+                Console.WriteLine("$50.00: " + ccTalk.resultmessage[48]);
+                //entrega = getPositions(IsoCodes, bill_codes);
+                //foreach(var i in entrega)
+                //{
+                //    Console.WriteLine(i);
+                //}
+                //Console.WriteLine("----------");
+                //throw new CashException(entrega);
+                //Console.WriteLine("Se entregaron los siguientes billetes:  ");
+                //Console.WriteLine("Billetes de $20.00: " + entrega[0]);
+                //Console.WriteLine("Billetes de $50.00: " + entrega[1]);
+                //Console.WriteLine("Billetes de $100.00: " + entrega[2]);
+
+                //switch (Error[0].ToString("X"))
+                //{
+                //    case "11":
+                //        break;
+                //        throw new Exception("Excepcion: Casset 1 Vacio");
+                //    case "21":
+                //        break;
+                //        throw new Exception("Excepcion: Casset 2 Vacio");
+                //    case "31":
+                //        break;
+                //        throw new Exception("Excepcion: Casset 3 Vacio");
+
+
+                //}
+
+
             }
-            return entrega;
+
+
 
         }
 
@@ -543,8 +540,8 @@ namespace LibreriaKioscoCash.Class
         {
             if (needle.Length + start > haystack.Length)
             {
-                
-               
+
+
                 return false;
             }
             else
@@ -575,7 +572,7 @@ namespace LibreriaKioscoCash.Class
 
 
         }
-        private byte[] getPositions(byte[] where,byte[] code)
+        private byte[] getPositions(byte[] where, byte[] code)
         {
             List<byte> positions = new List<byte>();
 
@@ -586,6 +583,7 @@ namespace LibreriaKioscoCash.Class
                     if (code[i] == where[j])
                     {
                         positions.Add(Convert.ToByte(j));
+                        Console.WriteLine(j);
                     }
                 }
             }

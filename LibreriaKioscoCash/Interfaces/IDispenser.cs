@@ -11,6 +11,6 @@ namespace LibreriaKioscoCash.Interfaces
         void open();
         void close();
         bool isConnection();
-        byte[] returnCash(int denominationCash, int countMoney, int [] BillCount);
+        void returnCash(int denominationCash, int countMoney, int [] BillCount);
     }
 }

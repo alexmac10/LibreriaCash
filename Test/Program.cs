@@ -25,67 +25,9 @@ namespace Test
 
         static void Main(string[] args)
         {
-            IDispenser billDispenser = factory.GetBillDispenser();
-            IAcceptor billAcceptor = factory.GetBillAcceptor();
-            IAcceptor coinAcceptor = factory.GetCoinAcceptor();
-            IDispenser coinDispenser = factory.GetCoinDispenser();
-            
 
-            try
-            {
-                //Habilitando dispositivo
-                coinAcceptor.open();
-                coinDispenser.open();
-                billAcceptor.open();
-                billDispenser.open();
-
-                int count = 0;
-                while (count < 10)
-                {
-                    if (!billAcceptor.isConnection())
-                    {
-                        continue;
-                    }
-                    billAcceptor.enable();
-                    Console.WriteLine();
-                    Console.WriteLine("*****************RETIRO DE EFECTIVO******************");
-                    Console.Write("Indique la cantidad de billetes de a $20.00 a retirar: ");
-                    string cantidad20 = Console.ReadLine();
-                    Console.Write("Indique la cantidad de billetes de a $50.00 a retirar: ");
-                    string cantidad50 = Console.ReadLine();
-                    Console.Write("Indique la cantidad de billetes de a $100.00 a retirar: ");
-                    string cantidad100 = Console.ReadLine();
-                    int[] BillCount = { Int32.Parse(cantidad20), Int32.Parse(cantidad50), Int32.Parse(cantidad100) };
-                    foreach(var b in billDispenser.returnCash(0, 0, BillCount))
-                    {
-
-                        Console.WriteLine(b);
-                    }
-                   
-                    Console.WriteLine("*****************************************************");
-                    
-                   
-                    if (count == 9)
-                    {
-                        billAcceptor.disable();
-                        billDispenser.close();
-                    }
-                    //Console.WriteLine(count);
-                    Thread.Sleep(2000);
-                    count++;
-                }
-                
-
-
-
-
-
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-
+            testBillDispenser();
+            //testBillAcceptor();
 
         }
 
@@ -137,7 +79,7 @@ namespace Test
                 ///Se recibe la excepción cuando no entrego todo el efectivo el dispensador
                 ///de billetes
                 ///</remarks>                
-                foreach (var i in ex.getInformationCashNotDeliveredException())
+                foreach (byte i in ex.getInformationCashNotDeliveredException())
                 {
                     Console.WriteLine(i);
                 }
@@ -167,30 +109,56 @@ namespace Test
             Console.Write("Indique el efectivo a depositar: ");
             int cantidad = Int32.Parse(Console.ReadLine());
 
+            billAcceptor.open();
 
-            while (count <= cantidad)
+            Console.WriteLine("Espere ...");
+            int depositado =0;
+            while (cantidad!=0)
             {
+
                 ///<remarks>
                 ///Validar antes si el dispositivo ya esta conectado antes de activarse
                 ///</remarks>
                 if (!billAcceptor.isConnection())
                 {
                     continue;
+                   
                 }
 
                 ///<remarks>
                 ///Habilita el dispositivo para revcibir efectivo
                 /// </remarks>
+                /// 
                 billAcceptor.enable();
+                if (count == 0)
+                {
+                    Console.WriteLine("Inserte Efectivo...");
+                }
+                count = 1;
+                depositado = Convert.ToInt32(billAcceptor.getCashDesposite(0));
+                Console.WriteLine(depositado);
+                //int acumulado = 0;
+                //
+                //if (cantidad <= acumulado)
+                //{
+                //    break;
+                //}
+                //cantidad = cantidad - acumulado;
+                //if(cantidad!=0)
+                //{
+                //    Console.WriteLine(cantidad);
+                //}
+               
 
                 ///<remarks>
                 ///Regresa un arreglo con la cantidad recivida. Para recuperara la cantidad
                 ///solo debe ser el primer elemento.
                 /// </remarks>
-                byte[] bills = billAcceptor.getCashDesposite(0);
-
-
+                //byte[] bills = billAcceptor.getCashDesposite(0);
+                Thread.Sleep(2000);
             }
+            billAcceptor.disable();
+            
 
 
         }

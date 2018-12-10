@@ -75,7 +75,7 @@ namespace LibreriaKioscoCash.Class
                 TX += parameters[i] + " ";
             }
             //Console.WriteLine(TX);
-            //Console.WriteLine("TX: " + ByteArrayToString(parameters));
+            Console.WriteLine("TX: " + ByteArrayToString(parameters));
 
             Thread.Sleep(50);
         }

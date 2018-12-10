@@ -38,7 +38,7 @@ namespace LibreriaKioscoCash.Class
             }
         }
 
-        public byte[] returnCash(int denominationCash, int countMoney, int[] BillCount)
+        public void returnCash(int denominationCash, int countMoney, int[] BillCount)
         {
             throw new NotImplementedException();
         }
