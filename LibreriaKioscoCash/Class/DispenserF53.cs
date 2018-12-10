@@ -36,7 +36,7 @@ namespace LibreriaKioscoCash.Class
         private bool config = false;
         private bool bandera = false;
         private bool connection = false;
-        private List<byte> Sensors, Error;
+        private List<byte> Sensors, Error,positions;
         private StreamWriter Log = File.AppendText("LogF53.txt");
         //Funciones (Codigos de acuerdo a documentación del fabricante)
         private byte[] StatusInformation = new byte[] { 0x00, 0x01, 0x1C };
@@ -415,8 +415,8 @@ namespace LibreriaKioscoCash.Class
 
         public void returnCash(int denominationCash, int countMoney, int[] BillCount)
         {
-            byte[] entrega = { };
 
+            byte[] bill_codes = { };
             money = true;
             Console.WriteLine(" ");
             Console.WriteLine("Retirando Efectivo...");
@@ -478,17 +478,28 @@ namespace LibreriaKioscoCash.Class
                 DisplayEvent("Error Register: " + Error[6].ToString("X") + " " + Error[7].ToString("X") + " " + Error[8].ToString("X"));
                 DisplayEvent("Sensor Register: " + Error[9].ToString("X") + " " + Error[10].ToString("X") + " " + Error[11].ToString("X") + " " + Error[12].ToString("X") + " " + Error[13].ToString("X") + " " + Error[14].ToString("X"));
 
-                byte[] bill_codes = { ccTalk.resultmessage[44], ccTalk.resultmessage[46], ccTalk.resultmessage[48] };
-                Console.WriteLine("$20.00: "+ ccTalk.resultmessage[44]);
-                Console.WriteLine("$50.00: " + ccTalk.resultmessage[46]);
-                Console.WriteLine("$50.00: " + ccTalk.resultmessage[48]);
-                //entrega = getPositions(IsoCodes, bill_codes);
+                if ((BillCount[0] <= 2) && (BillCount[1] <= 2) && (BillCount[2] <= 2))
+                {
+                    bill_codes = new byte[]{ccTalk.resultmessage[46], ccTalk.resultmessage[48], ccTalk.resultmessage[50] };
+                    //Console.WriteLine("$20.00: " + ccTalk.resultmessage[46]);
+                    //Console.WriteLine("$50.00: " + ccTalk.resultmessage[48]);
+                    //Console.WriteLine("$100.00: " + ccTalk.resultmessage[50]);
+                }
+                else
+                {
+                    bill_codes = new byte[] { ccTalk.resultmessage[44], ccTalk.resultmessage[46], ccTalk.resultmessage[48] };
+                    //Console.WriteLine("$20.00: " + ccTalk.resultmessage[44]);
+                    //Console.WriteLine("$50.00: " + ccTalk.resultmessage[46]);
+                    //Console.WriteLine("$100.00: " + ccTalk.resultmessage[48]);
+                }
+               
+                byte[] entrega = getPositions(IsoCodes, bill_codes);
                 //foreach(var i in entrega)
                 //{
                 //    Console.WriteLine(i);
                 //}
-                //Console.WriteLine("----------");
-                //throw new CashException(entrega);
+                Console.WriteLine("----------");
+                throw new CashException(entrega);
                 //Console.WriteLine("Se entregaron los siguientes billetes:  ");
                 //Console.WriteLine("Billetes de $20.00: " + entrega[0]);
                 //Console.WriteLine("Billetes de $50.00: " + entrega[1]);
@@ -574,21 +585,23 @@ namespace LibreriaKioscoCash.Class
         }
         private byte[] getPositions(byte[] where, byte[] code)
         {
-            List<byte> positions = new List<byte>();
+            positions = new List<byte>();
 
-            for (int i = 0; i < code.Length; i++)
+            for (byte i = 0; i < code.Length; i++)
             {
-                for (int j = 0; j < where.Length; j++)
+                for (byte j = 0; j < where.Length; j++)
                 {
+
                     if (code[i] == where[j])
                     {
-                        positions.Add(Convert.ToByte(j));
+                       
+                        positions.Add(j);
                         Console.WriteLine(j);
                     }
                 }
             }
 
-            return positions.ToArray();
+            return positions.ToArray() ;
         }
 
 

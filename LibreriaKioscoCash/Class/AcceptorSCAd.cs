@@ -16,19 +16,13 @@ namespace LibreriaKioscoCash
     {
         private Acceptor billAcceptor;
         private bool config;
-        private bool stacked;
-        //public override event powerUpEventHandler powerUpEvent;
-        //public override event connectEventHandler connectEvent;
-        //public override event stackEventHandler stackEvent;
-        //public override event powerUpCompletedEventHandler powerUpCompleteEvent;
-        //public override event escrowEventHandler escrowEvent;
+
+       
 
         public AcceptorSCAd()
         {
             billAcceptor = new Acceptor();
             billAcceptor.OnConnected += connectedHandle;
-
-            billAcceptor.OnEscrow += Stacked ;
         }
         public void close()
         {
@@ -42,7 +36,6 @@ namespace LibreriaKioscoCash
 
         public void enable()
         {
-            Console.WriteLine("State: " + billAcceptor.DeviceState);
 
             if (!billAcceptor.EnableAcceptance)
             {
@@ -50,10 +43,7 @@ namespace LibreriaKioscoCash
 
 
             }
-            else
-            {
-                //Console.WriteLine("State: "+billAcceptor.DeviceState);
-            }
+
 
 
         }
@@ -66,13 +56,8 @@ namespace LibreriaKioscoCash
         public void open()
         {
             openConnection();
-
-
-
-
-
+           
         }
-
 
 
         private void openConnection()
@@ -90,10 +75,8 @@ namespace LibreriaKioscoCash
 
         }
 
-
         private void configDefault()
         {
-            //Console.WriteLine("Configurando desde configdefault");
             MPOST.Bill[] bills = billAcceptor.BillValues;
             Boolean[] enables = billAcceptor.GetBillValueEnables();
             for (int i = 0; i < bills.Length; i++)
@@ -102,23 +85,24 @@ namespace LibreriaKioscoCash
                 {
                     enables[i] = false;
                 }
-                //Console.WriteLine("{0} :: {1}", bills[i].Value, enables[i]);
             }
             billAcceptor.SetBillValueEnables(ref enables);
         }
 
-        public byte getCashDesposite(int count)
+        public double getCashDesposite()
         {
-            Console.WriteLine(billAcceptor.DeviceState);
-            byte bill = new byte { };
-            if (stacked==true)
+            //Console.WriteLine(billAcceptor.DeviceState);
+            double bill=0 ;
+            if (billAcceptor.DeviceState==State.Escrow)
             {
                 if (billAcceptor.DocType == DocumentType.Bill)
                 {
                     MPOST.Bill bills = billAcceptor.Bill;
                     //Console.WriteLine(bills.Value);
-                    bill= (byte)bills.Value;
+                    bill= bills.Value;
                     billAcceptor.EscrowStack();
+                    
+                    
                 }
                
             }
@@ -126,45 +110,40 @@ namespace LibreriaKioscoCash
             {
                 bill = 0;
             }
-            
+            Thread.Sleep(400);
             return bill;
         }
 
 
-        private void powerUpHandle(object sender, EventArgs e)
-        {
-            Console.WriteLine("Manejador de POWER UP");
-        }
+
 
         private void connectedHandle(object sender, EventArgs e)
         {
-            //Console.WriteLine("Evento : Configuracion");
             //Console.WriteLine(billAcceptor.DeviceState);
-            //billAcceptor.EscrowStack();
+
             if (billAcceptor.DeviceState == State.Idling)
             {
+                
                 configDefault();
                 config = true;
+
                 
             }
-            //Console.WriteLine(billAcceptor.DeviceState);
+            if (billAcceptor.DeviceState == State.Escrow)
+            {
+                billAcceptor.EscrowStack();
+                configDefault();
+                config = true;
+
+
+
+            }
+
 
         }
 
-        private void PowerUpCompletedHandle(object sender, EventArgs e)
-        {
-            Console.WriteLine("Evento : POWERUP_COMPLETED");
-        }
 
-        private void escrowHandle(object sender, EventArgs e)
-        {
-            Console.WriteLine("Evento : ESCROW");
-        }
-        private void Stacked(object sender, EventArgs e)
-        {
-            //Console.WriteLine("Evento : Stacked");
-            stacked= true;
-        }
+
 
     }
 }

@@ -76,7 +76,7 @@ namespace Test
                         break;
                 }
 
-                Console.Clear();
+                //Console.Clear();
                 Console.WriteLine();
                 Console.WriteLine("¿Quieres ingresar con otra opción del menu (y/n)?");
                 string respuesta = Console.ReadLine();
@@ -171,83 +171,93 @@ namespace Test
             /// Obtiene la instancia para el dispositivo bill Acceptor
             /// </summary>      
             IAcceptor billAcceptor = factory.GetBillAcceptor();
-
-            //Solicitando efectivo a depositar en el dispositvo bill Acceptor
-            Console.WriteLine("************ DEPOSITAR BILLETES ************");
-            Console.Write("Indique el efectivo a depositar: ");
-            int total = Int32.Parse(Console.ReadLine());
-
-            billAcceptor.open();
-
-            Console.WriteLine("Espere ...");
-            int depositado = 0;
-            while (depositado <= total)
+            
+            double depositado = 0;
+            try
             {
+                billAcceptor.open();
+
+                //Solicitando efectivo a depositar en el dispositvo bill Acceptor
+                Console.WriteLine("************ DEPOSITAR BILLETES ************");
+                Console.Write("Indique el efectivo a depositar: ");
+                double total = Int32.Parse(Console.ReadLine());
+                Console.WriteLine("Espere ...");
+
+                while (depositado < total)
+                {
+
+                    ///<remarks>
+                    ///Validar antes si el dispositivo ya esta conectado antes de activarse
+                    ///</remarks>
+                    if (!billAcceptor.isConnection())
+                    {
+                        continue;
+                    }
+                    billAcceptor.enable();
+
+                    if (count == 0)
+                    {
+                        Console.WriteLine("Inserte Efectivo...");
+                    }
+                    count = 1;
+
+                    ///<remarks>
+                    ///Habilita el dispositivo para revcibir efectivo
+                    /// </remarks>                
+
+
+                    ///<remarks>
+                    ///Función que solicita la denomincion del billete recibido. Regresa un 
+                    ///byte por lo que se tiene que cambiar a int 
+                    ///</remarks>
+                    double recibido = billAcceptor.getCashDesposite();
+
+                    //Console.WriteLine(recibido);
+                    switch (recibido)
+                    {
+                        case 20:
+                            depositado += recibido;
+                            Console.WriteLine("Se recibio el un billete de ${0} y el acomulado es de ${1} ", recibido, depositado);
+                            break;
+                        case 50:
+                            depositado += recibido;
+                            Console.WriteLine("Se recibio el un billete de ${0} y el acomulado es de ${1} ", recibido, depositado);
+                            break;
+                        case 100:
+                            depositado += recibido;
+                            Console.WriteLine("Se recibio el un billete de ${0} y el acomulado es de ${1} ", recibido, depositado);
+                            break;
+                        case 200:
+                            depositado += recibido;
+                            Console.WriteLine("Se recibio el un billete de ${0} y el acomulado es de ${1} ", recibido, depositado);
+                            break;
+                        case 500:
+                            depositado += recibido;
+                            Console.WriteLine("Se recibio el un billete de ${0} y el acomulado es de ${1} ", recibido, depositado);
+                            break;
+                        default:
+                            break;
+                    }
+                    
+
+                }
 
                 ///<remarks>
-                ///Validar antes si el dispositivo ya esta conectado antes de activarse
+                ///Deshabilita el dispositivo para ya no recibir el efectivo. Esto metodo no 
+                ///cierra el puerto de comunicación
                 ///</remarks>
-                if (!billAcceptor.isConnection())
-                {
-                    continue;
-                }
-                else
-                {
-                    count += 1;
-                }
-
-                if (count == 1) {
-                    Console.WriteLine("Inserte Efectivo...");
-                }
+                billAcceptor.disable();
 
                 ///<remarks>
-                ///Habilita el dispositivo para revcibir efectivo
-                /// </remarks>                
-                billAcceptor.enable();
-
-                ///<remarks>
-                ///Función que solicita la denomincion del billete recibido. Regresa un 
-                ///byte por lo que se tiene que cambiar a int 
+                ///Cierra la conexion con el dispositivo
                 ///</remarks>
-                int recibido = Convert.ToInt32(billAcceptor.getCashDesposite(0));
-
-
-                switch (recibido)
-                {
-                    case 20:
-                        depositado += recibido;
-                        Console.WriteLine("Se recibio el un billete de ${} y el acomulado es de ${1} ", recibido, depositado);
-                        break;
-                    case 50:
-                        depositado += recibido;
-                        Console.WriteLine("Se recibio el un billete de ${} y el acomulado es de ${1} ", recibido, depositado);
-                        break;
-                    case 100:
-                        depositado += recibido;
-                        Console.WriteLine("Se recibio el un billete de ${} y el acomulado es de ${1} ", recibido, depositado);
-                        break;
-                    case 200:
-                        depositado += recibido;
-                        Console.WriteLine("Se recibio el un billete de ${} y el acomulado es de ${1} ", recibido, depositado);
-                        break;
-                    case 500:
-                        depositado += recibido;
-                        Console.WriteLine("Se recibio el un billete de ${} y el acomulado es de ${1} ", recibido, depositado);
-                        break;
-                }
-
+                billAcceptor.close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
             }
 
-            ///<remarks>
-            ///Deshabilita el dispositivo para ya no recibir el efectivo. Esto metodo no 
-            ///cierra el puerto de comunicación
-            ///</remarks>
-            billAcceptor.disable();
-
-            ///<remarks>
-            ///Cierra la conexion con el dispositivo
-            ///</remarks>
-            billAcceptor.close();
 
         }
 
