@@ -30,9 +30,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MPOST, Version=2.0.8.0, Culture=neutral, PublicKeyToken=c3d0ba8d3881c2f7, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\Debug\MPOST.dll</HintPath>
+    <Reference Include="MPOST">
+      <HintPath>..\..\..\..\..\..\..\..\..\..\Program Files (x86)\MEI\MPOST .NET\MPOST for EBDS Demo in CSharp .NET\MPOST.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
