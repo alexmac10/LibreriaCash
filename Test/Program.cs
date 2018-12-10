@@ -27,8 +27,8 @@ namespace Test
         {
             int test = 0;
             bool continuar = true;
-            
-           
+
+
             while (continuar)
             {
                 Console.Clear();
@@ -54,10 +54,10 @@ namespace Test
                 switch (test)
                 {
                     case 1:
-
+                        testBillDispenser();
                         break;
                     case 2:
-
+                        testBillAcceptor();
                         break;
                     case 3:
 
@@ -76,16 +76,18 @@ namespace Test
                         break;
                 }
 
+                Console.Clear();
+                Console.WriteLine();
                 Console.WriteLine("¿Quieres ingresar con otra opción del menu (y/n)?");
                 string respuesta = Console.ReadLine();
 
-                if(respuesta == "n" || respuesta == "N")
+                if (respuesta == "n" || respuesta == "N")
                 {
                     continuar = false;
                 }
-                                        
+
             }
-                                  
+
         }
 
         /// <summary>
@@ -93,7 +95,7 @@ namespace Test
         /// </summary>
         static void testBillDispenser()
         {
-
+            Console.Clear();
             /// <summary>
             /// Obtiene la instancia para el dispositivo bill dispenser
             /// </summary>            
@@ -101,11 +103,13 @@ namespace Test
 
             try
             {
-                //Abriendo comunicacion con dispositivo
+                ///<remarks>
+                ///Abriendo comunicacion con dispositivo
+                ///</remarks>                
                 billDispenser.open();
 
                 //Solicitando efectivo a retirar del dispositvo bill dispenser
-                Console.WriteLine("************ RETIRO DE EFECTIVO ************");
+                Console.WriteLine("************ RETIRO DE BILLETES ************");
                 Console.Write("Indique la cantidad de billetes de a $20.00 a retirar: ");
                 int cantidad20 = Int32.Parse(Console.ReadLine());
                 Console.Write("Indique la cantidad de billetes de a $50.00 a retirar: ");
@@ -122,19 +126,19 @@ namespace Test
                 ///</summary>
                 ///<remarks>
                 /// Los dos primeros parametros siempre deben que tener un valor a cero (0)
-                /// el tercer parametro es un arreglo tipo int y debera definir en el orden
-                /// para los billetes que son : [20,50,100]
+                /// el tercer parametro es un arreglo tipo int y debera definir la cantidad 
+                /// a entregar y el orden del arreglo para los billetes que son : 
+                ///                         [20,50,100] 
                 ///</remarks>                
                 billDispenser.returnCash(0, 0, billCount);
-
-                //Cierra conexion con dispositivo 
-                billDispenser.close();
             }
             catch (CashException ex)
             {
                 ///<remarks>
-                ///Se recibe la excepción cuando no entrego todo el efectivo el dispensador
-                ///de billetes
+                ///Se genera la excepción cuando no entrego todo el efectivo el dispensador
+                ///de billetes. El cual regresa un arreglo byte indicando la cantidad de 
+                ///billetes que se entregaron. El arreglo esta ordenado de la siguiente 
+                ///manera :  [20,50,100]
                 ///</remarks>                
                 foreach (byte i in ex.getInformationCashNotDeliveredException())
                 {
@@ -149,6 +153,11 @@ namespace Test
                 Console.WriteLine(ex.Message);
             }
 
+            ///<remarks>
+            ///Cierra la conexion con el dispositivo
+            ///</remarks>
+            billDispenser.close();
+
         }
 
         /// <summary>
@@ -156,6 +165,7 @@ namespace Test
         /// </summary>
         static void testBillAcceptor()
         {
+            Console.Clear();
             int count = 0;
             /// <summary>
             /// Obtiene la instancia para el dispositivo bill Acceptor
@@ -163,15 +173,15 @@ namespace Test
             IAcceptor billAcceptor = factory.GetBillAcceptor();
 
             //Solicitando efectivo a depositar en el dispositvo bill Acceptor
-            Console.WriteLine("************ DEPOSITAR EFECTIVO ************");
+            Console.WriteLine("************ DEPOSITAR BILLETES ************");
             Console.Write("Indique el efectivo a depositar: ");
-            int cantidad = Int32.Parse(Console.ReadLine());
+            int total = Int32.Parse(Console.ReadLine());
 
             billAcceptor.open();
 
             Console.WriteLine("Espere ...");
-            int depositado =0;
-            while (cantidad!=0)
+            int depositado = 0;
+            while (depositado <= total)
             {
 
                 ///<remarks>
@@ -180,44 +190,64 @@ namespace Test
                 if (!billAcceptor.isConnection())
                 {
                     continue;
-                   
+                }
+                else
+                {
+                    count += 1;
+                }
+
+                if (count == 1) {
+                    Console.WriteLine("Inserte Efectivo...");
                 }
 
                 ///<remarks>
                 ///Habilita el dispositivo para revcibir efectivo
-                /// </remarks>
-                /// 
+                /// </remarks>                
                 billAcceptor.enable();
-                if (count == 0)
-                {
-                    Console.WriteLine("Inserte Efectivo...");
-                }
-                count = 1;
-                depositado = Convert.ToInt32(billAcceptor.getCashDesposite(0));
-                Console.WriteLine(depositado);
-                //int acumulado = 0;
-                //
-                //if (cantidad <= acumulado)
-                //{
-                //    break;
-                //}
-                //cantidad = cantidad - acumulado;
-                //if(cantidad!=0)
-                //{
-                //    Console.WriteLine(cantidad);
-                //}
-               
 
                 ///<remarks>
-                ///Regresa un arreglo con la cantidad recivida. Para recuperara la cantidad
-                ///solo debe ser el primer elemento.
-                /// </remarks>
-                //byte[] bills = billAcceptor.getCashDesposite(0);
-                Thread.Sleep(2000);
-            }
-            billAcceptor.disable();
-            
+                ///Función que solicita la denomincion del billete recibido. Regresa un 
+                ///byte por lo que se tiene que cambiar a int 
+                ///</remarks>
+                int recibido = Convert.ToInt32(billAcceptor.getCashDesposite(0));
 
+
+                switch (recibido)
+                {
+                    case 20:
+                        depositado += recibido;
+                        Console.WriteLine("Se recibio el un billete de ${} y el acomulado es de ${1} ", recibido, depositado);
+                        break;
+                    case 50:
+                        depositado += recibido;
+                        Console.WriteLine("Se recibio el un billete de ${} y el acomulado es de ${1} ", recibido, depositado);
+                        break;
+                    case 100:
+                        depositado += recibido;
+                        Console.WriteLine("Se recibio el un billete de ${} y el acomulado es de ${1} ", recibido, depositado);
+                        break;
+                    case 200:
+                        depositado += recibido;
+                        Console.WriteLine("Se recibio el un billete de ${} y el acomulado es de ${1} ", recibido, depositado);
+                        break;
+                    case 500:
+                        depositado += recibido;
+                        Console.WriteLine("Se recibio el un billete de ${} y el acomulado es de ${1} ", recibido, depositado);
+                        break;
+                }
+
+            }
+
+            ///<remarks>
+            ///Deshabilita el dispositivo para ya no recibir el efectivo. Esto metodo no 
+            ///cierra el puerto de comunicación
+            ///</remarks>
+            billAcceptor.disable();
+
+            ///<remarks>
+            ///Cierra la conexion con el dispositivo
+            ///</remarks>
+            billAcceptor.close();
 
         }
 
@@ -225,7 +255,11 @@ namespace Test
         /// Pruebas con dispositivo para entregar monedas
         /// </summary>
         static void testCoinDispenser()
-        {                                   
+        {
+            Console.Clear();
+            ///<summary>
+            /// Obtiene la instancia para el dispositivo Coin Dispenser
+            ///</summary>
             IDispenser coinDispenser = factory.GetCoinDispenser();
 
         }
@@ -235,9 +269,20 @@ namespace Test
         /// </summary>
         static void testCoinAcceptor()
         {
+            Console.Clear();
+            ///<summary>
+            /// Obtiene la instancia para el dispositivo Coin Acceptor
+            ///</summary>
             IAcceptor coinAcceptor = factory.GetCoinAcceptor();
 
-
+            //Solicitando efectivo a depositar en el dispositvo Coin Acceptor
+            Console.WriteLine("************ DEPOSITAR MONEDAS ************");
+            Console.Write("Indique la cantidad de monedas de a $1.00 a retirar: ");
+            int cantidad20 = Int32.Parse(Console.ReadLine());
+            Console.Write("Indique la cantidad de monedas de a $5.00 a retirar: ");
+            int cantidad50 = Int32.Parse(Console.ReadLine());
+            Console.Write("Indique la cantidad de monedas de a $10.00 a retirar: ");
+            int cantidad100 = Int32.Parse(Console.ReadLine());
         }
 
 
