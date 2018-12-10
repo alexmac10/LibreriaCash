@@ -30,7 +30,7 @@ namespace LibreriaKioscoCash.Class
             throw new NotImplementedException();
         }
 
-        public byte[] getCashDesposite(int count)
+        public byte getCashDesposite(int count)
         {
             throw new NotImplementedException();
         }

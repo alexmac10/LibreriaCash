@@ -136,7 +136,7 @@ namespace Test
                 ///Se recibe la excepción cuando no entrego todo el efectivo el dispensador
                 ///de billetes
                 ///</remarks>                
-                foreach (var i in ex.getInformationCashNotDeliveredException())
+                foreach (byte i in ex.getInformationCashNotDeliveredException())
                 {
                     Console.WriteLine(i);
                 }
@@ -167,30 +167,56 @@ namespace Test
             Console.Write("Indique el efectivo a depositar: ");
             int cantidad = Int32.Parse(Console.ReadLine());
 
+            billAcceptor.open();
 
-            while (count <= cantidad)
+            Console.WriteLine("Espere ...");
+            int depositado =0;
+            while (cantidad!=0)
             {
+
                 ///<remarks>
                 ///Validar antes si el dispositivo ya esta conectado antes de activarse
                 ///</remarks>
                 if (!billAcceptor.isConnection())
                 {
                     continue;
+                   
                 }
 
                 ///<remarks>
                 ///Habilita el dispositivo para revcibir efectivo
                 /// </remarks>
+                /// 
                 billAcceptor.enable();
+                if (count == 0)
+                {
+                    Console.WriteLine("Inserte Efectivo...");
+                }
+                count = 1;
+                depositado = Convert.ToInt32(billAcceptor.getCashDesposite(0));
+                Console.WriteLine(depositado);
+                //int acumulado = 0;
+                //
+                //if (cantidad <= acumulado)
+                //{
+                //    break;
+                //}
+                //cantidad = cantidad - acumulado;
+                //if(cantidad!=0)
+                //{
+                //    Console.WriteLine(cantidad);
+                //}
+               
 
                 ///<remarks>
                 ///Regresa un arreglo con la cantidad recivida. Para recuperara la cantidad
                 ///solo debe ser el primer elemento.
                 /// </remarks>
-                byte[] bills = billAcceptor.getCashDesposite(0);
-
-
+                //byte[] bills = billAcceptor.getCashDesposite(0);
+                Thread.Sleep(2000);
             }
+            billAcceptor.disable();
+            
 
 
         }

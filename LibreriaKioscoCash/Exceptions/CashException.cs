@@ -8,14 +8,14 @@ namespace LibreriaKioscoCash.Exceptions
 {
     public class CashException : Exception
     {
-        private int[] countCash;
+        private byte[] countCash;
 
-        public CashException(int[] count)
+        public CashException(byte[] count)
         {
             countCash = count;
         }
 
-        public int[] getInformationCashNotDeliveredException()
+        public byte[] getInformationCashNotDeliveredException()
         {
             return countCash;
         }

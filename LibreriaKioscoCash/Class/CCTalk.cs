@@ -75,14 +75,14 @@ namespace LibreriaKioscoCash.Class
                 TX += parameters[i] + " ";
             }
             //Console.WriteLine(TX);
-            //Console.WriteLine("TX: " + ByteArrayToString(parameters));
+            Console.WriteLine("TX: " + ByteArrayToString(parameters));
 
             Thread.Sleep(50);
         }
         public void getMessage()
         {
             string RX = "RX :";
-            byte finalByte = 0;
+
             byte[] result = new byte[device.BytesToRead];
 
             device.Read(result, 0, result.Length);
@@ -91,7 +91,6 @@ namespace LibreriaKioscoCash.Class
             {
                 resultmessage[j] = result[i];
                 RX += result[i] + " ";
-                finalByte = result[i];
             }
             //Console.WriteLine(RX);
             Console.WriteLine("RX: " + ByteArrayToString(resultmessage));

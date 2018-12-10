@@ -15,7 +15,8 @@ namespace LibreriaKioscoCash
     public class AcceptorSCAd : IAcceptor
     {
         private Acceptor billAcceptor;
-        bool config;
+        private bool config;
+        private bool stacked;
         //public override event powerUpEventHandler powerUpEvent;
         //public override event connectEventHandler connectEvent;
         //public override event stackEventHandler stackEvent;
@@ -26,6 +27,8 @@ namespace LibreriaKioscoCash
         {
             billAcceptor = new Acceptor();
             billAcceptor.OnConnected += connectedHandle;
+
+            billAcceptor.OnEscrow += Stacked ;
         }
         public void close()
         {
@@ -39,12 +42,20 @@ namespace LibreriaKioscoCash
 
         public void enable()
         {
+            Console.WriteLine("State: " + billAcceptor.DeviceState);
 
-            billAcceptor.EnableAcceptance = true;
-            billAcceptor.AutoStack = true;
+            if (!billAcceptor.EnableAcceptance)
+            {
+                billAcceptor.EnableAcceptance = true;
 
 
-           
+            }
+            else
+            {
+                //Console.WriteLine("State: "+billAcceptor.DeviceState);
+            }
+
+
         }
 
         public bool isConnection()
@@ -54,14 +65,8 @@ namespace LibreriaKioscoCash
 
         public void open()
         {
-            //setEvents();
             openConnection();
-            //Console.WriteLine(billAcceptor.DeviceState);
-            //connectedHandle(new object(), new EventArgs());
-            //connectEvent(new object(),new EventArgs());
 
-            //enable();
-            //Console.WriteLine(billAcceptor.DeviceState);
 
 
 
@@ -102,16 +107,26 @@ namespace LibreriaKioscoCash
             billAcceptor.SetBillValueEnables(ref enables);
         }
 
-        public byte[] getCashDesposite(int count)
+        public byte getCashDesposite(int count)
         {
-            byte[] bill = new byte[1];
-
-            if (billAcceptor.DocType == DocumentType.Bill)
+            Console.WriteLine(billAcceptor.DeviceState);
+            byte bill = new byte { };
+            if (stacked==true)
             {
-                MPOST.Bill bills = billAcceptor.Bill;
-                //Console.WriteLine(bills.Value);
-                bill[0] = (byte)bills.Value;
+                if (billAcceptor.DocType == DocumentType.Bill)
+                {
+                    MPOST.Bill bills = billAcceptor.Bill;
+                    //Console.WriteLine(bills.Value);
+                    bill= (byte)bills.Value;
+                    billAcceptor.EscrowStack();
+                }
+               
             }
+            else
+            {
+                bill = 0;
+            }
+            
             return bill;
         }
 
@@ -125,6 +140,7 @@ namespace LibreriaKioscoCash
         {
             //Console.WriteLine("Evento : Configuracion");
             //Console.WriteLine(billAcceptor.DeviceState);
+            //billAcceptor.EscrowStack();
             if (billAcceptor.DeviceState == State.Idling)
             {
                 configDefault();
@@ -144,6 +160,12 @@ namespace LibreriaKioscoCash
         {
             Console.WriteLine("Evento : ESCROW");
         }
+        private void Stacked(object sender, EventArgs e)
+        {
+            //Console.WriteLine("Evento : Stacked");
+            stacked= true;
+        }
+
     }
 }
 
