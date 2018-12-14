@@ -59,7 +59,13 @@ namespace LibreriaKioscoCash.Class
                 if (Devices.ContainsKey(this.COM))
                 {
                     Console.WriteLine("Puerto Abierto:{0} ", COM);
-                    return (SerialPort)Devices[this.COM];
+                    device=(SerialPort)Devices[this.COM];
+                    if(!device.IsOpen)
+                    {
+                        device.Open();
+                    }
+
+                    return device;
 
                 }
                 else

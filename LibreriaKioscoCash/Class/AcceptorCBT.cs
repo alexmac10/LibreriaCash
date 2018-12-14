@@ -54,7 +54,7 @@ namespace LibreriaKioscoCash.Class
 
         public void close()
         {
-            
+            ComboT.Close();
         }
 
         public bool isConnection()
