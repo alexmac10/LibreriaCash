@@ -59,17 +59,17 @@ namespace LibreriaKioscoCash
            
         }
 
-
         private void openConnection()
         {
             string COMSCAd = ConfigurationManager.AppSettings.Get("COMBillAcceptor");
             try
             {
                 billAcceptor.Open(COMSCAd, PowerUp.A);
+                Console.WriteLine("Abriendo el puerto: {0} ", COMSCAd);
             }
             catch (IOException ex)
             {
-                throw new Exception("Unable to open the bill acceptor on com port <" + COMSCAd + "> " + ex.Message + "Open Bill Acceptor Error");
+                throw new Exception("Error de comunicacion: " + ex.Message);
             }
 
 
@@ -89,33 +89,31 @@ namespace LibreriaKioscoCash
             billAcceptor.SetBillValueEnables(ref enables);
         }
 
-        public double getCashDesposite()
+        public double[] getCashDesposite()
         {
             //Console.WriteLine(billAcceptor.DeviceState);
-            double bill=0 ;
+            double[] bill=new double[1];
             if (billAcceptor.DeviceState==State.Escrow)
             {
                 if (billAcceptor.DocType == DocumentType.Bill)
                 {
                     MPOST.Bill bills = billAcceptor.Bill;
                     //Console.WriteLine(bills.Value);
-                    bill= bills.Value;
+                    bill[0]=bills.Value;
+                    //bill[1] = count;
                     billAcceptor.EscrowStack();
-                    
+
                     
                 }
                
             }
             else
             {
-                bill = 0;
+                bill[0]= 0;
             }
             Thread.Sleep(400);
             return bill;
         }
-
-
-
 
         private void connectedHandle(object sender, EventArgs e)
         {
@@ -141,6 +139,8 @@ namespace LibreriaKioscoCash
 
 
         }
+
+
 
 
 

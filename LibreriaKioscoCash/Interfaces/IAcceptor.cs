@@ -15,7 +15,7 @@ namespace LibreriaKioscoCash.Interfaces
         bool isConnection();
         void enable(); //Habilita el recibo de billetes y monedas
         void disable(); //Deshabilita el recibo de billetes y monedas
-        double getCashDesposite();
+        double[] getCashDesposite();
 
 
     }

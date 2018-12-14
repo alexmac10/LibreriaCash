@@ -16,7 +16,14 @@ namespace LibreriaKioscoCash.Class
         private SerialPort device;
         private static Hashtable Devices;
 
-        public  byte[] resultmessage;
+        private string COM;
+        public byte[] resultmessage;
+        private byte[] parameters;
+        private int position;
+        private bool status;
+        public byte CoinAcceptor, HopperTop, HopperCenter, HopperDown, CoinBox;
+        private bool conection;
+
 
         private static CCTalk instance = null;
 
@@ -35,26 +42,35 @@ namespace LibreriaKioscoCash.Class
 
             return instance;
         }
+        private string GetNameDevice()
+        {
+            var matches = ConfigurationManager.AppSettings.AllKeys.Select(t => new { Key = t, Value = ConfigurationManager.AppSettings[t] }).Where(i => i.Value == this.COM);
+            foreach (var i in matches)
+            {
+                return i.Key.ToString();
+            }
+            return "";
+        }
         public SerialPort openConnection(string COM)
-
         {
             try
             {
-                if(Devices.ContainsKey(COM))
+                this.COM = COM;
+                if (Devices.ContainsKey(this.COM))
                 {
-                    //Console.WriteLine("Puerto Abierto:{0} ", COM);
-                    return (SerialPort)Devices[COM];
+                    Console.WriteLine("Puerto Abierto:{0} ", COM);
+                    return (SerialPort)Devices[this.COM];
 
                 }
                 else
                 {
-                    device = new SerialPort(COM, 9600, Parity.Even);
+                    Console.WriteLine("Abriendo puerto:{0}", COM);
+                    device = GetNameDevice() == "COMBillDispenser" ? new SerialPort(this.COM, 9600, Parity.Even) : new SerialPort(this.COM, 9600);
                     device.Open();
-                    //Console.WriteLine("Abriendo puerto:{0}",COM);
-                    Devices.Add(COM, device);
+                    Devices.Add(this.COM, device);
                     return device;
                 }
-                
+
             }
             catch (IOException ex)
             {
@@ -64,10 +80,11 @@ namespace LibreriaKioscoCash.Class
 
         }
 
-        public void setMessage(string COM,byte[] parameters)
+        public void setMessage(byte[] parameters)
         {
             string TX = "TX: ";
-            device = (SerialPort) Devices[COM];
+            this.parameters = parameters;
+            device = (SerialPort)Devices[this.COM];
             device.Write(parameters, 0, parameters.Length);
 
             for (int i = 0, j = 0; i < parameters.Length; i++, j++)
@@ -81,89 +98,96 @@ namespace LibreriaKioscoCash.Class
         }
         public void getMessage()
         {
-            string RX = "RX :";
+            //string RX = "RX :";
 
             byte[] result = new byte[device.BytesToRead];
 
             device.Read(result, 0, result.Length);
+
             resultmessage = new byte[result.Length];
             for (int i = 0, j = 0; i < result.Length; i++, j++)
             {
                 resultmessage[j] = result[i];
-                RX += result[i] + " ";
             }
-            //Console.WriteLine(RX);
+            CleanEcho();
+
+
+
+
             //Console.WriteLine("RX: " + ByteArrayToString(resultmessage));
             Thread.Sleep(150);
 
         }
-        private int searchElement(byte[] code)
+        private void CleanEcho()
         {
-            ArrayList positions = this.getPositions(code);
-
-            if (code.Length != positions.Count)
+            string RX = "RX :";
+            byte[] temp;
+            search(resultmessage, this.parameters);
+            if (status)
             {
-                throw new Exception("Error en el dispositivo");
-            }
-
-            if (!validateConsecutivePosition(positions))
-            {
-                Console.WriteLine("Se genera el error");
-                throw new Exception("Error en el dispositivo");
-            }
-
-            return (int)positions[0];
-        }
-
-        private ArrayList getPositions(byte[] code)
-        {
-            ArrayList positions = new ArrayList();
-
-            for (int i = 0; i < code.Length; i++)
-            {
-                for (int j = 0; j < resultmessage.Length; j++)
+                temp = new byte[this.resultmessage.Length - parameters.Length];
+                for (int i = parameters.Length, j = 0; i < resultmessage.Length; i++, j++)
                 {
-                    if (code[i] == resultmessage[j])
-                    {
-                        positions.Add(j);
-                    }
+                    temp[j] = resultmessage[i];
+
                 }
+                resultmessage = temp;
+
+
+            }
+            foreach (var i in resultmessage)
+            {
+                RX += i + " ";
+
+
+            }
+            //Console.WriteLine(RX);
+
+        }
+        public int search(byte[] haystack, byte[] needle)
+        {
+
+            for (int i = 0; i <= haystack.Length - needle.Length; i++)
+            {
+
+                if (match(haystack, needle, i))
+                {
+                    position = i;
+                    //Console.WriteLine("Status:{0}\nPosición:{1}", status, position);
+                    return i;
+                }
+
             }
 
-            return positions;
+
+            return -1;
+
         }
-
-        private bool validateConsecutivePosition(ArrayList positions)
+        private bool match(byte[] haystack, byte[] needle, int start)
         {
-            int? anterior = null;
-
-            if (positions.Count == 0)
+            if (needle.Length + start > haystack.Length)
             {
+
+
                 return false;
             }
-
-            foreach (int actual in positions)
+            else
             {
+                for (int i = 0; i < needle.Length; i++)
+                {
+                    if (needle[i] != haystack[i + start])
+                    {
+                        status = false;
+                        return false;
 
-                if (anterior == null)
-                {
-                    anterior = actual;
-                    continue;
+                    }
                 }
-
-                if ((anterior + 1) == actual)
-                {
-                    anterior = actual;
-                    continue;
-                }
-                else
-                {
-                    return false;
-                }
+                status = true;
+                return true;
             }
 
-            return true;
         }
+
         private string ByteArrayToString(byte[] ba)
         {
 
@@ -173,209 +197,132 @@ namespace LibreriaKioscoCash.Class
             return hex.ToString();
         }
 
-        //    //Envia mensaje al dispositivo
-        //    public void setMessage(List<byte> parameter, List<byte> data)
-        //    {
-        //        parameter = this.setChecksum(parameter, data);
-        //        this.sendMessage(parameter);
-        //        Thread.Sleep(500);
-        //        this.getMessage(parameter);
-        //    }
+        public byte[] setChecksum(byte[] parameter, byte[] data)
+        {
+            List<byte> list1 = new List<byte>();
+            byte sum = 0;
+            if (data.Length > 0)
+            {
+                parameter[1] = (byte)data.Length;
+            }
+            list1.AddRange(parameter);
+            list1.AddRange(data);
 
-        //Regresa el Checksum
-        //private List<byte> setChecksum(List<byte> parameter, List<byte> data)
-        //{
-        //    byte sum = 0;
-        //    if (data.Count > 0)
-        //    {
-        //        parameter[1] = (byte)data.Count;
-        //    }
 
-        //    parameter.AddRange(data);
 
-        //    foreach (byte i in parameter)
-        //    {
-        //        sum += i;
-        //    }
+            foreach (byte i in list1)
+            {
+                sum += i;
+            }
 
-        //    sum = (byte)(256 - (sum % 256));
+            sum = (byte)(256 - (sum % 256));
 
-        //    parameter.Add(sum);
 
-        //    return parameter;
-        //}
+            list1.Add(sum);
+            byte[] code = list1.ToArray();
 
-        //    //Envia el mensaje al dispositivo
-        //    private void sendMessage(List<byte> parameters)
-        //    {
-        //        string TX = "TX : ";
-        //        byte[] arrayWrite = new byte[parameters.Count];
+            return code;
+        }
 
-        //        for (int i = 0; i < parameters.Count; i++)
-        //        {
-        //            arrayWrite[i] = parameters[i];
-        //            TX += parameters[i] + " ";
-        //        }
+        /// <summary>
+        /// /METODOS PARA COMBOT
+        /// </summary>
+        /// <param name="COM"></param>
+        public bool getIdDevice()
+        {
 
-        //        portHopper.Write(arrayWrite, 0, arrayWrite.Length);
-        //        //Console.WriteLine(TX);
-        //    }
+            try
+            {
+                byte[] code = { 0, 0, 1, 253 };
+                sendMessage(code);
+                if(resultmessage.Length==0)
+                {
+                    return conection = false;
+                }
+                return conection = true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
 
-        //    //Regresa la respuesta del dispositvo
-        //    private void getMessage(List<byte> parameters)
-        //    {
-        //        string RX = "RX : ";
-        //        int length = 0;
-        //        byte[] result = new byte[portHopper.BytesToRead];
-        //        portHopper.Read(result, 0, result.Length);
-        //        length = (this.device == "COMBOT") ? result.Length : (result.Length - parameters.Count);
-        //        resultMessage = new byte[length];
-        //        length = (this.device == "COMBOT") ? 0 : parameters.Count;
 
-        //        for (int i = length, j = 0; i < result.Length; i++, j++)
-        //        {
-        //            resultMessage[j] = result[i];
-        //            RX += result[i] + " ";
-        //        }
-        //        //Console.WriteLine(RX);            
-        //    }
 
-        /*
-         * Encargado de definir por default la denominacion para todos los 
-         * contenedores de monedas
-         */
-        //protected void setDefaultConfigConteinersCoins()
-        //{
-        //    this.setValueConteinerCoins(new byte[] { 4, 2 });//monedas de 1
-        //    this.setValueConteinerCoins(new byte[] { 5, 0 });//monedas de 2
-        //    this.setValueConteinerCoins(new byte[] { 6, 3 });//monedas de 5
-        //    this.setValueConteinerCoins(new byte[] { 7, 5 });//monedas de 10
-        //}
 
-        ///*
-        //* Encardado de modificar la denominacion que tendra el contenedor de monedas
-        //*/
-        //public void setValueConteinerCoins(byte[] data)
-        //{
-        //    this.setMessage({ 26, 0, 1, 210 }, new
-        //    List<byte>(data));
-        //}
 
-        ////Estableciendo la configuracion inicial para el hooper
-        //public virtual void setConfig()
-        //{
-        //    if (this.device == "COMBOT")
-        //    {
-        //        this.resetAccepter();
-        //        this.setDefaultConfigConteinersCoins();
-        //        this.setConfigDefault();
-        //    }
-        //    else
-        //    {
-        //        this.resetAccepter();
-        //        this.setConfigDefault();
-        //    }
-        //}
+        }
+        public void setDevices()
+        {
+            try
+            {
 
-        ///*
-        //* Encargado de recetear el Acceptador para limpiar los datos 
-        //* de la ultima transacción
-        //*/
-        //private void resetAccepter()
-        //{
-        //    if (this.device == "COMBOT")
-        //    {
-        //        this.setMessage(new List<byte>() { 26, 0, 1, 1 }, new List<byte>());
-        //    }
-        //    else
-        //    {
-        //        this.setMessage(new List<byte>() { 2, 0, 1, 1 }, new List<byte>());
-        //    }
-        //}
+                foreach (var j in resultmessage)
+                {
+                    byte[] code = { j, 0, 1, 245 };
+                    sendMessage(code);
+                    var str = Encoding.Default.GetString(resultmessage);
+                    //Console.WriteLine(str);
+                    if (str.Contains("Coin Acceptor"))
+                    {
+                        CoinAcceptor = j;
 
-        ///*
-        // * Encargado de configurar por default las monedas que se van aceptar con las denominaciones:
-        // * $1,$2,$5,$10 
-        // */
-        //private void setConfigDefault()
-        //{
-        //    //Binario para aceptar las monedas
-        //    //[00000000] = 0 no acepta monedas
-        //    //[00000001] = 1 acepta $0.10 (coin 1)
-        //    //[00000010] = 2 acepta $0.20 (coin 2)
-        //    //[00000100] = 6 acepta $0.50 (coin 3)
-        //    //[00001000] = 8 acepta $1 (coin 4)
-        //    //[00010000] = 16 acepta $2 (coin 5)
-        //    //[00100000] = 32 acepta $5 (coin 6)
-        //    //[01000000] = 64 acepta $10 (coin 7)
-        //    //[10000000] = 128 acepta $20 (coin 8)
+                    }
+                    else if (str.Contains("Payoutt"))
+                    {
+                        HopperTop = j;
+                    }
+                    else if (str.Contains("Payoutr"))
+                    {
+                        HopperCenter = j;
+                    }
+                    else if (str.Contains("Payoutq"))
+                    {
+                        HopperDown = j;
+                    }
+                    else if (str.Contains("Dongle"))
+                    {
+                        CoinBox = j;
+                    }
 
-        //    //Para agregar solo las $10,$5,$2 $1 mandar 120 
-        //    //[01111000] = 120 
-        //    // El data queda [120,255] el 255 siempres se va a poner
-        //    if (this.device == "COMBOT")
-        //    {
-        //        this.setMessage(new List<byte>() { 26, 0, 1, 231 }, new
-        //    List<byte>() { 120, 255 });
-        //    }
-        //    else
-        //    {
-        //        this.setMessage(new List<byte>() { 2, 0, 1, 231 }, new
-        //   List<byte>() { 124, 255 });
-        //    }
+                }
 
-        //}
 
-        ///*
-        // * Obtiene los id que tienen los dispositivos 
-        // */
-        //public void getIdDevice()
-        //{
-        //    this.setMessage(new List<byte>() { 0, 0, 1, 253 }, new
-        //    List<byte>());
-        //}
+            }
+            catch (IOException ex)
+            {
+                throw new Exception(ex.Message);
+            }
 
-        //public void emptyMoneyBox()
-        //{
-        //    //si data = 1 se vacia por atras
-        //    //si data = 2 se vacia por enfrente
-        //    this.setMessage(new List<byte>() { 12, 0, 1, 70 }, new
-        //        List<byte>() { 1 });
-        //}
-        //private void emptyContainerCoin(byte device, byte count = 255)
-        //{
-        //    this.enableContainerCoin(device);
-        //    Thread.Sleep(500);
-        //    byte[] serie = this.getNumberSerie(device);
-        //    serie[3] = count; //Define la cantidad que debe vaciar
-        //    this.setMessage(new List<byte>() { device, 0, 1, 167 }, new
-        //    List<byte>(serie));
-        //    Thread.Sleep(500);
-        //}
+            //Console.WriteLine("{0}: {1}: {2}: {3}: {4}:", CoinAcceptor, HopperTop, HopperCenter, HopperDown, CoinBox);
 
-        ///*
-        // * Encargado de habilitar el contenedor de monedas.
-        // */
-        //private void enableContainerCoin(byte device)
-        //{
-        //    this.setMessage(new List<byte>() { device, 0, 1, 164 }, new
-        //    List<byte>() { 165 });
-        //}
+        }
 
-        ///*
-        //* Encargado de obtener los numero de serie del dispositvo
-        //*/
-        //private byte[] getNumberSerie(byte device)
-        //{
-        //    byte[] serie = new byte[4];
-        //    this.setMessage(new List<byte>() { device, 0, 1, 242 }, new
-        //    List<byte>());
+        public void sendMessage(byte[] parameters, byte[] data = null)
+        {
+            data = (data == null) ? new byte[] { } : data;
+            byte[] parameter = this.setChecksum(parameters, data);
+            while (true)
+            {
+                this.setMessage(parameter);
+                Thread.Sleep(350);
+                this.getMessage();
+                if (resultmessage.Length > 0)
+                {
+                    break;
+                }
+                else if(conection==false)
+                {
+                    break;
+                }
 
-        //    for (int i = 4, j = 0; i < this.resultMessage.Length - 1; i++, j++)
-        //    {
-        //        serie[j] = this.resultMessage[i];
-        //    }
-        //    return serie;
-        //}
+
+            }
+
+
+
+
+        }
+
+
     }
 }
