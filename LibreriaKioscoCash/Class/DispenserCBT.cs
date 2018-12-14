@@ -18,7 +18,7 @@ namespace LibreriaKioscoCash.Class
         private List<byte> Sensors;
         public void close()
         {
-           
+            ComboT.Close();
         }
 
         public bool isConnection()

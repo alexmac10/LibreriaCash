@@ -167,6 +167,7 @@ namespace Test
                 ///manera :  [20,50,100]
                 ///</remarks>   
                 ///
+                Console.WriteLine("Error: Solo se pudo entregar la siguiente cantidad");
                 string[] error = { "$20.00", "$50.00", "$100.00" };
                 byte[] Count = ex.getInformationCashNotDeliveredException();
                 for (byte i = 0; i < Count.Length; i++)
@@ -375,14 +376,16 @@ namespace Test
                     if (respuesta == "n" || respuesta == "N")
                     {
                         continuar = false;
+
+                        ///<remarks>
+                        ///Cierra la conexion con el dispositivo
+                        ///</remarks>
+                        coinDispenser.close();
+
                     }
 
                 }
 
-                ///<remarks>
-                ///Cierra la conexion con el dispositivo
-                ///</remarks>
-                coinDispenser.close();
 
             }
             catch (Exception ex)
@@ -482,6 +485,9 @@ namespace Test
                     if (respuesta == "n" || respuesta == "N")
                     {
                         continuar = false;
+                        /// <summary>
+                        /// Prueba con todos los dispopsitivos
+                        /// </summary>
                         coinAcceptor.close();
 
                     }
@@ -491,20 +497,15 @@ namespace Test
 
                 }
 
-                ///<remarks>
-                ///Cierra la conexion con el dispositivo
-                ///</remarks>
+
             }
             catch (Exception ex)
             {
-                coinAcceptor.close();
                 Console.WriteLine(ex.Message);
             }
         }
 
-        /// <summary>
-        /// Prueba con todos los dispopsitivos
-        /// </summary>
+
         static void allDevices()
         {
             IDispenser billDispenser = factory.GetBillDispenser();
