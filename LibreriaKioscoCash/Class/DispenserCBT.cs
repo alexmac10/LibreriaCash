@@ -16,6 +16,9 @@ namespace LibreriaKioscoCash.Class
         private CCTalk ccTalk= CCTalk.GetInstance();
         private SerialPort ComboT;
         private List<byte> Sensors;
+
+        //Funciones de la interfaz
+
         public void close()
         {
            
@@ -70,7 +73,6 @@ namespace LibreriaKioscoCash.Class
             
         }
 
-
         public void returnCash(int[] CoinCount, int[] BillCount)
         {
             Console.WriteLine("Retirando Efectivo ...");
@@ -112,7 +114,6 @@ namespace LibreriaKioscoCash.Class
            
         }
 
-
         private void enableContainerCoin(byte device)
         {
             byte[] code = { device, 0, 1, 164 };
@@ -121,9 +122,9 @@ namespace LibreriaKioscoCash.Class
 
         }
 
-        /*
-        * Encargado de obtener los numero de serie del dispositvo
-        */
+        //Metodos de la clase
+
+        // Encargado de obtener los numero de serie del dispositvo        
         private byte[] getNumberSerie(byte device)
         {
             byte[] serie = new byte[4];

@@ -17,9 +17,70 @@ namespace LibreriaKioscoCash.Class
         private string COM;
         private byte count_actual = 0;
 
+
+        //Funciones de la interfaz
+
+        public void open()
+        {
+            try
+            {
+                COM = ConfigurationManager.AppSettings.Get("COMComboT");
+                ComboT = ccTalk.openConnection(COM);
+                if (isConnection())
+                {
+                    Console.WriteLine("Configurando ...");
+                    Console.WriteLine("");
+                    ccTalk.setDevices();
+                    clearCounterMoney();
+                    setInibitCoins();
+                    setConfigDefaultHoppers();
+                }
+                else
+                {
+
+                    throw new Exception("Error: Dispositivo Desconectado");
+                }
+
+
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+
+        }
+
         public void close()
         {
             
+        }
+
+        public bool isConnection()
+        {
+            try
+            {
+
+                if (!ccTalk.getIdDevice())
+                {
+                    return false;
+                    throw new Exception("Error: Dispositivo No Conectado");
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+        }
+
+        public void enable()
+        {
+            byte[] data = { 4 };
+            byte[] parameter = { this.ccTalk.CoinAcceptor, 0, 1, 229 };
+            this.ccTalk.sendMessage(parameter, data);
         }
 
         public void disable()
@@ -28,16 +89,6 @@ namespace LibreriaKioscoCash.Class
             setInibitCoins();
             setConfigDefaultHoppers();
             count_actual = 0;
-
-        }
-
-        public void enable()
-        {
-            //int contador = 0;
-            byte[] data = { 4 };
-            byte[] parameter = { this.ccTalk.CoinAcceptor, 0, 1, 229 };
-            this.ccTalk.sendMessage(parameter, data);
-            //Console.WriteLine("{0}: {1}", this.ccTalk.resultmessage[5], this.ccTalk.resultmessage[4]);
         }
 
         public double[] getCashDesposite()
@@ -83,56 +134,7 @@ namespace LibreriaKioscoCash.Class
             return money;
         }
 
-        public bool isConnection()
-        {
-            try
-            {
-               
-                if (!ccTalk.getIdDevice())
-                {
-                    return false;
-                    throw new Exception("Error: Dispositivo No Conectado");
-                }
-                return true;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-
-        }
-
-        public void open()
-        {
-            try
-            {
-                COM = ConfigurationManager.AppSettings.Get("COMComboT");
-                ComboT = ccTalk.openConnection(COM);
-                if(isConnection())
-                {
-                    Console.WriteLine("Configurando ...");
-                    Console.WriteLine("");
-                    ccTalk.setDevices();
-                    clearCounterMoney();
-                    setInibitCoins();
-                    setConfigDefaultHoppers();
-                }
-                else
-                {
-                    
-                    throw new Exception("Error: Dispositivo Desconectado");
-                }
-               
-
-
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-
-
-        }
+        //Metodos de la clase
 
         private void setConfigDefaultHoppers()
         {
@@ -159,6 +161,7 @@ namespace LibreriaKioscoCash.Class
             byte[] parameter = { this.ccTalk.CoinAcceptor, 0, 1, 1 };
             this.ccTalk.sendMessage(parameter);
         }
+
         private void emptyMoneyBox()
         {
             //si data = 1 se vacia por atras

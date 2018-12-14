@@ -49,39 +49,16 @@ namespace LibreriaKioscoCash.Class
         private byte[] IsoCodes = new byte[] { 48, 177, 178, 51, 180, 53, 54, 183, 184, 57 };
         private string[] Sensors_name = new string[] { "FDLS1", "FDLS2", "FDLS3", "FDLS4", "FDLS5", "FDLS6", "DFSS", "REJS", "BPS", "BRS1", "BRS2", "BRS3", "EJSR", "EJSF", "BCS" };
 
-        //Configuracion de paridad del protocolo serial RS232
-        private Parity SetPortParity(Parity defaultPortParity)
-        {
-            string parity = Console.ReadLine();
 
-            if (parity == "")
-            {
-                parity = defaultPortParity.ToString();
-            }
+        //Funciones de la interfaz
 
-            return (Parity)Enum.Parse(typeof(Parity), parity);
-        }
-
-
-        private void openConnection()
-        {
-            COM = ConfigurationManager.AppSettings.Get("COMBillDispenser");
-            F53 = ccTalk.openConnection(COM);
-        }
-        public bool IsConfig
-        {
-            get
-            {
-                return bandera;
-            }
-
-        }
         public void close()
         {
             Log.WriteLine("-------------------------------------------------------------------------");
             Log.Close();
             F53.Close();
         }
+
         public bool isConnection()
         {
             try
@@ -108,6 +85,7 @@ namespace LibreriaKioscoCash.Class
 
 
         }
+
         public void open()
         {
             try
@@ -124,6 +102,97 @@ namespace LibreriaKioscoCash.Class
             }
 
 
+        }
+
+        public void returnCash(int[] CoinCount, int[] BillCount)
+        {
+
+            byte[] bill_codes = { };
+            money = true;
+            Console.WriteLine(" ");
+            Console.WriteLine("Retirando Efectivo...");
+            DisplayEvent("Retirando Efectivo...");
+
+            DispenserBill[5] = IsoCodes[BillCount[0]];
+            DispenserBill[7] = IsoCodes[BillCount[1]];
+            DispenserBill[9] = IsoCodes[BillCount[2]];
+
+
+            createCode(DispenserBill);
+            sendMessage(mensaje_final);
+            byte[] error_answer = { 0x8c };
+            search(ccTalk.resultmessage, error_answer);
+            Error = new List<byte>();
+            for (int l = 7, m = 0; l < position; l++, m++)
+            {
+                Error.Add(ccTalk.resultmessage[l]);
+                //Console.WriteLine(ccTalk.resultmessage[l].ToString("X"));
+            }
+            if ((Error[0] == 0) && (Error[1] == 0))
+            {
+                Console.WriteLine("Se Entrego El Dinero De Manera Correcta");
+                Console.WriteLine(" ");
+
+
+                DisplayEvent("Se Entrego El Dinero De Manera Correcta");
+                DisplayEvent("Error Code: " + Error[0].ToString("X") + " " + Error[1].ToString("X"));
+                DisplayEvent("Error Adress: " + Error[2].ToString("X") + " " + Error[3].ToString("X"));
+                DisplayEvent("Error Register: " + Error[6].ToString("X") + " " + Error[7].ToString("X") + " " + Error[8].ToString("X"));
+                DisplayEvent("Sensor Register: " + Error[9].ToString("X") + " " + Error[10].ToString("X") + " " + Error[11].ToString("X") + " " + Error[12].ToString("X") + " " + Error[13].ToString("X") + " " + Error[14].ToString("X"));
+
+
+
+            }
+            else
+            {
+
+
+                DisplayEvent("No se pudo entregar el dinero");
+                DisplayEvent("Error Code: " + Error[0].ToString("X") + " " + Error[1].ToString("X"));
+                DisplayEvent("Error Adress: " + Error[2].ToString("X") + " " + Error[3].ToString("X"));
+                DisplayEvent("Error Register: " + Error[6].ToString("X") + " " + Error[7].ToString("X") + " " + Error[8].ToString("X"));
+                DisplayEvent("Sensor Register: " + Error[9].ToString("X") + " " + Error[10].ToString("X") + " " + Error[11].ToString("X") + " " + Error[12].ToString("X") + " " + Error[13].ToString("X") + " " + Error[14].ToString("X"));
+
+                if ((BillCount[0] <= 2) && (BillCount[1] <= 2) && (BillCount[2] <= 2))
+                {
+                    bill_codes = new byte[] { ccTalk.resultmessage[46], ccTalk.resultmessage[48], ccTalk.resultmessage[50] };
+
+                }
+                else
+                {
+                    bill_codes = new byte[] { ccTalk.resultmessage[44], ccTalk.resultmessage[46], ccTalk.resultmessage[48] };
+
+                }
+
+                byte[] entrega = getPositions(IsoCodes, bill_codes);
+
+                throw new CashException(entrega);
+
+
+
+
+
+            }
+
+
+
+
+
+        }
+
+        //Metodos de la clase
+
+        //Configuracion de paridad del protocolo serial RS232
+        private Parity SetPortParity(Parity defaultPortParity)
+        {
+            string parity = Console.ReadLine();
+
+            if (parity == "")
+            {
+                parity = defaultPortParity.ToString();
+            }
+
+            return (Parity)Enum.Parse(typeof(Parity), parity);
         }
 
         private void createCode(byte[] fun)
@@ -191,6 +260,7 @@ namespace LibreriaKioscoCash.Class
             //Console.WriteLine();
 
         }
+
         private void setFreeDevice()
         {
             createCode(cancel);
@@ -207,6 +277,7 @@ namespace LibreriaKioscoCash.Class
             ccTalk.setMessage(statusRequest);
             ccTalk.getMessage();
         }
+
         private void sendMessage(byte[] parameter)
         {
 
@@ -310,6 +381,12 @@ namespace LibreriaKioscoCash.Class
 
         }
 
+        private void openConnection()
+        {
+            COM = ConfigurationManager.AppSettings.Get("COMBillDispenser");
+            F53 = ccTalk.openConnection(COM);
+        }
+        
         //Funciones del Dispositivo [Codigo Completo]
         private void Config_inicial()
         {
@@ -317,16 +394,19 @@ namespace LibreriaKioscoCash.Class
             createCode(ConfigDefault);
             sendMessage(mensaje_final);
         }
+
         private void Mechal_Reset()
         {
             createCode(MechalReset);
             sendMessage(mensaje_final);
         }
+
         private void Cancel()
         {
             createCode(cancel);
             sendMessage(mensaje_final);
         }
+
         private void SensorLevelInformation()
         {
             //Console.WriteLine("Checando Estatus de los Sensores....");
@@ -366,6 +446,7 @@ namespace LibreriaKioscoCash.Class
                 }
             }
         }
+
         private void CheckConfig()
         {
             Console.WriteLine("Checando Estatus del Dispositivo....");
@@ -419,82 +500,7 @@ namespace LibreriaKioscoCash.Class
 
 
         }
-        public void returnCash(int[] CoinCount, int[] BillCount)
-        {
-
-            byte[] bill_codes = { };
-            money = true;
-            Console.WriteLine(" ");
-            Console.WriteLine("Retirando Efectivo...");
-            DisplayEvent("Retirando Efectivo...");
-
-            DispenserBill[5] = IsoCodes[BillCount[0]];
-            DispenserBill[7] = IsoCodes[BillCount[1]];
-            DispenserBill[9] = IsoCodes[BillCount[2]];
-
-
-            createCode(DispenserBill);
-            sendMessage(mensaje_final);
-            byte[] error_answer = { 0x8c };
-            search(ccTalk.resultmessage, error_answer);
-            Error = new List<byte>();
-            for (int l = 7, m = 0; l < position; l++, m++)
-            {
-                Error.Add(ccTalk.resultmessage[l]);
-                //Console.WriteLine(ccTalk.resultmessage[l].ToString("X"));
-            }
-            if ((Error[0] == 0) && (Error[1] == 0))
-            {
-                Console.WriteLine("Se Entrego El Dinero De Manera Correcta");
-                Console.WriteLine(" ");
-
-
-                DisplayEvent("Se Entrego El Dinero De Manera Correcta");
-                DisplayEvent("Error Code: " + Error[0].ToString("X") + " " + Error[1].ToString("X"));
-                DisplayEvent("Error Adress: " + Error[2].ToString("X") + " " + Error[3].ToString("X"));
-                DisplayEvent("Error Register: " + Error[6].ToString("X") + " " + Error[7].ToString("X") + " " + Error[8].ToString("X"));
-                DisplayEvent("Sensor Register: " + Error[9].ToString("X") + " " + Error[10].ToString("X") + " " + Error[11].ToString("X") + " " + Error[12].ToString("X") + " " + Error[13].ToString("X") + " " + Error[14].ToString("X"));
-
-
-
-            }
-            else
-            {
-
-
-                DisplayEvent("No se pudo entregar el dinero");
-                DisplayEvent("Error Code: " + Error[0].ToString("X") + " " + Error[1].ToString("X"));
-                DisplayEvent("Error Adress: " + Error[2].ToString("X") + " " + Error[3].ToString("X"));
-                DisplayEvent("Error Register: " + Error[6].ToString("X") + " " + Error[7].ToString("X") + " " + Error[8].ToString("X"));
-                DisplayEvent("Sensor Register: " + Error[9].ToString("X") + " " + Error[10].ToString("X") + " " + Error[11].ToString("X") + " " + Error[12].ToString("X") + " " + Error[13].ToString("X") + " " + Error[14].ToString("X"));
-
-                if ((BillCount[0] <= 2) && (BillCount[1] <= 2) && (BillCount[2] <= 2))
-                {
-                    bill_codes = new byte[] { ccTalk.resultmessage[46], ccTalk.resultmessage[48], ccTalk.resultmessage[50] };
-
-                }
-                else
-                {
-                    bill_codes = new byte[] { ccTalk.resultmessage[44], ccTalk.resultmessage[46], ccTalk.resultmessage[48] };
-
-                }
-
-                byte[] entrega = getPositions(IsoCodes, bill_codes);
-
-                throw new CashException(entrega);
-
-
-
-
-
-            }
-
-
-
-
-
-        }
-
+        
         //Funciones complementarias de programación
 
         private int search(byte[] haystack, byte[] needle)
@@ -515,6 +521,7 @@ namespace LibreriaKioscoCash.Class
             return -1;
 
         }
+
         private bool match(byte[] haystack, byte[] needle, int start)
         {
             if (needle.Length + start > haystack.Length)
@@ -539,7 +546,8 @@ namespace LibreriaKioscoCash.Class
             }
 
         }
-        public void DisplayEvent(string message)
+
+        private void DisplayEvent(string message)
         {
             string fecha = string.Format("{0:dd/MM/yyyy HH:mm}  ", DateTime.Now);
 
@@ -551,6 +559,7 @@ namespace LibreriaKioscoCash.Class
 
 
         }
+
         private byte[] getPositions(byte[] where, byte[] code)
         {
             positions = new List<byte>();
