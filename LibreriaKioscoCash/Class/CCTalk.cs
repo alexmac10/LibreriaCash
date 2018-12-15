@@ -42,6 +42,7 @@ namespace LibreriaKioscoCash.Class
 
             return instance;
         }
+
         private string GetNameDevice()
         {
             var matches = ConfigurationManager.AppSettings.AllKeys.Select(t => new { Key = t, Value = ConfigurationManager.AppSettings[t] }).Where(i => i.Value == this.COM);
@@ -51,6 +52,7 @@ namespace LibreriaKioscoCash.Class
             }
             return "";
         }
+
         public SerialPort openConnection(string COM)
         {
             try
@@ -102,6 +104,7 @@ namespace LibreriaKioscoCash.Class
 
             Thread.Sleep(50);
         }
+
         public void getMessage()
         {
             //string RX = "RX :";
@@ -124,6 +127,7 @@ namespace LibreriaKioscoCash.Class
             Thread.Sleep(150);
 
         }
+
         private void CleanEcho()
         {
             string RX = "RX :";
@@ -150,6 +154,7 @@ namespace LibreriaKioscoCash.Class
             //Console.WriteLine(RX);
 
         }
+
         public int search(byte[] haystack, byte[] needle)
         {
 
@@ -169,6 +174,7 @@ namespace LibreriaKioscoCash.Class
             return -1;
 
         }
+
         private bool match(byte[] haystack, byte[] needle, int start)
         {
             if (needle.Length + start > haystack.Length)
@@ -230,10 +236,6 @@ namespace LibreriaKioscoCash.Class
             return code;
         }
 
-        /// <summary>
-        /// /METODOS PARA COMBOT
-        /// </summary>
-        /// <param name="COM"></param>
         public bool getIdDevice()
         {
 
@@ -257,6 +259,7 @@ namespace LibreriaKioscoCash.Class
 
 
         }
+
         public void setDevices()
         {
             try

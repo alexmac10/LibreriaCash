@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,6 +23,9 @@ namespace Test
         ///     IDispenser o IAcceptor
         /// </remarks>
         static FactoryDevice factory = new FactoryDevice();
+        static int extraMoney = 0;
+        static Hashtable stored;
+        static Hashtable returnCash;
 
         static void Main(string[] args)
         {
@@ -66,7 +70,7 @@ namespace Test
                         testCoinAcceptor();
                         break;
                     case 5:
-                        allDevices();
+                        testAllDevices();
                         break;
                     case 6:
                         Environment.Exit(0);
@@ -76,7 +80,7 @@ namespace Test
                         break;
                 }
 
-                //Console.Clear();
+                Console.Clear();
                 Console.WriteLine();
                 Console.WriteLine("¿Quieres ingresar con otra opción del menu (y/n)?");
                 string respuesta = Console.ReadLine();
@@ -134,7 +138,7 @@ namespace Test
                     ///</summary>
                     ///<remarks>
                     /// El primer parametro debe tener un valor a cero (0)
-                    /// el tercer parametro es un arreglo tipo int y debera definir la cantidad 
+                    /// el segundo parametro es un arreglo tipo int y debera definir la cantidad 
                     /// a entregar y el orden del arreglo para los billetes que son : 
                     ///                         [20,50,100] 
                     ///</remarks>                
@@ -154,7 +158,7 @@ namespace Test
                     }
 
                 }
-                               
+
             }
             catch (CashException ex)
             {
@@ -170,9 +174,10 @@ namespace Test
                 byte[] Count = ex.getInformationCashNotDeliveredException();
                 for (byte i = 0; i < Count.Length; i++)
                 {
-                    Console.WriteLine("{0}: {1}",error[i],Count[i]);
+                    Console.WriteLine("{0}: {1}", error[i], Count[i]);
                 }
-
+                Console.ReadLine();
+                Environment.Exit(0);
 
             }
             catch (Exception ex)
@@ -181,7 +186,8 @@ namespace Test
                 ///Se recibe la excepción con el error de conexión
                 ///</remarks>
                 Console.WriteLine(ex.Message);
-
+                Console.ReadLine();
+                Environment.Exit(0);
             }
         }
 
@@ -284,11 +290,11 @@ namespace Test
                     }
 
                     Console.WriteLine("");
-                    Console.WriteLine("Se recibio: ${0}.00",depositado);
+                    Console.WriteLine("Se recibio: ${0}.00", depositado);
                     Console.WriteLine("");
                     Console.WriteLine("Transacción Terminada ....");
                     Console.WriteLine("");
-                    
+
                     ///<remarks>
                     ///Deshabilita el dispositivo para ya no recibir el efectivo. 
                     ///Esto metodo no cierra el puerto de comunicación
@@ -307,7 +313,7 @@ namespace Test
                         ///</remarks>
                         billAcceptor.close();
                     }
-                }                
+                }
             }
             catch (Exception ex)
             {
@@ -315,6 +321,8 @@ namespace Test
                 ///Muestra un mensaje en caso de error de conexion
                 ///</remarks>
                 Console.WriteLine(ex.Message);
+                Console.ReadLine();
+                Environment.Exit(0);
             }
         }
 
@@ -382,8 +390,8 @@ namespace Test
                         coinDispenser.close();
                     }
 
-                } 
-                
+                }
+
             }
             catch (Exception ex)
             {
@@ -391,6 +399,8 @@ namespace Test
                 ///Muestra la excepcion en caso de error de conexión.
                 ///</remarks>                
                 Console.WriteLine(ex.Message);
+                Console.ReadLine();
+                Environment.Exit(0);
             }
 
         }
@@ -512,31 +522,274 @@ namespace Test
                         ///Cierra la conexion con el dispositivo
                         ///</remarks>
                         coinAcceptor.close();
-                    }                    
+                    }
                 }
 
-               
+
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                Console.ReadLine();
+                Environment.Exit(0);
             }
         }
 
-
-        static void allDevices()
+        /// <summary>
+        /// Pruebas con todos los dipositivos para realizar una transacción
+        /// </summary>
+        static void testAllDevices()
         {
+            //Inicializa los que hay en los dipositivos dispenser
+            stored = new Hashtable();
+            stored.Add("100", 0);
+            stored.Add("50", 0);
+            stored.Add("20", 0);
+            stored.Add("10", 0);
+            stored.Add("5", 0);
+            stored.Add("1", 0);
+
+            ///<remarks>
+            ///Creando las instancias de los dispositivos
+            ///</remarks>
             IDispenser billDispenser = factory.GetBillDispenser();
             IAcceptor billAcceptor = factory.GetBillAcceptor();
             IAcceptor coinAcceptor = factory.GetCoinAcceptor();
             IDispenser coinDispenser = factory.GetCoinDispenser();
 
-            billDispenser.open();
-            billAcceptor.open();
-            coinAcceptor.open();
-            coinDispenser.open();
+            ///<remarks>
+            ///Variables para pruebas
+            ///</remarks>                        
+            int count = 0;
+            double depositado = 0;
+            bool continuar = true;
+            double count_actual = 0;
+
+            try
+            {
+                ///<remarks>
+                ///Abriendo conexion con los puertos de los dispositivos
+                ///</remarks>
+                billDispenser.open();
+                billAcceptor.open();
+                coinAcceptor.open();
+                coinDispenser.open();
+
+                while (continuar)
+                {
+
+                    ///<remarks>
+                    ///Solicitando efectivo a depositar en el dispositvo bill Acceptor
+                    ///</remarks>
+                    Console.WriteLine("********** PRUEBA DE TRANSACCIÓN **********");
+                    Console.Write("Indique el efectivo a depositar: ");
+                    double total = Int32.Parse(Console.ReadLine());
+                    Console.WriteLine("");
+                    Console.WriteLine("Espere ...");
+                    Console.WriteLine("");
+
+                    //Deposito de efectivo
+                    while (depositado < total)
+                    {
+                        ///<remarks>
+                        ///Validar antes si el dispositivo ya esta conectado
+                        ///antes de activarse.
+                        ///</remarks>
+                        if (!billAcceptor.isConnection())
+                        {
+                            continue;
+                        }
+
+                        ///<remarks>
+                        ///Habilitar los dispositivos para recibir efectivo
+                        ///</remarks>     
+                        billAcceptor.enable();
+                        coinAcceptor.enable();
+
+                        if (count == 0)
+                        {
+                            count = 1;
+                            Console.WriteLine("Inserte Efectivo...");
+                        }
+
+                        ///<remarks>
+                        ///Recibiendo monedas y billetes
+                        ///</remarks>
+                        double[] recibidoCoin = coinAcceptor.getCashDesposite();
+                        double[] recibidoBill = billAcceptor.getCashDesposite();
+
+                        //Acumulando el efectivo
+                        if (count_actual != recibidoCoin[1])
+                        {
+                            switch (recibidoCoin[0])
+                            {
+                                case 10:
+                                    depositado += recibidoCoin[0];
+                                    count_actual = recibidoCoin[1];
+                                    Console.WriteLine("Se recibio moneda de ${0}.00 ", recibidoCoin[0]);
+                                    break;
+                                case 5:
+                                    depositado += recibidoCoin[0];
+                                    count_actual = recibidoCoin[1];
+                                    Console.WriteLine("Se recibio moneda de ${0}.00 ", recibidoCoin[0]);
+                                    break;
+                                case 2:
+                                    depositado += recibidoCoin[0];
+                                    count_actual = recibidoCoin[1];
+                                    Console.WriteLine("Se recibio moneda de ${0}.00 ", recibidoCoin[0]);
+                                    break;
+                                case 1:
+                                    depositado += recibidoCoin[0];
+                                    count_actual = recibidoCoin[1];
+                                    Console.WriteLine("Se recibio moneda de ${0}.00 ", recibidoCoin[0]);
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            switch (recibidoBill[0])
+                            {
+                                case 20:
+                                    depositado += recibidoBill[0];
+                                    Console.WriteLine("Se deposito billete de ${0}.00 ", recibidoBill[0]);
+                                    break;
+                                case 50:
+                                    depositado += recibidoBill[0];
+                                    Console.WriteLine("Se deposito billete de ${0}.00 ", recibidoBill[0]);
+                                    break;
+                                case 100:
+                                    depositado += recibidoBill[0];
+                                    Console.WriteLine("Se deposito billete de ${0}.00 ", recibidoBill[0]);
+                                    break;
+                                case 200:
+                                    depositado += recibidoBill[0];
+                                    Console.WriteLine("Se deposito billete de ${0}.00 ", recibidoBill[0]);
+                                    break;
+                                case 500:
+                                    depositado += recibidoBill[0];
+                                    Console.WriteLine("Se deposito billete de ${0}.00 ", recibidoBill[0]);
+                                    break;
+                            }
+                        }
+                    }
+
+                    ///<remarks>
+                    /// Deshabilitando dispositivos acceptor
+                    ///</remarks>
+                    coinAcceptor.disable();
+                    billAcceptor.disable();
+
+                    //Regresando cambio
+                    double cambio = depositado - total;
+
+                    if (validateExtraMoney((int)cambio))
+                    {
+                        int[] billExtra = { (int)returnCash["20"], (int)returnCash["50"], (int)returnCash["100"] };
+                        int[] coinExtra = { (int)returnCash["1"], (int)returnCash["5"], (int)returnCash["10"] };
+
+                        ///<remarks>
+                        ///Funcion para entregar cambio en los dispositivos
+                        ///</remarks>
+                        billDispenser.returnCash(new int[0], billExtra);
+                        coinDispenser.returnCash(coinExtra, new int[0]);
+                    }
 
 
+                    Console.WriteLine("¿ Deseas realizar otra operación  (Y/N) ?");
+                    string respuesta = Console.ReadLine();
+
+                    if (respuesta == "n" || respuesta == "N")
+                    {
+                        continuar = false;
+
+                        ///<remarks>
+                        ///Cierra la conexion de los dispositivos
+                        ///</remarks>
+                        billDispenser.close();
+                        billAcceptor.close();
+                        coinAcceptor.close();
+                        coinDispenser.close();
+                    }
+
+                }
+            }
+            catch (CashException ex)
+            {
+                Console.WriteLine("");
+                Console.WriteLine("Error: Solo se pudo entregar la siguiente cantidad");
+                string[] error = { "$20.00", "$50.00", "$100.00" };
+                byte[] Count = ex.getInformationCashNotDeliveredException();
+                for (byte i = 0; i < Count.Length; i++)
+                {
+                    Console.WriteLine("{0}: {1}", error[i], Count[i]);
+                }
+                Console.ReadLine();
+                Environment.Exit(0);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                Console.ReadLine();
+                Environment.Exit(0);
+            }
         }
+
+        //Funciones adicionales para calcular cambio
+
+        static bool validateExtraMoney(int money)
+        {
+            calculateExtraMoney(money);
+            if (extraMoney == 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        static void calculateExtraMoney(int money)
+        {
+
+            returnCash = new Hashtable();
+            int cash = money;
+
+            if (money > 0)
+            {
+                cash = setAmountDeliverCash(cash, 100);
+                cash = setAmountDeliverCash(cash, 50);
+                cash = setAmountDeliverCash(cash, 20);
+                cash = setAmountDeliverCash(cash, 10);
+                cash = setAmountDeliverCash(cash, 5);
+                cash = setAmountDeliverCash(cash, 1);
+            }
+
+            extraMoney = cash;
+        }
+
+        static int setAmountDeliverCash(int cash, int coinType)
+        {
+            int cantidad = 0;
+
+            if (cash >= coinType)
+            {
+                cantidad = cash / coinType;
+                if ((int)stored[coinType.ToString()] >= cantidad)
+                {
+                    cash -= (cantidad * coinType);
+                    returnCash.Add(coinType, cantidad);
+                }
+                else if ((int)stored[coinType.ToString()] > 0)
+                {
+                    cantidad -= (int)stored[coinType.ToString()];
+                    cash -= ((int)stored[coinType.ToString()] * coinType);
+                    returnCash.Add(coinType, (int)stored[coinType.ToString()]);
+                }
+            }
+
+            return cash;
+        }
+        
     }
 }
