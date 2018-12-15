@@ -25,7 +25,7 @@ namespace Test
         static FactoryDevice factory = new FactoryDevice();
         static int extraMoney = 0;
         static Hashtable stored;
-        static Hashtable returnCash;
+        static Hashtable returnMoney;
 
         static void Main(string[] args)
         {
@@ -542,12 +542,12 @@ namespace Test
         {
             //Inicializa los que hay en los dipositivos dispenser
             stored = new Hashtable();
-            stored.Add("100", 0);
-            stored.Add("50", 0);
-            stored.Add("20", 0);
-            stored.Add("10", 0);
-            stored.Add("5", 0);
-            stored.Add("1", 0);
+            stored.Add("100", 2);
+            stored.Add("50", 2);
+            stored.Add("20", 2);
+            stored.Add("10", 2);
+            stored.Add("5", 2);
+            stored.Add("1", 2);
 
             ///<remarks>
             ///Creando las instancias de los dispositivos
@@ -684,8 +684,8 @@ namespace Test
 
                     if (validateExtraMoney((int)cambio))
                     {
-                        int[] billExtra = { (int)returnCash["20"], (int)returnCash["50"], (int)returnCash["100"] };
-                        int[] coinExtra = { (int)returnCash["1"], (int)returnCash["5"], (int)returnCash["10"] };
+                        int[] billExtra = { (int)returnMoney["20"], (int)returnMoney["50"], (int)returnMoney["100"] };
+                        int[] coinExtra = { (int)returnMoney["1"], (int)returnMoney["5"], (int)returnMoney["10"] };
 
                         ///<remarks>
                         ///Funcion para entregar cambio en los dispositivos
@@ -752,7 +752,13 @@ namespace Test
         static void calculateExtraMoney(int money)
         {
 
-            returnCash = new Hashtable();
+            returnMoney = new Hashtable();
+            returnMoney.Add("1", 0);
+            returnMoney.Add("5", 0);
+            returnMoney.Add("10", 0);
+            returnMoney.Add("20", 0);
+            returnMoney.Add("50", 0);
+            returnMoney.Add("100", 0);
             int cash = money;
 
             if (money > 0)
@@ -778,13 +784,13 @@ namespace Test
                 if ((int)stored[coinType.ToString()] >= cantidad)
                 {
                     cash -= (cantidad * coinType);
-                    returnCash.Add(coinType, cantidad);
+                    returnMoney.Add(coinType, cantidad);
                 }
                 else if ((int)stored[coinType.ToString()] > 0)
                 {
                     cantidad -= (int)stored[coinType.ToString()];
                     cash -= ((int)stored[coinType.ToString()] * coinType);
-                    returnCash.Add(coinType, (int)stored[coinType.ToString()]);
+                    returnMoney.Add(coinType, (int)stored[coinType.ToString()]);
                 }
             }
 

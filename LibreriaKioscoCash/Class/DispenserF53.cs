@@ -106,7 +106,10 @@ namespace LibreriaKioscoCash.Class
 
         public void returnCash(int[] CoinCount, int[] BillCount)
         {
-
+            if (BillCount[0] == 0 && BillCount[1] == 0 && BillCount[2] == 0)
+            {
+                throw new Exception("No se solicito la entrega de billetes");
+            }
             byte[] bill_codes = { };
             money = true;
             Console.WriteLine(" ");
@@ -386,7 +389,7 @@ namespace LibreriaKioscoCash.Class
             COM = ConfigurationManager.AppSettings.Get("COMBillDispenser");
             F53 = ccTalk.openConnection(COM);
         }
-        
+
         //Funciones del Dispositivo [Codigo Completo]
         private void Config_inicial()
         {
@@ -500,7 +503,7 @@ namespace LibreriaKioscoCash.Class
 
 
         }
-        
+
         //Funciones complementarias de programación
 
         private int search(byte[] haystack, byte[] needle)
@@ -573,7 +576,7 @@ namespace LibreriaKioscoCash.Class
                     {
 
                         positions.Add(j);
-                        
+
                     }
                 }
             }
