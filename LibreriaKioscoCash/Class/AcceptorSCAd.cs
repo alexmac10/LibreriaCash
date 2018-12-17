@@ -65,7 +65,7 @@ namespace LibreriaKioscoCash
             try
             {
                 billAcceptor.Open(COMSCAd, PowerUp.A);
-                Console.WriteLine("Abriendo el puerto: {0} ", COMSCAd);
+                //Console.WriteLine("Abriendo el puerto: {0} ", COMSCAd);
             }
             catch (IOException ex)
             {

@@ -92,7 +92,7 @@ namespace LibreriaKioscoCash.Class
             {
                 Log.WriteLine("--------------------------SICCOB SOLUTIONS-------------------------------");
                 openConnection();
-                CheckConfig();
+
 
 
             }
@@ -133,7 +133,7 @@ namespace LibreriaKioscoCash.Class
             }
             if ((Error[0] == 0) && (Error[1] == 0))
             {
-                Console.WriteLine("Se Entrego El Dinero De Manera Correcta");
+                Console.WriteLine("Se Entregaron los Billetes De Manera Correcta");
                 Console.WriteLine(" ");
 
 
@@ -452,7 +452,7 @@ namespace LibreriaKioscoCash.Class
 
         private void CheckConfig()
         {
-            Console.WriteLine("Checando Estatus del Dispositivo....");
+            //Console.WriteLine("Checando Estatus del Dispositivo....");
             DisplayEvent("Checando Estatus del Dispositivo....");
             createCode(StatusInformation);
             sendMessage(mensaje_final);
@@ -462,16 +462,16 @@ namespace LibreriaKioscoCash.Class
             {
                 if (status == true)
                 {
-                    Console.WriteLine("Estatus: OK");
-                    Console.WriteLine("");
+                    //Console.WriteLine("Estatus: OK");
+                    //Console.WriteLine("");
                     DisplayEvent("Los Cassets se encuentran colocados");
                     byte[] config = new byte[] { 130, 110, 137, 117, 147, 127 };
                     search(ccTalk.resultmessage, config);
-                    Console.WriteLine("Checando Estatus de Configuración....");
+                    //Console.WriteLine("Checando Estatus de Configuración....");
                     DisplayEvent("Checando Estatus de Configuración....");
                     if (status == false)
                     {
-                        Console.WriteLine("Configurando Dispositivo....");
+                        //Console.WriteLine("Configurando Dispositivo....");
                         DisplayEvent("Configurando Dispositivo....");
                         Config_inicial();
 
@@ -479,8 +479,8 @@ namespace LibreriaKioscoCash.Class
                     }
                     else
                     {
-                        Console.WriteLine("El dispositivo ya se encuentra configurado");
-                        Console.WriteLine("");
+                        //Console.WriteLine("El dispositivo ya se encuentra configurado");
+                        //Console.WriteLine("");
                         DisplayEvent("El dispositivo ya se encuentra configurado");
 
                     }
@@ -584,7 +584,11 @@ namespace LibreriaKioscoCash.Class
             return positions.ToArray();
         }
 
-
+        public void enable()
+        {
+            openConnection();
+            CheckConfig();
+        }
     }
 
 }

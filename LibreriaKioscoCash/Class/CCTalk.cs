@@ -60,7 +60,7 @@ namespace LibreriaKioscoCash.Class
                 this.COM = COM;
                 if (Devices.ContainsKey(this.COM))
                 {
-                    Console.WriteLine("Puerto Abierto:{0} ", COM);
+                    //Console.WriteLine("Puerto Abierto:{0} ", COM);
                     device=(SerialPort)Devices[this.COM];
                     if(!device.IsOpen)
                     {
@@ -72,7 +72,7 @@ namespace LibreriaKioscoCash.Class
                 }
                 else
                 {
-                    Console.WriteLine("Abriendo puerto:{0}", COM);
+                    //Console.WriteLine("Abriendo puerto:{0}", COM);
                     device = GetNameDevice() == "COMBillDispenser" ? new SerialPort(this.COM, 9600, Parity.Even) : new SerialPort(this.COM, 9600);
                     device.Open();
                     Devices.Add(this.COM, device);
@@ -99,7 +99,7 @@ namespace LibreriaKioscoCash.Class
             {
                 TX += parameters[i] + " ";
             }
-            Console.WriteLine(TX);
+            //Console.WriteLine(TX);
             //Console.WriteLine("TX: " + ByteArrayToString(parameters));
 
             Thread.Sleep(50);
@@ -151,7 +151,7 @@ namespace LibreriaKioscoCash.Class
 
 
             }
-            Console.WriteLine(RX);
+            //Console.WriteLine(RX);
 
         }
 

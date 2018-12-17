@@ -685,14 +685,19 @@ namespace Test
                     if (validateExtraMoney((int)cambio))
                     {
                         int[] moneyExtra = getMoneyExtra();
-                        
+
                         int[] billExtra = { moneyExtra[3], moneyExtra[4], moneyExtra[5] };
                         int[] coinExtra = { moneyExtra[0], moneyExtra[1], moneyExtra[2] };
 
+
+                        
+                       
                         ///<remarks>
                         ///Funcion para entregar cambio en los dispositivos
                         ///</remarks>
+                        billDispenser.enable();
                         billDispenser.returnCash(new int[0], billExtra);
+                        coinDispenser.enable();
                         coinDispenser.returnCash(coinExtra, new int[0]);
                     }
 
@@ -755,12 +760,6 @@ namespace Test
         {
 
             returnMoney = new Hashtable();
-            returnMoney.Add("1", 0);
-            returnMoney.Add("5", 0);
-            returnMoney.Add("10", 0);
-            returnMoney.Add("20", 0);
-            returnMoney.Add("50", 0);
-            returnMoney.Add("100", 0);
             int cash = money;
 
             if (money > 0)
@@ -801,10 +800,11 @@ namespace Test
         
         static int[] getMoneyExtra()
         {
-            int[] moneyExtra = new int[6];
-
+            int[] moneyExtra = {0,0,0,0,0,0};
+            
             foreach (DictionaryEntry i in returnMoney)
             {
+
                 int key = (int)i.Key;
                 int value = (int)i.Value;
                 

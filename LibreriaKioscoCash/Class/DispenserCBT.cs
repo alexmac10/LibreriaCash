@@ -56,7 +56,7 @@ namespace LibreriaKioscoCash.Class
                     Console.WriteLine("Espere ...");
                     Console.WriteLine("");
                     this.ccTalk.setDevices();
-                    checkStatusSensors();
+
                 }
                 else
                 {
@@ -150,23 +150,43 @@ namespace LibreriaKioscoCash.Class
                 byte[] code = { device[i], 0, 1, 236 };
                 this.ccTalk.sendMessage(code);
                 Sensors.Add(ccTalk.resultmessage[4]);
-                switch (Sensors[i])
-                {
-                    case 3:
-                        Console.WriteLine("Contenedor {0}: Vacio",name_device[i]);
-                        break;
-                    case 2:
-                        Console.WriteLine("Contenedor {0}: a la Mitad", name_device[i]);
-                        break;
-                    case 0:
-                        Console.WriteLine("Contenedor {0}: Lleno", name_device[i]);
-                        break;
+                //switch (Sensors[i])
+                //{
+                //    case 3:
+                //       // Console.WriteLine("Contenedor {0}: Vacio",name_device[i]);
+                //        break;
+                //    case 2:
+                //        //Console.WriteLine("Contenedor {0}: a la Mitad", name_device[i]);
+                //        break;
+                //    case 0:
+                //        //Console.WriteLine("Contenedor {0}: Lleno", name_device[i]);
+                //        break;
 
-                }
+                //}
+
+
+            }
+            if((Sensors[0]+Sensors[1]+Sensors[2])==9)
+            {
+                throw new Exception("Error: No hay cambio en monedas en ninguno de los contenedores");
             }
 
            
 
+        }
+
+        public void enable()
+        {
+            try
+            {
+                string COM = ConfigurationManager.AppSettings.Get("COMComboT");
+                ComboT = ccTalk.openConnection(COM);
+                checkStatusSensors();
+            }
+            catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }
