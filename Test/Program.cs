@@ -684,8 +684,10 @@ namespace Test
 
                     if (validateExtraMoney((int)cambio))
                     {
-                        int[] billExtra = { (int)returnMoney["20"], (int)returnMoney["50"], (int)returnMoney["100"] };
-                        int[] coinExtra = { (int)returnMoney["1"], (int)returnMoney["5"], (int)returnMoney["10"] };
+                        int[] moneyExtra = getMoneyExtra();
+                        
+                        int[] billExtra = { moneyExtra[3], moneyExtra[4], moneyExtra[5] };
+                        int[] coinExtra = { moneyExtra[0], moneyExtra[1], moneyExtra[2] };
 
                         ///<remarks>
                         ///Funcion para entregar cambio en los dispositivos
@@ -797,5 +799,39 @@ namespace Test
             return cash;
         }
         
+        static int[] getMoneyExtra()
+        {
+            int[] moneyExtra = new int[6];
+
+            foreach (DictionaryEntry i in returnMoney)
+            {
+                int key = (int)i.Key;
+                int value = (int)i.Value;
+                
+                switch (key)
+                {
+                    case 1:
+                        moneyExtra[0] = (int)value;
+                        break;
+                    case 5:
+                        moneyExtra[1] = (int)value;                        
+                        break;
+                    case 10:
+                        moneyExtra[2] = (int)value;                                                
+                        break;
+                    case 20:
+                        moneyExtra[3] = (int)value;                                                
+                        break;
+                    case 50:
+                        moneyExtra[4] = (int)value;                                                
+                        break;
+                    case 100:
+                        moneyExtra[5] = (int)value;                                                
+                        break;
+                }
+            }
+
+            return moneyExtra;
+        }       
     }
 }

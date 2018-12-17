@@ -31,7 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="MPOST">
-      <HintPath>..\..\..\..\..\..\..\..\..\..\Program Files (x86)\MEI\MPOST .NET\MPOST for EBDS Demo in CSharp .NET\MPOST.dll</HintPath>
+      <HintPath>..\..\..\..\ProyectoCash\Cash\bin\Debug\MPOST.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
