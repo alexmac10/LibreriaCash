@@ -143,13 +143,14 @@ namespace LibreriaKioscoCash.Class
         {
             Console.WriteLine("Checando Estatus de los Contenedores....");
             byte[] device = { this.ccTalk.HopperTop, this.ccTalk.HopperCenter, this.ccTalk.HopperDown };
-            string[] name_device = {"Conetenedor Superior","Contenedor Central","Contenedor Inferior" };
+            string[] name_device = { "Conetenedor Superior", "Contenedor Central", "Contenedor Inferior" };
             Sensors = new List<byte>();
-            for(byte i=0;i<device.Length;i++)
+            for (byte i = 0; i < device.Length; i++)
             {
                 byte[] code = { device[i], 0, 1, 236 };
                 this.ccTalk.sendMessage(code);
                 Sensors.Add(ccTalk.resultmessage[4]);
+
                 //switch (Sensors[i])
                 //{
                 //    case 3:
@@ -161,18 +162,13 @@ namespace LibreriaKioscoCash.Class
                 //    case 0:
                 //        //Console.WriteLine("Contenedor {0}: Lleno", name_device[i]);
                 //        break;
-
                 //}
-
-
             }
-            if((Sensors[0]+Sensors[1]+Sensors[2])==9)
+
+            if ((Sensors[0]==3)||(Sensors[1]==3)||(Sensors[2]==3))
             {
                 throw new Exception("Error: No hay cambio en monedas en ninguno de los contenedores");
             }
-
-           
-
         }
 
         public void enable()

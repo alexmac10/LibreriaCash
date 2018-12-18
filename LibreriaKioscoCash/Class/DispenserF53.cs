@@ -456,7 +456,7 @@ namespace LibreriaKioscoCash.Class
             DisplayEvent("Checando Estatus del Dispositivo....");
             createCode(StatusInformation);
             sendMessage(mensaje_final);
-            byte[] cassets = new byte[] { 0x8C, 0x8A, 0x89 };
+            byte[] cassets = new byte[] { 0x8C, 0x89, 0x8A };
             search(ccTalk.resultmessage, cassets);
             try
             {

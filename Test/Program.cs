@@ -141,7 +141,8 @@ namespace Test
                     /// el segundo parametro es un arreglo tipo int y debera definir la cantidad 
                     /// a entregar y el orden del arreglo para los billetes que son : 
                     ///                         [20,50,100] 
-                    ///</remarks>                
+                    ///</remarks>    
+                    billDispenser.enable();
                     billDispenser.returnCash(new int[0], billCount);
 
 
@@ -375,6 +376,7 @@ namespace Test
                     ///<remarks>
                     ///Se le indica al dispositivo coinDispenser que entregue las monedas.
                     ///</remarks>
+                    coinDispenser.enable();
                     coinDispenser.returnCash(coinCount, new int[0]);
 
                     Console.WriteLine("¿ Deseas realizar otra operación  (Y/N)?");
