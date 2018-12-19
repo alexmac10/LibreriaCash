@@ -26,6 +26,7 @@ namespace LibreriaKioscoCash.Class
             {
                 COM = ConfigurationManager.AppSettings.Get("COMComboT");
                 ComboT = ccTalk.openConnection(COM);
+                
                 if (isConnection())
                 {
                     Console.WriteLine("Configurando ...");

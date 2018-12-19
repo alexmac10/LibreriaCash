@@ -99,7 +99,7 @@ namespace LibreriaKioscoCash.Class
             {
                 TX += parameters[i] + " ";
             }
-           // Console.WriteLine(TX);
+            Console.WriteLine(TX);
             //Console.WriteLine("TX: " + ByteArrayToString(parameters));
 
             Thread.Sleep(50);
@@ -107,7 +107,7 @@ namespace LibreriaKioscoCash.Class
 
         public void getMessage()
         {
-            //string RX = "RX :";
+            string RX = "RX :";
 
             byte[] result = new byte[device.BytesToRead];
 
@@ -117,13 +117,15 @@ namespace LibreriaKioscoCash.Class
             for (int i = 0, j = 0; i < result.Length; i++, j++)
             {
                 resultmessage[j] = result[i];
+                RX += i + " ";
             }
-            CleanEcho();
+           // CleanEcho();
 
 
 
 
             //Console.WriteLine("RX: " + ByteArrayToString(resultmessage));
+            Console.WriteLine(RX);
             Thread.Sleep(150);
 
         }

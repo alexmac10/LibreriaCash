@@ -351,6 +351,7 @@ namespace Test
                 ///Abriendo comunicacion con dispositivo
                 ///</remarks>
                 coinDispenser.open();
+                Console.WriteLine(coinDispenser.isConnection());
 
                 while (continuar)
                 {
@@ -434,11 +435,11 @@ namespace Test
                 ///Abriendo comunicacion con dispositivo
                 ///</remarks>
                 coinAcceptor.open();
-
+                Console.WriteLine(coinAcceptor.isConnection());
                 while (continuar)
                 {
                     Console.WriteLine("************ DEPOSITAR MONEDAS ************");
-                    Console.Write("Indique la cantidas a depositar: $ ");
+                    Console.Write("Indique la cantidad a depositar: $ ");
                     double total = Int32.Parse(Console.ReadLine());
                     Console.WriteLine("");
                     Console.WriteLine("Espere ...");
@@ -692,8 +693,8 @@ namespace Test
                         int[] coinExtra = { moneyExtra[0], moneyExtra[1], moneyExtra[2] };
 
 
-                        
-                       
+
+
                         ///<remarks>
                         ///Funcion para entregar cambio en los dispositivos
                         ///</remarks>
