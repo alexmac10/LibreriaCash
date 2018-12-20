@@ -99,7 +99,7 @@ namespace LibreriaKioscoCash.Class
             {
                 TX += parameters[i] + " ";
             }
-            Console.WriteLine(TX);
+            //Console.WriteLine(TX);
             //Console.WriteLine("TX: " + ByteArrayToString(parameters));
 
             Thread.Sleep(50);
@@ -125,7 +125,7 @@ namespace LibreriaKioscoCash.Class
 
 
             //Console.WriteLine("RX: " + ByteArrayToString(resultmessage));
-            Console.WriteLine(RX);
+            //Console.WriteLine(RX);
             Thread.Sleep(150);
 
         }
@@ -266,7 +266,6 @@ namespace LibreriaKioscoCash.Class
         {
             try
             {
-
                 foreach (var j in resultmessage)
                 {
                     byte[] code = { j, 0, 1, 245 };

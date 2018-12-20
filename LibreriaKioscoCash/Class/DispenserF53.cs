@@ -104,21 +104,18 @@ namespace LibreriaKioscoCash.Class
 
         }
 
-        public void returnCash(int[] CoinCount, int[] BillCount)
+        public void returnCash(int[] count)
         {
-            if (BillCount[0] == 0 && BillCount[1] == 0 && BillCount[2] == 0)
-            {
-                throw new Exception("No se solicito la entrega de billetes");
-            }
+
             byte[] bill_codes = { };
             money = true;
             Console.WriteLine(" ");
             Console.WriteLine("Retirando Efectivo...");
             DisplayEvent("Retirando Efectivo...");
 
-            DispenserBill[5] = IsoCodes[BillCount[0]];
-            DispenserBill[7] = IsoCodes[BillCount[1]];
-            DispenserBill[9] = IsoCodes[BillCount[2]];
+            DispenserBill[5] = IsoCodes[count[0]];
+            DispenserBill[7] = IsoCodes[count[1]];
+            DispenserBill[9] = IsoCodes[count[2]];
 
 
             createCode(DispenserBill);
@@ -156,7 +153,7 @@ namespace LibreriaKioscoCash.Class
                 DisplayEvent("Error Register: " + Error[6].ToString("X") + " " + Error[7].ToString("X") + " " + Error[8].ToString("X"));
                 DisplayEvent("Sensor Register: " + Error[9].ToString("X") + " " + Error[10].ToString("X") + " " + Error[11].ToString("X") + " " + Error[12].ToString("X") + " " + Error[13].ToString("X") + " " + Error[14].ToString("X"));
 
-                if ((BillCount[0] <= 2) && (BillCount[1] <= 2) && (BillCount[2] <= 2))
+                if ((count[0] <= 2) && (count[1] <= 2) && (count[2] <= 2))
                 {
                     bill_codes = new byte[] { ccTalk.resultmessage[46], ccTalk.resultmessage[48], ccTalk.resultmessage[50] };
 
@@ -588,6 +585,11 @@ namespace LibreriaKioscoCash.Class
         {
             openConnection();
             CheckConfig();
+        }
+        private void clearCounterMoney()
+        {
+            byte[] parameter = { this.ccTalk.CoinAcceptor, 0, 1, 1 };
+            this.ccTalk.sendMessage(parameter);
         }
     }
 

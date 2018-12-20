@@ -16,6 +16,7 @@ namespace LibreriaKioscoCash.Class
         private SerialPort ComboT;
         private string COM;
         private byte count_actual = 0;
+        private bool isOpen;
 
 
         //Funciones de la interfaz
@@ -26,8 +27,9 @@ namespace LibreriaKioscoCash.Class
             {
                 COM = ConfigurationManager.AppSettings.Get("COMComboT");
                 ComboT = ccTalk.openConnection(COM);
-                
-                if (isConnection())
+                isOpen = false;
+
+                if (getDeviceId())
                 {
                     Console.WriteLine("Configurando ...");
                     Console.WriteLine("");
@@ -35,6 +37,8 @@ namespace LibreriaKioscoCash.Class
                     clearCounterMoney();
                     setInibitCoins();
                     setConfigDefaultHoppers();
+                    count_actual = 0;
+                    isOpen = true;
                 }
                 else
                 {
@@ -55,14 +59,22 @@ namespace LibreriaKioscoCash.Class
 
         public void close()
         {
-            ComboT.Close();
+            if (ComboT.IsOpen)
+            {
+                ComboT.Close();
+            }
         }
 
         public bool isConnection()
         {
+            return isOpen;
+
+        }
+
+        private bool getDeviceId()
+        {
             try
             {
-
                 if (!ccTalk.getIdDevice())
                 {
                     return false;
@@ -86,7 +98,6 @@ namespace LibreriaKioscoCash.Class
 
         public void disable()
         {
-            clearCounterMoney();
             setInibitCoins();
             setConfigDefaultHoppers();
             count_actual = 0;

@@ -143,7 +143,7 @@ namespace Test
                     ///                         [20,50,100] 
                     ///</remarks>    
                     billDispenser.enable();
-                    billDispenser.returnCash(new int[0], billCount);
+                    billDispenser.returnCash(billCount);
 
 
                     Console.WriteLine("¿ Deseas realizar otra operación  (Y/N) ?");
@@ -351,7 +351,7 @@ namespace Test
                 ///Abriendo comunicacion con dispositivo
                 ///</remarks>
                 coinDispenser.open();
-                Console.WriteLine(coinDispenser.isConnection());
+                //Console.WriteLine(coinDispenser.isConnection());
 
                 while (continuar)
                 {
@@ -378,7 +378,7 @@ namespace Test
                     ///Se le indica al dispositivo coinDispenser que entregue las monedas.
                     ///</remarks>
                     coinDispenser.enable();
-                    coinDispenser.returnCash(coinCount, new int[0]);
+                    coinDispenser.returnCash(coinCount);
 
                     Console.WriteLine("¿ Deseas realizar otra operación  (Y/N)?");
                     string respuesta = Console.ReadLine();
@@ -699,9 +699,9 @@ namespace Test
                         ///Funcion para entregar cambio en los dispositivos
                         ///</remarks>
                         billDispenser.enable();
-                        billDispenser.returnCash(new int[0], billExtra);
+                        billDispenser.returnCash(billExtra);
                         coinDispenser.enable();
-                        coinDispenser.returnCash(coinExtra, new int[0]);
+                        coinDispenser.returnCash(coinExtra);
                     }
 
 

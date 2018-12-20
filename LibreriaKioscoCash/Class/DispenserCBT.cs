@@ -16,15 +16,25 @@ namespace LibreriaKioscoCash.Class
         private CCTalk ccTalk= CCTalk.GetInstance();
         private SerialPort ComboT;
         private List<byte> Sensors;
+        private bool isOpen;
 
         //Funciones de la interfaz
 
         public void close()
         {
-            ComboT.Close();
+            if (ComboT.IsOpen)
+            {
+                ComboT.Close();
+            }
         }
 
         public bool isConnection()
+        {
+            return isOpen;
+
+        }
+
+        private bool getDeviceId()
         {
             try
             {
@@ -48,23 +58,22 @@ namespace LibreriaKioscoCash.Class
         {
             try
             {
-
                 string COM = ConfigurationManager.AppSettings.Get("COMComboT");
                 ComboT = ccTalk.openConnection(COM);
-                if(isConnection())
+                isOpen = false;
+
+                if (getDeviceId())
                 {
                     Console.WriteLine("Espere ...");
                     Console.WriteLine("");
-                    this.ccTalk.setDevices();
 
+                    this.ccTalk.setDevices();
+                    isOpen = true;
                 }
                 else
                 {
                     throw new Exception("Error: Dispositivo Desconectado");
-                }
-                
-                
-                
+                }                                                
             }
             catch (Exception ex)
             {
@@ -73,42 +82,43 @@ namespace LibreriaKioscoCash.Class
             
         }
 
-        public void returnCash(int[] CoinCount, int[] BillCount)
+        public void returnCash(int[] count)
         {
             Console.WriteLine("Retirando Efectivo ...");
             Console.WriteLine("");
-            foreach(var j in CoinCount)
+            foreach(var j in count)
             {
-                if (CoinCount[0] > 0)
+                if (count[0] > 0)
                 {
                     this.enableContainerCoin(this.ccTalk.HopperDown);
                     byte[] serie = this.getNumberSerie(this.ccTalk.HopperDown);
-                    serie[3] = (byte)CoinCount[0];
+                    serie[3] = (byte)count[0];
                     byte[] code = { this.ccTalk.HopperDown, 0, 1, 167 };
                     this.ccTalk.sendMessage(code, serie);
-                    CoinCount[0] = 0;
+                    count[0] = 0;
                 }
-                else if (CoinCount[1] > 0)
+                else if (count[1] > 0)
                 {
 
                     this.enableContainerCoin(this.ccTalk.HopperCenter);
                     byte[] serie = this.getNumberSerie(this.ccTalk.HopperCenter);
-                    serie[3] = (byte)CoinCount[1];
+                    serie[3] = (byte)count[1];
                     byte[] code = { this.ccTalk.HopperCenter, 0, 1, 167 };
                     this.ccTalk.sendMessage(code, serie);
-                    CoinCount[1] = 0;
+                    count[1] = 0;
                 }
-                else if (CoinCount[2] > 0)
+                else if (count[2] > 0)
                 {
 
                     this.enableContainerCoin(this.ccTalk.HopperTop);
                     byte[] serie = this.getNumberSerie(this.ccTalk.HopperTop);
-                    serie[3] = (byte)CoinCount[2];
+                    serie[3] = (byte)count[2];
                     byte[] code = { this.ccTalk.HopperTop, 0, 1, 167 };
                     this.ccTalk.sendMessage(code, serie);
-                    CoinCount[2] = 0;
+                    count[2] = 0;
                 }
             }
+
             
             
            
@@ -151,21 +161,9 @@ namespace LibreriaKioscoCash.Class
                 this.ccTalk.sendMessage(code);
                 Sensors.Add(ccTalk.resultmessage[4]);
 
-                //switch (Sensors[i])
-                //{
-                //    case 3:
-                //       // Console.WriteLine("Contenedor {0}: Vacio",name_device[i]);
-                //        break;
-                //    case 2:
-                //        //Console.WriteLine("Contenedor {0}: a la Mitad", name_device[i]);
-                //        break;
-                //    case 0:
-                //        //Console.WriteLine("Contenedor {0}: Lleno", name_device[i]);
-                //        break;
-                //}
             }
 
-            if ((Sensors[0]==3)||(Sensors[1]==3)||(Sensors[2]==3))
+            if ((Sensors[0] == 3) || (Sensors[1] == 3) || (Sensors[2] == 3))
             {
                 throw new Exception("Error: No hay cambio en monedas en ninguno de los contenedores");
             }
@@ -177,7 +175,7 @@ namespace LibreriaKioscoCash.Class
             {
                 string COM = ConfigurationManager.AppSettings.Get("COMComboT");
                 ComboT = ccTalk.openConnection(COM);
-                checkStatusSensors();
+                //checkStatusSensors();
             }
             catch(Exception ex)
             {
