@@ -82,11 +82,12 @@ namespace LibreriaKioscoCash.Class
         {
             try
             {
+
                 openConnection();
-                CheckConfig();
-
-
-
+                if (F53.IsOpen)
+                {
+                    CheckConfig();
+                }
             }
             catch (Exception ex)
             {
@@ -406,7 +407,7 @@ namespace LibreriaKioscoCash.Class
             sendMessage(mensaje_final);
             byte[] positive_answer = { 0x1C, 0x10, 0x03 };
             ccTalk.search(ccTalk.resultmessage, positive_answer);
-          
+
             //Sensores que contiene el F53
 
 
@@ -485,24 +486,24 @@ namespace LibreriaKioscoCash.Class
 
         //Funciones complementarias de programación
 
-       /* private int search(byte[] haystack, byte[] needle)
-        {
-            for (int i = 0; i <= haystack.Length - needle.Length; i++)
-            {
+        /* private int search(byte[] haystack, byte[] needle)
+         {
+             for (int i = 0; i <= haystack.Length - needle.Length; i++)
+             {
 
-                if (match(haystack, needle, i))
-                {
-                    position = i;
-                    //Console.WriteLine("Status:{0}\nPosición:{1}", status, position);
-                    return i;
-                }
+                 if (match(haystack, needle, i))
+                 {
+                     position = i;
+                     //Console.WriteLine("Status:{0}\nPosición:{1}", status, position);
+                     return i;
+                 }
 
-            }
+             }
 
 
-            return -1;
+             return -1;
 
-        }*/
+         }*/
 
         /*private bool match(byte[] haystack, byte[] needle, int start)
         {
@@ -529,7 +530,6 @@ namespace LibreriaKioscoCash.Class
 
         }*/
 
-
         private byte[] getPositions(byte[] where, byte[] code)
         {
             positions = new List<byte>();
@@ -554,7 +554,7 @@ namespace LibreriaKioscoCash.Class
         public void enable()
         {
             openConnection();
-            
+
         }
 
     }
