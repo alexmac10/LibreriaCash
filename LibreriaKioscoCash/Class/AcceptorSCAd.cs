@@ -35,7 +35,7 @@ namespace LibreriaKioscoCash
             billAcceptor.EnableAcceptance = false;
         }
 
-        public void enable()
+        public void enableAcceptance()
         {
 
             if (!billAcceptor.EnableAcceptance)
@@ -49,7 +49,7 @@ namespace LibreriaKioscoCash
 
         }
 
-        public bool isConnection()
+        public bool isOpen()
         {
             return config;
         }

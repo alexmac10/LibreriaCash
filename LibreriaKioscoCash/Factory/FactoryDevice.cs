@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace LibreriaKioscoCash.Factory
 {
-   public class FactoryDevice
+    public class FactoryDevice
     {
         public IDispenser GetBillDispenser()
         {
@@ -36,31 +36,17 @@ namespace LibreriaKioscoCash.Factory
             }
             return device;
         }
-        public IDispenser GetCoinDispenser()
+        public IRecycler GetRecycler()
         {
-            IDispenser device = null;
-            string name = ConfigurationManager.AppSettings.Get("CoinDispenser");
+            IRecycler device = null;
+            string name = ConfigurationManager.AppSettings.Get("Recycler");
             switch (name)
             {
-                case "ComboT":
-                    device = new DispenserCBT();
-                    break;
-            }
-            return device;
-
-        }
-        public IAcceptor GetCoinAcceptor()
-        {
-            IAcceptor device = null;
-            string name = ConfigurationManager.AppSettings.Get("CoinAcceptor");
-            switch (name)
-            {
-                case "ComboT":
-                    device = new AcceptorCBT();
+                case "SCAdvance":
+                    device = new ComboT();
                     break;
             }
             return device;
         }
-
     }
 }

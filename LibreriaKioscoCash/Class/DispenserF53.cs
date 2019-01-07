@@ -17,7 +17,7 @@ namespace LibreriaKioscoCash.Class
     public class DispenserF53 : IDispenser
     {
         private SerialPort F53;
-        private CCTalk ccTalk = CCTalk.GetInstance();
+        private CommunicationProtocol ccTalk = CommunicationProtocol.GetInstance();
         private string COM;
 
         //RS232C(Comunicación)
@@ -52,15 +52,13 @@ namespace LibreriaKioscoCash.Class
             F53.Close();
         }
 
-        public bool isConnection()
+        public bool isOpen()
         {
             try
             {
 
-                ccTalk.setMessage(statusRequest);
-                ccTalk.getMessage();
-                ccTalk.search(ccTalk.resultmessage, releaseRequest);
-                if (ccTalk.status == false)
+
+                if (!F53.IsOpen)
                 {
                     throw new Exception("Dispositivo No Conectado");
                 }
@@ -72,7 +70,7 @@ namespace LibreriaKioscoCash.Class
                 throw new Exception(ex.Message);
 
             }
-            return ccTalk.status;
+            return F53.IsOpen;
 
 
 
@@ -275,7 +273,9 @@ namespace LibreriaKioscoCash.Class
 
             //byte result = 0;
 
-            isConnection();
+            ccTalk.setMessage(statusRequest);
+            ccTalk.getMessage();
+            ccTalk.search(ccTalk.resultmessage, releaseRequest);
             //Console.WriteLine(ccTalk.resultmessage.Length);
             if ((ccTalk.status == true) && (ccTalk.resultmessage.Length == 2))
             {
@@ -551,11 +551,7 @@ namespace LibreriaKioscoCash.Class
             return positions.ToArray();
         }
 
-        public void enable()
-        {
-            openConnection();
 
-        }
 
     }
 

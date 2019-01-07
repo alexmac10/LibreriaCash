@@ -94,7 +94,7 @@ namespace Test
             }
 
         }
-        
+
         /// <summary>
         /// Pruebas con dispositivo para entregar billetes
         /// </summary>
@@ -240,7 +240,7 @@ namespace Test
                         ///Validar antes si el dispositivo ya esta conectado
                         ///antes de activarse.
                         ///</remarks>
-                        if (!billAcceptor.isConnection())
+                        if (!billAcceptor.isOpen())
                         {
                             continue;
                         }
@@ -248,7 +248,7 @@ namespace Test
                         ///<remarks>
                         ///Habilita el dispositivo para revcibir efectivo
                         /// </remarks>     
-                        billAcceptor.enable();
+                        billAcceptor.enableAcceptance();
 
                         if (count == 0)
                         {
@@ -338,7 +338,7 @@ namespace Test
             ///<summary>
             /// Obtiene la instancia para el dispositivo Coin Dispenser
             ///</summary>
-            IDispenser coinDispenser = factory.GetCoinDispenser();
+            IRecycler coinDispenser = factory.GetRecycler();
 
             ///<remarks>
             ///Variables para pruebas
@@ -353,6 +353,7 @@ namespace Test
                 ///</remarks>
                 //Console.WriteLine(coinDispenser.isConnection());
 
+                coinDispenser.openDispenser();
                 while (continuar)
                 {
 
@@ -378,7 +379,6 @@ namespace Test
                     ///<remarks>
                     ///Se le indica al dispositivo coinDispenser que entregue las monedas.
                     ///</remarks>
-                    coinDispenser.open();
                     coinDispenser.returnCash(coinCount);
 
                     Console.WriteLine("¿ Deseas realizar otra operación  (Y/N)?");
@@ -419,7 +419,7 @@ namespace Test
             ///<summary>
             /// Obtiene la instancia para el dispositivo Coin Acceptor
             ///</summary>
-            IAcceptor coinAcceptor = factory.GetCoinAcceptor();
+            IRecycler coinAcceptor = factory.GetRecycler();
 
             ///<remarks>
             ///Variables para pruebas
@@ -435,14 +435,16 @@ namespace Test
                 ///<remarks>
                 ///Abriendo comunicacion con dispositivo
                 ///</remarks>
+                coinAcceptor.openAcceptor();
                 while (continuar)
                 {
-                    coinAcceptor.open();
                     Console.WriteLine("************ DEPOSITAR MONEDAS ************");
                     Console.Write("Indique la cantidad a depositar: $ ");
                     double total = Int32.Parse(Console.ReadLine());
                     Console.WriteLine("");
                     Console.WriteLine("Espere ...");
+
+                    coinAcceptor.enableAcceptance();
 
                     while (depositado < total)
                     {
@@ -557,8 +559,7 @@ namespace Test
             ///</remarks>
             IDispenser billDispenser = factory.GetBillDispenser();
             IAcceptor billAcceptor = factory.GetBillAcceptor();
-            IAcceptor coinAcceptor = factory.GetCoinAcceptor();
-            IDispenser coinDispenser = factory.GetCoinDispenser();
+            IRecycler recycler = factory.GetRecycler();
 
             ///<remarks>
             ///Variables para pruebas
@@ -573,11 +574,8 @@ namespace Test
                 ///<remarks>
                 ///Abriendo conexion con los puertos de los dispositivos
                 ///</remarks>
-
-
-
-
                 billAcceptor.open();
+                recycler.openAcceptor();
                 while (continuar)
                 {
                     depositado = 0;
@@ -593,7 +591,6 @@ namespace Test
                     Console.WriteLine("Espere ...");
                     Console.WriteLine("");
 
-                    coinAcceptor.open();
                     //Deposito de efectivo
                     while (depositado < total)
                     {
@@ -601,7 +598,7 @@ namespace Test
                         ///Validar antes si el dispositivo ya esta conectado
                         ///antes de activarse.
                         ///</remarks>
-                        if (!billAcceptor.isConnection())
+                        if (!billAcceptor.isOpen())
                         {
                             continue;
                         }
@@ -609,19 +606,19 @@ namespace Test
                         ///<remarks>
                         ///Habilitar los dispositivos para recibir efectivo
                         ///</remarks>     
-                        coinAcceptor.enable();
 
                         if (count == 0)
                         {
                             count = 1;
                             Console.WriteLine("Inserte Efectivo...");
                         }
-                        billAcceptor.enable();
+                        recycler.enableAcceptance();
+                        billAcceptor.enableAcceptance();
 
                         ///<remarks>
                         ///Recibiendo monedas y billetes
                         ///</remarks>
-                        double[] recibidoCoin = coinAcceptor.getCashDesposite();
+                        double[] recibidoCoin = recycler.getCashDesposite();
                         double[] recibidoBill = billAcceptor.getCashDesposite();
 
                         //Acumulando el efectivo
@@ -703,8 +700,8 @@ namespace Test
                         ///</remarks>
                         if (coinExtra[0] + coinExtra[1] + coinExtra[2] != 0)
                         {
-                            coinDispenser.open();
-                            coinDispenser.returnCash(coinExtra);
+                            recycler.openDispenser();
+                            recycler.returnCash(coinExtra);
                         }
                         if (billExtra[0] + billExtra[1] + billExtra[2] != 0)
                         {

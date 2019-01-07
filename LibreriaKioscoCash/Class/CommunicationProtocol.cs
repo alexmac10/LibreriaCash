@@ -11,7 +11,7 @@ using System.Collections;
 
 namespace LibreriaKioscoCash.Class
 {
-    public class CCTalk
+    public class CommunicationProtocol
     {
         private SerialPort device;
         private static Hashtable Devices;
@@ -25,19 +25,19 @@ namespace LibreriaKioscoCash.Class
         private bool conection;
 
 
-        private static CCTalk instance = null;
+        private static CommunicationProtocol instance = null;
 
-        private CCTalk()
+        private CommunicationProtocol()
         {
             Devices = new Hashtable();
         }
 
-        public static CCTalk GetInstance()
+        public static CommunicationProtocol GetInstance()
         {
             if (instance == null)
             {
 
-                instance = new CCTalk();
+                instance = new CommunicationProtocol();
             }
 
             return instance;
