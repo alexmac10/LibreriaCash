@@ -43,7 +43,7 @@ namespace LibreriaKioscoCash.Factory
             switch (name)
             {
                 case "SCAdvance":
-                    device = new ComboT();
+                    device = new RecyclerComboT();
                     break;
             }
             return device;

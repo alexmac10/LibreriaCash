@@ -444,7 +444,6 @@ namespace Test
                     Console.WriteLine("");
                     Console.WriteLine("Espere ...");
 
-                    coinAcceptor.enableAcceptance();
 
                     while (depositado < total)
                     {
@@ -459,6 +458,7 @@ namespace Test
                             Console.WriteLine("Inserte Efectivo...");
                         }
 
+                        coinAcceptor.enableAcceptance();
                         ///<remarks>
                         ///Recibe un arreglo  con el siguiente orden :
                         ///                 [denominacion,contador]
@@ -506,11 +506,7 @@ namespace Test
                     Console.WriteLine("Transacción Finalizada...");
                     Console.WriteLine("");
 
-                    ///<remarks>
-                    ///Deshabilita el dipostivo para no aceptar mas monedas
-                    ///</remarks>
-                    coinAcceptor.disable();
-
+                    
                     //Resetea variables locales 
                     depositado = 0;
                     count = 0;

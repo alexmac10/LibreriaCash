@@ -49,7 +49,7 @@
     <Compile Include="Class\AcceptorSCAd.cs" />
     <Compile Include="Class\CommunicationProtocol.cs" />
     <Compile Include="Class\DispenserF53.cs" />
-    <Compile Include="Class\ComboT.cs" />
+    <Compile Include="Class\RecyclerComboT.cs" />
     <Compile Include="Exceptions\CashException.cs" />
     <Compile Include="Factory\FactoryDevice.cs" />
     <Compile Include="Interfaces\IAcceptor.cs" />
