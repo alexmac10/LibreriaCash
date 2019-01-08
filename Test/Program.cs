@@ -94,7 +94,7 @@ namespace Test
             }
 
         }
-        
+
         /// <summary>
         /// Pruebas con dispositivo para entregar billetes
         /// </summary>
@@ -461,6 +461,7 @@ namespace Test
                         ///Recibe un arreglo  con el siguiente orden :
                         ///                 [denominacion,contador]
                         ///</remarks>
+                        coinAcceptor.enable();
                         double[] recibido = coinAcceptor.getCashDesposite();
 
 
@@ -507,7 +508,7 @@ namespace Test
                     ///<remarks>
                     ///Deshabilita el dipostivo para no aceptar mas monedas
                     ///</remarks>
-                    coinAcceptor.disable();
+                    //coinAcceptor.disable();
 
                     //Resetea variables locales 
                     depositado = 0;

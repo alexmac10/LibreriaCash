@@ -59,10 +59,8 @@ namespace LibreriaKioscoCash.Class
             try
             {
 
-                ccTalk.setMessage(statusRequest);
-                ccTalk.getMessage();
-                search(ccTalk.resultmessage, releaseRequest);
-                if (status == false)
+
+                if (!F53.IsOpen)
                 {
                     throw new Exception("Dispositivo No Conectado");
                 }
@@ -74,7 +72,7 @@ namespace LibreriaKioscoCash.Class
                 throw new Exception(ex.Message);
 
             }
-            return status;
+            return F53.IsOpen;
 
 
 
@@ -276,7 +274,9 @@ namespace LibreriaKioscoCash.Class
 
             //byte result = 0;
 
-            isConnection();
+            ccTalk.setMessage(statusRequest);
+            ccTalk.getMessage();
+            search(ccTalk.resultmessage, releaseRequest);
             //Console.WriteLine(ccTalk.resultmessage.Length);
             if ((status == true) && (ccTalk.resultmessage.Length == 2))
             {

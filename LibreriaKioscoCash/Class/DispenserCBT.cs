@@ -16,21 +16,18 @@ namespace LibreriaKioscoCash.Class
         private CCTalk ccTalk= CCTalk.GetInstance();
         private SerialPort ComboT;
         private List<byte> Sensors;
-        private bool isOpen;
 
         //Funciones de la interfaz
 
         public void close()
         {
-            if (ComboT.IsOpen)
-            {
-                ComboT.Close();
-            }
+
+  
         }
 
         public bool isConnection()
         {
-            return isOpen;
+            return ComboT.IsOpen;
 
         }
 
@@ -40,16 +37,17 @@ namespace LibreriaKioscoCash.Class
             {
                 string COM = ConfigurationManager.AppSettings.Get("COMComboT");
                 ComboT = ccTalk.openConnection(COM);
-                isOpen = false;
-
-                if (getDeviceId())
+                
+                if (ComboT.IsOpen)
                 {
-                    isOpen = true;
+
+                    ccTalk.getIdDevice();
                 }
                 else
                 {
                     throw new Exception("Error: Dispositivo Desconectado");
-                }                                                
+                }
+                                                            
             }
             catch (Exception ex)
             {
@@ -109,25 +107,7 @@ namespace LibreriaKioscoCash.Class
         }
 
         //Metodos de la clase
-        private bool getDeviceId()
-        {
-            try
-            {
-                
-                if (!ccTalk.getIdDevice())
-                {
-                    return false;
-                    throw new Exception("Error: Dispositivo No Conectado");
-                    
-                }
-                return true;
-            }
-            catch(Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-            
-        }
+        
 
         // Encargado de obtener los numero de serie del dispositvo        
         private byte[] getNumberSerie(byte device)

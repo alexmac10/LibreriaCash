@@ -263,6 +263,7 @@ namespace LibreriaKioscoCash.Class
         {
             try
             {
+                getIdDevice();
                 foreach (var j in resultmessage)
                 {
                     byte[] code = { j, 0, 1, 245 };
