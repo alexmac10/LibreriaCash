@@ -33,7 +33,7 @@
   <ItemGroup>
     <Reference Include="MPOST, Version=3.0.7.0, Culture=neutral, PublicKeyToken=c3d0ba8d3881c2f7, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\Debug\MPOST.dll</HintPath>
+      <HintPath>..\Librerias MPOST\MPOST.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
