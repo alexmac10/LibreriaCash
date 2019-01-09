@@ -52,7 +52,7 @@ namespace LibreriaKioscoCash.Class
             F53.Close();
         }
 
-        public bool isOpen()
+        public bool isConnection()
         {
             try
             {
@@ -484,6 +484,27 @@ namespace LibreriaKioscoCash.Class
 
         }
 
+        private byte[] getPositions(byte[] where, byte[] code)
+        {
+            positions = new List<byte>();
+
+            for (byte i = 0; i < code.Length; i++)
+            {
+                for (byte j = 0; j < where.Length; j++)
+                {
+
+                    if (code[i] == where[j])
+                    {
+
+                        positions.Add(j);
+
+                    }
+                }
+            }
+
+            return positions.ToArray();
+        }
+
         //Funciones complementarias de programación
 
         /* private int search(byte[] haystack, byte[] needle)
@@ -530,26 +551,6 @@ namespace LibreriaKioscoCash.Class
 
         }*/
 
-        private byte[] getPositions(byte[] where, byte[] code)
-        {
-            positions = new List<byte>();
-
-            for (byte i = 0; i < code.Length; i++)
-            {
-                for (byte j = 0; j < where.Length; j++)
-                {
-
-                    if (code[i] == where[j])
-                    {
-
-                        positions.Add(j);
-
-                    }
-                }
-            }
-
-            return positions.ToArray();
-        }
 
 
 

@@ -10,7 +10,7 @@ namespace LibreriaKioscoCash.Interfaces
     {
         void open();
         void close();
-        bool isOpen();
+        bool isConnection();
         void returnCash(int [] count);
 
     }

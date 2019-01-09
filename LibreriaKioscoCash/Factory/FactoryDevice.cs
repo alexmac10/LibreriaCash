@@ -31,22 +31,36 @@ namespace LibreriaKioscoCash.Factory
             switch (name)
             {
                 case "SCAdvance":
-                    device = new AcceptorSCAd();
-                    break;
-            }
-            return device;
-        }
-        public IRecycler GetRecycler()
-        {
-            IRecycler device = null;
-            string name = ConfigurationManager.AppSettings.Get("Recycler");
-            switch (name)
-            {
-                case "SCAdvance":
                     device = new RecyclerComboT();
                     break;
             }
             return device;
         }
+        public IDispenser GetCoinDispenser()
+        {
+            IDispenser device = null;
+            string name = ConfigurationManager.AppSettings.Get("CoinDispenser");
+            switch (name)
+            {
+                case "ComboT":
+                    device = new DispenserF53();
+                    break;
+            }
+            return device;
+
+        }
+        public IAcceptor GetCoinAcceptor()
+        {
+            IAcceptor device = null;
+            string name = ConfigurationManager.AppSettings.Get("CoinAcceptor");
+            switch (name)
+            {
+                case "ComboT":
+                    device = new RecyclerComboT();
+                    break;
+            }
+            return device;
+        }
+
     }
 }

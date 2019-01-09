@@ -10,61 +10,45 @@ using System.Threading.Tasks;
 
 namespace LibreriaKioscoCash.Class
 {
-    class RecyclerComboT : IRecycler
+
+
+    class RecyclerComboT : IAcceptor, IDispenser
     {
 
-        private CommunicationProtocol ccTalk= CommunicationProtocol.GetInstance();
+        private CommunicationProtocol ccTalk = CommunicationProtocol.GetInstance();
         private SerialPort Recycler;
+        private string COM;
         private List<byte> Sensors;
         private byte count_actual = 0;
         //Funciones de la interfaz
 
-        public void openAcceptor()
+
+        public void open()
         {
             try
             {
-                string COM = ConfigurationManager.AppSettings.Get("COMRecycler");
-                Recycler = ccTalk.openConnection(COM);
-                
-
-                if (isOpen())
+                if (!Recycler.IsOpen)
                 {
-                    ccTalk.setDevices();
-                    clearCounterMoney();
-                    setInibitCoins();
-                    setConfigDefaultHoppers();
-                    count_actual = 0;
+                    Recycler = ccTalk.openConnection(COM);
+                    COM = ConfigurationManager.AppSettings.Get("COMComboT");
+                    if (Recycler.IsOpen)
+                    {
+                        Console.WriteLine("Configurando ...");
+                        Console.WriteLine("");
+                        ccTalk.setDevices();
+                        clearCounterMoney();
+                        setInibitCoins();
+                        setConfigDefaultHoppers();
+                        count_actual = 0;
+
+                    }
+                    else
+                    {
+                        throw new Exception("Puerto Cerrado: ComboT ");
+                    }
                 }
-                else
-                {
-                    throw new Exception("Error: Dispositivo Desconectado");
-                }                                                
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-            
-        }
-
-        public void openDispenser()
-        {
-       
-     try
-            {
-                string COM = ConfigurationManager.AppSettings.Get("COMRecycler");
-                Recycler = ccTalk.openConnection(COM);
 
 
-                if (isOpen())
-                {
-                    ccTalk.getIdDevice();
-
-                }
-                else
-                {
-                    throw new Exception("Error: Dispositivo Desconectado");
-                }
             }
             catch (Exception ex)
             {
@@ -74,19 +58,16 @@ namespace LibreriaKioscoCash.Class
 
         public void close()
         {
-            if (Recycler.IsOpen)
-            {
-                Recycler.Close();
-            }
+            Recycler.Close();
         }
 
-        public bool isOpen()
+        public bool isConnection()
         {
             return Recycler.IsOpen;
 
         }
 
-        public void enableAcceptance()
+        public void enable()
         {
             byte[] data = { 4 };
             byte[] parameter = { this.ccTalk.CoinAcceptor, 0, 1, 229 };
@@ -147,7 +128,7 @@ namespace LibreriaKioscoCash.Class
         {
             //Console.WriteLine("Retirando Efectivo ...");
             //Console.WriteLine("");
-            foreach(var j in count)
+            foreach (var j in count)
             {
                 if (count[0] > 0)
                 {
@@ -180,19 +161,18 @@ namespace LibreriaKioscoCash.Class
                 }
             }
 
-            
-            
-           
+
+
+
         }
 
 
         //Metodos de la clase
 
-        // Encargado de obtener los numero de serie del dispositvo        
         private void enableContainerCoin(byte device)
         {
             byte[] code = { device, 0, 1, 164 };
-            byte[] data = {165};
+            byte[] data = { 165 };
             this.ccTalk.sendMessage(code, data);
 
         }
@@ -267,6 +247,6 @@ namespace LibreriaKioscoCash.Class
 
         }
 
-        
+
     }
 }
