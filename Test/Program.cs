@@ -11,6 +11,7 @@ using LibreriaKioscoCash.Factory;
 using LibreriaKioscoCash.Interfaces;
 
 
+
 namespace Test
 {
     class Program
@@ -24,6 +25,7 @@ namespace Test
         ///     IDispenser o IAcceptor
         /// </remarks>
         static FactoryDevice factory = new FactoryDevice();
+        static LED LED = new LED();
         static int extraMoney = 0;
         static Hashtable stored;
         static Hashtable returnMoney;
@@ -42,8 +44,9 @@ namespace Test
                 Console.WriteLine("     2) Prueba con dispositivo Bill Acceptor ");
                 Console.WriteLine("     3) Prueba con dispositivo Coin Dispenser ");
                 Console.WriteLine("     4) Prueba con dispositivo Coin Acceptor ");
-                Console.WriteLine("     5) Prueba con todos los dispositivos ");
-                Console.WriteLine("     6) Salir ");
+                Console.WriteLine("     5) Prueba con dispositivos LED");
+                Console.WriteLine("     6) Prueba con todos los dispositivos ");
+                Console.WriteLine("     7) Salir ");
                 Console.WriteLine();
                 Console.Write("     Indique la opción: ");
                 try
@@ -71,9 +74,12 @@ namespace Test
                         testCoinAcceptor();
                         break;
                     case 5:
-                        testAllDevices();
+                        testLED();
                         break;
                     case 6:
+                        testAllDevices();
+                        break;
+                    case 7:
                         Environment.Exit(0);
                         break;
                     default:
@@ -81,7 +87,7 @@ namespace Test
                         break;
                 }
 
-                Console.Clear();
+                //Console.Clear();
                 Console.WriteLine();
                 Console.WriteLine("¿Quieres ingresar con otra opción del menu (y/n)?");
                 string respuesta = Console.ReadLine();
@@ -506,7 +512,7 @@ namespace Test
                     Console.WriteLine("Transacción Finalizada...");
                     Console.WriteLine("");
 
-                    
+
                     //Resetea variables locales 
                     depositado = 0;
                     count = 0;
@@ -747,6 +753,187 @@ namespace Test
                 Console.WriteLine(ex.Message);
                 Console.ReadLine();
                 Environment.Exit(0);
+            }
+        }
+
+
+        /// <summary>
+        /// Pruebas con LEDs
+        /// </summary>
+        static void testLED()
+        {
+            Console.Clear();
+            bool continuar = true;
+            try
+            {
+                LED.open();
+
+                while (continuar)
+                {
+                    Console.WriteLine("************ PRUEBA DE LEDs ************");
+                    Console.WriteLine("1. Relay 1");
+                    Console.WriteLine("2. Relay 2 ");
+                    Console.WriteLine("3. Relay 3");
+                    Console.WriteLine("4. Relay 4");
+                    Console.WriteLine("5. All Relays");
+                    Console.WriteLine("");
+                    Console.Write("Inserte Opcion: ");
+                    int device = Int32.Parse(Console.ReadLine());
+                    Console.WriteLine("");
+                    Console.WriteLine("*************** FUNCIONES **************");
+                    Console.WriteLine("");
+                    Console.WriteLine("1. ON");
+                    Console.WriteLine("2. OFF");
+                    Console.WriteLine("3. Estado");
+                    Console.WriteLine("");
+                    Console.Write("Inserte Opcion: ");
+                    int status = Int32.Parse(Console.ReadLine());
+                    Console.WriteLine("");
+                    Console.WriteLine("****************************************");
+                    Console.WriteLine("");
+                    switch (device)
+                    {
+                        case 1:
+                            if (status == 1)
+                            {
+                                LED.relay(1, "ON");
+                            }
+                            else if (status == 2)
+                            {
+                                LED.relay(1, "OFF");
+                            }
+                            else if (status == 3)
+                            {
+                                LED.relay(1, "State");
+                            }
+                            break;
+                        case 2:
+                            if (status == 1)
+                            {
+                                LED.relay(2, "ON");
+                            }
+                            else if (status == 2)
+                            {
+                                LED.relay(2, "OFF");
+                            }
+                            else if (status == 3)
+                            {
+                                LED.relay(2, "State");
+                            }
+                            break;
+                        case 3:
+                            if (status == 1)
+                            {
+                                LED.relay(3, "ON");
+                            }
+                            else if (status == 2)
+                            {
+                                LED.relay(3, "OFF");
+                            }
+                            else if (status == 3)
+                            {
+                                LED.relay(3, "State");
+                            }
+                            break;
+                        case 4:
+                            if (status == 1)
+                            {
+                                LED.relay(4, "ON");
+                            }
+                            else if (status == 2)
+                            {
+                                LED.relay(4, "OFF");
+                            }
+                            else if (status == 3)
+                            {
+                                LED.relay(4, "State");
+                            }
+                            break;
+                        case 5:
+                            if (status == 1)
+                            {
+                                LED.relay(5, "ON");
+                            }
+                            else if (status == 2)
+                            {
+                                LED.relay(5, "OFF");
+                            }
+                            else if(status==3)
+                            {
+                                LED.relay(5, "State");
+                            }
+                            break;
+                        default:
+                            break;
+
+                    }
+                    Console.WriteLine("¿ Deseas realizar otra operación  (Y/N) ?");
+                    string respuesta = Console.ReadLine();
+                    if (respuesta == "n" || respuesta == "N")
+                    {
+                        continuar = false;
+
+                        ///<remarks>
+                        ///Cierra la conexion con el dispositivo
+                        ///</remarks>
+
+                    }
+                    Console.Clear();
+                }
+
+
+                //while (continuar)
+                //{
+                //    Console.Clear();
+                //    Console.WriteLine("************ PRUEBA DE LEDs ************");
+                //    Console.WriteLine("1. Encender LED de los Aceptadores ");
+                //    Console.WriteLine("2. Apagar LED de los Aceptadores ");
+                //    Console.WriteLine("3. Encender LED de los Dispensadores ");
+                //    Console.WriteLine("4. Apagar LED de los Dispensadores ");
+                //    Console.WriteLine("****************************************");
+                //    Console.Write("Inserte Opcion: ");
+                //    int device = Int32.Parse(Console.ReadLine());
+                //    switch (device)
+                //    {
+                //        case 1:
+                //            LED.LEDOn("Acceptor");
+
+                //            break;
+                //        case 2:
+                //            LED.LEDOff("Acceptor");
+                //            break;
+                //        case 3:
+                //            LED.LEDOn("Dispenser");
+
+                //            break;
+                //        case 4:
+                //            LED.LEDOff("Dispenser");
+                //            break;
+                //        default:
+                //            LED.LEDOff("Acceptor");
+                //            LED.LEDOff("Dispenser");
+                //            break;
+
+                //    }
+                //    Console.WriteLine("¿ Deseas realizar otra operación  (Y/N) ?");
+                //    string respuesta = Console.ReadLine();
+                //    if (respuesta == "n" || respuesta == "N")
+                //    {
+                //        continuar = false;
+
+                //        ///<remarks>
+                //        ///Cierra la conexion con el dispositivo
+                //        ///</remarks>
+
+                //    }
+                //}
+
+
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
             }
         }
 

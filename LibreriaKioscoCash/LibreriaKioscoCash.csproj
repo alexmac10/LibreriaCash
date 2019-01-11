@@ -31,6 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FTD2XX_NET, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Debug\FTD2XX_NET.dll</HintPath>
+    </Reference>
     <Reference Include="MPOST, Version=3.0.7.0, Culture=neutral, PublicKeyToken=c3d0ba8d3881c2f7, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>bin\Debug\MPOST.dll</HintPath>
@@ -49,6 +53,7 @@
     <Compile Include="Class\AcceptorSCAd.cs" />
     <Compile Include="Class\CommunicationProtocol.cs" />
     <Compile Include="Class\DispenserF53.cs" />
+    <Compile Include="Class\LED.cs" />
     <Compile Include="Class\RecyclerComboT.cs" />
     <Compile Include="Exceptions\CashException.cs" />
     <Compile Include="Factory\FactoryDevice.cs" />

@@ -43,7 +43,7 @@ namespace LibreriaKioscoCash.Factory
             switch (name)
             {
                 case "ComboT":
-                    device = new DispenserF53();
+                    device = new RecyclerComboT();
                     break;
             }
             return device;
@@ -61,6 +61,7 @@ namespace LibreriaKioscoCash.Factory
             }
             return device;
         }
+        
 
     }
 }
