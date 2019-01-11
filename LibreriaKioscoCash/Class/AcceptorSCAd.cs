@@ -51,11 +51,11 @@ namespace LibreriaKioscoCash
         {
             if (billAcceptor.Connected)
             {
-                log.registerLogAction("El dispositivo SCAd esta Conectado");
+                //log.registerLogAction("El dispositivo SCAd esta Conectado");
                 return true;
             }
 
-            log.registerLogAction("El dispositivo SCAd esta Desconectado");
+            //log.registerLogAction("El dispositivo SCAd esta Desconectado");
             return false;
         }
 
@@ -108,6 +108,19 @@ namespace LibreriaKioscoCash
 
         #region Metodos de la clase
 
+        private void connectedHandle(object sender, EventArgs e)
+        {
+            if (billAcceptor.DeviceState == State.Idling)
+            {
+                configDefault();
+            }
+            if (billAcceptor.DeviceState == State.Escrow)
+            {
+                billAcceptor.EscrowStack();
+                configDefault();
+            }
+        }
+
         private void configDefault()
         {
             MPOST.Bill[] bills = billAcceptor.BillValues;
@@ -120,19 +133,7 @@ namespace LibreriaKioscoCash
                 }
             }
             billAcceptor.SetBillValueEnables(ref enables);
-        }
-
-        private void connectedHandle(object sender, EventArgs e)
-        {
-            if (billAcceptor.DeviceState == State.Idling)
-            {
-                configDefault();
-            }
-            if (billAcceptor.DeviceState == State.Escrow)
-            {
-                billAcceptor.EscrowStack();
-                configDefault();
-            }
+            log.registerLogAction("Estableciendo configuración para SCAd");
         }
 
         #endregion

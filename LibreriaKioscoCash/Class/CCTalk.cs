@@ -58,24 +58,26 @@ namespace LibreriaKioscoCash.Class
                 this.COM = COM;
                 if (Devices.ContainsKey(this.COM))
                 {
-                    log.registerLogAction("El puerto " + this.COM + " ya esta registrado");
                     device = (SerialPort)Devices[this.COM];
                     if (!device.IsOpen)
                     {
                         device.Open();
+                        log.registerLogAction("El puerto " + this.COM + " abre conexión desde CCTAlk.");
                     }
+                    log.registerLogAction("El puerto " + this.COM + " ya esta registrado y abre conexión desde CCTAlk.");
                 }
                 else
                 {
                     device = GetNameDevice() == "COMBillDispenser" ? new SerialPort(this.COM, 9600, Parity.Even) : new SerialPort(this.COM, 9600);
                     device.Open();
                     Devices.Add(this.COM, device);
-                    log.registerLogAction("El puerto " + this.COM + " se abre con exito.");
+                    log.registerLogAction("El puerto " + this.COM + " abre conexión desde CCTAlk.");
                 }
+
                 return device;
             }
             catch (IOException ex)
-            {                
+            {
                 throw new Exception(ex.Message + " : metodo openConnection  de la Class CCTalk");
             }
 
@@ -257,11 +259,10 @@ namespace LibreriaKioscoCash.Class
                     byte[] code = { j, 0, 1, 245 };
                     sendMessage(code);
                     var str = Encoding.Default.GetString(resultmessage);
-                    //Console.WriteLine(str);
+                    
                     if (str.Contains("Coin Acceptor"))
                     {
-                        CoinAcceptor = j;
-
+                        CoinAcceptor = j;                        
                     }
                     else if (str.Contains("Payoutt"))
                     {
@@ -279,18 +280,13 @@ namespace LibreriaKioscoCash.Class
                     {
                         CoinBox = j;
                     }
-
                 }
-
-
             }
             catch (IOException ex)
             {
                 throw new Exception(ex.Message);
             }
-
             //Console.WriteLine("{0}: {1}: {2}: {3}: {4}:", CoinAcceptor, HopperTop, HopperCenter, HopperDown, CoinBox);
-
         }
 
         public void sendMessage(byte[] parameters, byte[] data = null)

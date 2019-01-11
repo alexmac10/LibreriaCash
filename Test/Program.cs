@@ -120,6 +120,16 @@ namespace Test
 
                 billDispenser.open();
 
+                
+                if (billDispenser.isConnection())
+                {
+                    Console.WriteLine("Bill dispenser conectado");
+                }
+                else
+                {
+                    Console.WriteLine("Bill dispenser conectado");
+                }
+
                 while (continuar)
                 {
                     //Solicitando efectivo a retirar del dispositvo bill dispenser
@@ -143,15 +153,14 @@ namespace Test
                     /// el segundo parametro es un arreglo tipo int y debera definir la cantidad 
                     /// a entregar y el orden del arreglo para los billetes que son : 
                     ///                         [20,50,100] 
-                    ///</remarks>    
+                    ///</remarks>                     
                     billDispenser.returnCash(billCount);
-
 
                     Console.WriteLine("¿ Deseas realizar otra operación  (Y/N) ?");
                     string respuesta = Console.ReadLine();
                     if (respuesta == "n" || respuesta == "N")
                     {
-                        continuar = false;
+                        continuar = false; 
 
                         ///<remarks>
                         ///Cierra la conexion con el dispositivo
@@ -575,10 +584,6 @@ namespace Test
                 ///<remarks>
                 ///Abriendo conexion con los puertos de los dispositivos
                 ///</remarks>
-
-
-
-
                 billAcceptor.open();
                 while (continuar)
                 {
@@ -597,89 +602,89 @@ namespace Test
 
                     coinAcceptor.open();
                     //Deposito de efectivo
-                    while (depositado < total)
-                    {
-                        ///<remarks>
-                        ///Validar antes si el dispositivo ya esta conectado
-                        ///antes de activarse.
-                        ///</remarks>
-                        if (!billAcceptor.isConnection())
-                        {
-                            continue;
-                        }
+                    //while (depositado < total)
+                    //{
+                    //    ///<remarks>
+                    //    ///Validar antes si el dispositivo ya esta conectado
+                    //    ///antes de activarse.
+                    //    ///</remarks>
+                    //    if (!billAcceptor.isConnection())
+                    //    {
+                    //        continue;
+                    //    }
 
-                        ///<remarks>
-                        ///Habilitar los dispositivos para recibir efectivo
-                        ///</remarks>     
-                        coinAcceptor.enable();
+                    //    ///<remarks>
+                    //    ///Habilitar los dispositivos para recibir efectivo
+                    //    ///</remarks>     
+                    //    coinAcceptor.enable();
 
-                        if (count == 0)
-                        {
-                            count = 1;
-                            Console.WriteLine("Inserte Efectivo...");
-                        }
-                        billAcceptor.enable();
+                    //    if (count == 0)
+                    //    {
+                    //        count = 1;
+                    //        Console.WriteLine("Inserte Efectivo...");
+                    //    }
+                    //    billAcceptor.enable();
 
-                        ///<remarks>
-                        ///Recibiendo monedas y billetes
-                        ///</remarks>
-                        double[] recibidoCoin = coinAcceptor.getCashDesposite();
-                        double[] recibidoBill = billAcceptor.getCashDesposite();
+                    //    ///<remarks>
+                    //    ///Recibiendo monedas y billetes
+                    //    ///</remarks>
+                    //    double[] recibidoCoin = coinAcceptor.getCashDesposite();
+                    //    double[] recibidoBill = billAcceptor.getCashDesposite();
 
-                        //Acumulando el efectivo
-                        if (count_actual != recibidoCoin[1])
-                        {
-                            switch (recibidoCoin[0])
-                            {
-                                case 10:
-                                    depositado += recibidoCoin[0];
-                                    count_actual = recibidoCoin[1];
-                                    Console.WriteLine("Se recibio moneda de ${0}.00 ", recibidoCoin[0]);
-                                    break;
-                                case 5:
-                                    depositado += recibidoCoin[0];
-                                    count_actual = recibidoCoin[1];
-                                    Console.WriteLine("Se recibio moneda de ${0}.00 ", recibidoCoin[0]);
-                                    break;
-                                case 2:
-                                    depositado += recibidoCoin[0];
-                                    count_actual = recibidoCoin[1];
-                                    Console.WriteLine("Se recibio moneda de ${0}.00 ", recibidoCoin[0]);
-                                    break;
-                                case 1:
-                                    depositado += recibidoCoin[0];
-                                    count_actual = recibidoCoin[1];
-                                    Console.WriteLine("Se recibio moneda de ${0}.00 ", recibidoCoin[0]);
-                                    break;
-                            }
-                        }
-                        else
-                        {
-                            switch (recibidoBill[0])
-                            {
-                                case 20:
-                                    depositado += recibidoBill[0];
-                                    Console.WriteLine("Se deposito billete de ${0}.00 ", recibidoBill[0]);
-                                    break;
-                                case 50:
-                                    depositado += recibidoBill[0];
-                                    Console.WriteLine("Se deposito billete de ${0}.00 ", recibidoBill[0]);
-                                    break;
-                                case 100:
-                                    depositado += recibidoBill[0];
-                                    Console.WriteLine("Se deposito billete de ${0}.00 ", recibidoBill[0]);
-                                    break;
-                                case 200:
-                                    depositado += recibidoBill[0];
-                                    Console.WriteLine("Se deposito billete de ${0}.00 ", recibidoBill[0]);
-                                    break;
-                                case 500:
-                                    depositado += recibidoBill[0];
-                                    Console.WriteLine("Se deposito billete de ${0}.00 ", recibidoBill[0]);
-                                    break;
-                            }
-                        }
-                    }
+                    //    //Acumulando el efectivo
+                    //    if (count_actual != recibidoCoin[1])
+                    //    {
+                    //        switch (recibidoCoin[0])
+                    //        {
+                    //            case 10:
+                    //                depositado += recibidoCoin[0];
+                    //                count_actual = recibidoCoin[1];
+                    //                Console.WriteLine("Se recibio moneda de ${0}.00 ", recibidoCoin[0]);
+                    //                break;
+                    //            case 5:
+                    //                depositado += recibidoCoin[0];
+                    //                count_actual = recibidoCoin[1];
+                    //                Console.WriteLine("Se recibio moneda de ${0}.00 ", recibidoCoin[0]);
+                    //                break;
+                    //            case 2:
+                    //                depositado += recibidoCoin[0];
+                    //                count_actual = recibidoCoin[1];
+                    //                Console.WriteLine("Se recibio moneda de ${0}.00 ", recibidoCoin[0]);
+                    //                break;
+                    //            case 1:
+                    //                depositado += recibidoCoin[0];
+                    //                count_actual = recibidoCoin[1];
+                    //                Console.WriteLine("Se recibio moneda de ${0}.00 ", recibidoCoin[0]);
+                    //                break;
+                    //        }
+                    //    }
+                    //    else
+                    //    {
+                    //        switch (recibidoBill[0])
+                    //        {
+                    //            case 20:
+                    //                depositado += recibidoBill[0];
+                    //                Console.WriteLine("Se deposito billete de ${0}.00 ", recibidoBill[0]);
+                    //                break;
+                    //            case 50:
+                    //                depositado += recibidoBill[0];
+                    //                Console.WriteLine("Se deposito billete de ${0}.00 ", recibidoBill[0]);
+                    //                break;
+                    //            case 100:
+                    //                depositado += recibidoBill[0];
+                    //                Console.WriteLine("Se deposito billete de ${0}.00 ", recibidoBill[0]);
+                    //                break;
+                    //            case 200:
+                    //                depositado += recibidoBill[0];
+                    //                Console.WriteLine("Se deposito billete de ${0}.00 ", recibidoBill[0]);
+                    //                break;
+                    //            case 500:
+                    //                depositado += recibidoBill[0];
+                    //                Console.WriteLine("Se deposito billete de ${0}.00 ", recibidoBill[0]);
+                    //                break;
+                    //        }
+                    //    }
+                    //}
 
                     ///<remarks>
                     /// Deshabilitando dispositivos acceptor
@@ -713,9 +718,6 @@ namespace Test
                             billDispenser.open();
                             billDispenser.returnCash(billExtra);
                         }
-
-
-
                     }
                     else
                     {
