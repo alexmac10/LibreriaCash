@@ -16,6 +16,7 @@ namespace LibreriaKioscoCash.Class
 
     public class DispenserF53 : IDispenser
     {
+        private Log log = Log.GetInstance();
         private SerialPort F53;
         private CCTalk ccTalk = CCTalk.GetInstance();
         private string COM;
@@ -47,7 +48,23 @@ namespace LibreriaKioscoCash.Class
         private string[] Sensors_name = new string[] { "FDLS1", "FDLS2", "FDLS3", "FDLS4", "FDLS5", "FDLS6", "DFSS", "REJS", "BPS", "BRS1", "BRS2", "BRS3", "EJSR", "EJSF", "BCS" };
 
 
-        //Funciones de la interfaz
+        #region Funciones de la interfaz
+
+        public void open()
+        {
+            try
+            {
+                COM = ConfigurationManager.AppSettings.Get("COMBillDispenser");
+                F53 = ccTalk.openConnection(COM);
+                log.registerLogAction("Abriendo conexion con F53");
+                //CheckConfig();
+            }
+            catch (Exception ex)
+            {                
+                log.registerLogError("No se puede abrir puerto (" + ex.Message + ") :  metodo open  de la Class DispenserF53", "300");
+                throw new Exception(ex.Message);
+            }
+        }
 
         public void close()
         {
@@ -77,23 +94,10 @@ namespace LibreriaKioscoCash.Class
 
 
         }
-
-        public void open()
+        
+        public void enable()
         {
-            try
-            {
-                openConnection();
-                CheckConfig();
-
-
-
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-
-
+            //openConnection();
         }
 
         public void returnCash(int[] count)
@@ -158,20 +162,12 @@ namespace LibreriaKioscoCash.Class
                 byte[] entrega = getPositions(IsoCodes, bill_codes);
 
                 throw new CashException(entrega);
-
-
-
-
-
             }
-
-
-
-
-
         }
 
-        //Metodos de la clase
+        #endregion
+
+        #region Metodos de la clase
 
         //Configuracion de paridad del protocolo serial RS232
         private Parity SetPortParity(Parity defaultPortParity)
@@ -249,7 +245,6 @@ namespace LibreriaKioscoCash.Class
 
             }
             //Console.WriteLine();
-
         }
 
         private void setFreeDevice()
@@ -273,7 +268,6 @@ namespace LibreriaKioscoCash.Class
         {
 
             //byte result = 0;
-
             ccTalk.setMessage(statusRequest);
             ccTalk.getMessage();
             search(ccTalk.resultmessage, releaseRequest);
@@ -372,13 +366,7 @@ namespace LibreriaKioscoCash.Class
 
 
         }
-
-        private void openConnection()
-        {
-            COM = ConfigurationManager.AppSettings.Get("COMBillDispenser");
-            F53 = ccTalk.openConnection(COM);
-        }
-
+       
         //Funciones del Dispositivo [Codigo Completo]
         private void Config_inicial()
         {
@@ -510,8 +498,6 @@ namespace LibreriaKioscoCash.Class
         {
             if (needle.Length + start > haystack.Length)
             {
-
-
                 return false;
             }
             else
@@ -528,9 +514,7 @@ namespace LibreriaKioscoCash.Class
                 status = true;
                 return true;
             }
-
         }
-
 
         private byte[] getPositions(byte[] where, byte[] code)
         {
@@ -540,12 +524,9 @@ namespace LibreriaKioscoCash.Class
             {
                 for (byte j = 0; j < where.Length; j++)
                 {
-
                     if (code[i] == where[j])
                     {
-
                         positions.Add(j);
-
                     }
                 }
             }
@@ -553,11 +534,7 @@ namespace LibreriaKioscoCash.Class
             return positions.ToArray();
         }
 
-        public void enable()
-        {
-            openConnection();
-            
-        }
+        #endregion
 
     }
 

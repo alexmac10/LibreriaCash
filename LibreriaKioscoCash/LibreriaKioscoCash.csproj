@@ -51,6 +51,7 @@
     <Compile Include="Class\CCTalk.cs" />
     <Compile Include="Class\DispenserF53.cs" />
     <Compile Include="Class\DispenserCBT.cs" />
+    <Compile Include="Class\Log.cs" />
     <Compile Include="Exceptions\CashException.cs" />
     <Compile Include="Factory\FactoryDevice.cs" />
     <Compile Include="Interfaces\IAcceptor.cs" />

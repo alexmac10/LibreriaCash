@@ -13,6 +13,7 @@ namespace LibreriaKioscoCash.Class
 {
     public class CCTalk
     {
+        private Log log = Log.GetInstance();
         private SerialPort device;
         private static Hashtable Devices;
 
@@ -23,8 +24,6 @@ namespace LibreriaKioscoCash.Class
         private bool status;
         public byte CoinAcceptor, HopperTop, HopperCenter, HopperDown, CoinBox;
         private bool conection;
-
-
         private static CCTalk instance = null;
 
         private CCTalk()
@@ -36,7 +35,6 @@ namespace LibreriaKioscoCash.Class
         {
             if (instance == null)
             {
-
                 instance = new CCTalk();
             }
 
@@ -60,31 +58,26 @@ namespace LibreriaKioscoCash.Class
                 this.COM = COM;
                 if (Devices.ContainsKey(this.COM))
                 {
-                    //Console.WriteLine("Puerto Abierto:{0} ", COM);
-                    device=(SerialPort)Devices[this.COM];
-                    if(!device.IsOpen)
+                    log.registerLogAction("El puerto " + this.COM + " ya esta registrado");
+                    device = (SerialPort)Devices[this.COM];
+                    if (!device.IsOpen)
                     {
                         device.Open();
                     }
-
-                    return device;
-
                 }
                 else
                 {
-                    //Console.WriteLine("Abriendo puerto:{0}", COM);
                     device = GetNameDevice() == "COMBillDispenser" ? new SerialPort(this.COM, 9600, Parity.Even) : new SerialPort(this.COM, 9600);
                     device.Open();
                     Devices.Add(this.COM, device);
-                    return device;
+                    log.registerLogAction("El puerto " + this.COM + " se abre con exito.");
                 }
-
+                return device;
             }
             catch (IOException ex)
-            {
-                throw new Exception(ex.Message);
+            {                
+                throw new Exception(ex.Message + " : metodo openConnection  de la Class CCTalk");
             }
-
 
         }
 
@@ -122,7 +115,7 @@ namespace LibreriaKioscoCash.Class
             CleanEcho();
             //Console.WriteLine("RX: " + ByteArrayToString(resultmessage));
             Thread.Sleep(150);
-            
+
 
         }
 
@@ -156,20 +149,15 @@ namespace LibreriaKioscoCash.Class
 
         private int search(byte[] haystack, byte[] needle)
         {
-
             for (int i = 0; i <= haystack.Length - needle.Length; i++)
             {
-
                 if (match(haystack, needle, i))
                 {
                     position = i;
                     //Console.WriteLine("Status:{0}\nPosición:{1}", status, position);
                     return i;
                 }
-
             }
-
-
             return -1;
 
         }
@@ -242,7 +230,7 @@ namespace LibreriaKioscoCash.Class
             {
                 byte[] code = { 0, 0, 1, 253 };
                 sendMessage(code);
-                if(resultmessage.Length==0)
+                if (resultmessage.Length == 0)
                 {
                     return conection = false;
                 }
@@ -258,7 +246,7 @@ namespace LibreriaKioscoCash.Class
 
 
         }
-         
+
         public void setDevices()
         {
             try
@@ -318,7 +306,7 @@ namespace LibreriaKioscoCash.Class
                 {
                     break;
                 }
-                else if(conection==false)
+                else if (conection == false)
                 {
                     break;
                 }

@@ -17,8 +17,7 @@ namespace LibreriaKioscoCash.Exceptions
         }
 
         public byte[] getInformationCashNotDeliveredException()
-        {
-            
+        {            
             return countCash;
         }
     }

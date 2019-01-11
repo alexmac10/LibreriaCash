@@ -561,6 +561,7 @@ namespace Test
             IAcceptor coinAcceptor = factory.GetCoinAcceptor();
             IDispenser coinDispenser = factory.GetCoinDispenser();
 
+            
             ///<remarks>
             ///Variables para pruebas
             ///</remarks>                        

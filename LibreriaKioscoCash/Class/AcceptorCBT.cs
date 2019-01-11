@@ -12,14 +12,13 @@ namespace LibreriaKioscoCash.Class
 {
     public class AcceptorCBT : IAcceptor
     {
+        private Log log = Log.GetInstance();
         private CCTalk ccTalk = CCTalk.GetInstance();
         private SerialPort ComboT;
         private string COM;
         private byte count_actual = 0;
 
-
-
-        //Funciones de la interfaz
+        #region Funciones de la interfaz
 
         public void open()
         {
@@ -27,29 +26,28 @@ namespace LibreriaKioscoCash.Class
             {
                 COM = ConfigurationManager.AppSettings.Get("COMComboT");
                 ComboT = ccTalk.openConnection(COM);
+                log.registerLogAction("Abriendo conexion con ComboT");
 
+                //if (ComboT.IsOpen)
+                //{
+                //    Console.WriteLine("Configurando ...");
+                //    Console.WriteLine("");
+                //    ccTalk.setDevices();
+                //    clearCounterMoney();
+                //    setInibitCoins();
+                //    setConfigDefaultHoppers();
+                //    count_actual = 0;
+                //}
+                //else
+                //{
 
-                if (ComboT.IsOpen)
-                {
-                    Console.WriteLine("Configurando ...");
-                    Console.WriteLine("");
-                    ccTalk.setDevices();
-                    clearCounterMoney();
-                    setInibitCoins();
-                    setConfigDefaultHoppers();
-                    count_actual = 0;
-                }
-                else
-                {
-
-                    throw new Exception("Error: Dispositivo Desconectado");
-                }
-
-
+                //    throw new Exception("Error: Dispositivo Desconectado");
+                //}
 
             }
             catch (Exception ex)
             {
+                log.registerLogError("No se puede abrir puerto (" + ex.Message + ") :  metodo open  de la Class AcceptorCBT", "300");
                 throw new Exception(ex.Message);
             }
 
@@ -124,7 +122,9 @@ namespace LibreriaKioscoCash.Class
             return money;
         }
 
-        //Metodos de la clase
+        #endregion
+
+        #region Metodos de la clase
 
         private void setConfigDefaultHoppers()
         {
@@ -161,6 +161,8 @@ namespace LibreriaKioscoCash.Class
             this.ccTalk.sendMessage(parameter, data);
 
         }
+
+        #endregion
 
     }
 }

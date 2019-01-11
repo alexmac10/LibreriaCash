@@ -13,6 +13,5 @@ namespace LibreriaKioscoCash.Interfaces
         bool isConnection();
         void enable();
         void returnCash(int [] count);
-
     }
 }

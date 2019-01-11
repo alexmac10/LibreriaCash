@@ -12,12 +12,37 @@ namespace LibreriaKioscoCash.Class
 {
     class DispenserCBT : IDispenser
     {
-
+        private Log log = Log.GetInstance();
         private CCTalk ccTalk= CCTalk.GetInstance();
         private SerialPort ComboT;
         private List<byte> Sensors;
 
-        //Funciones de la interfaz
+        #region Funciones de la interfaz
+
+        public void open()
+        {
+            try
+            {
+                string COM = ConfigurationManager.AppSettings.Get("COMComboT");
+                ComboT = ccTalk.openConnection(COM);
+                log.registerLogAction("Abriendo conexion con ComboT");
+                //if (ComboT.IsOpen)
+                //{
+
+                //    ccTalk.getIdDevice();
+                //}
+                //else
+                //{
+                //    throw new Exception("Error: Dispositivo Desconectado");
+                //}
+            }
+            catch (Exception ex)
+            {
+                log.registerLogError("No se puede abrir puerto (" + ex.Message + ") :  metodo open  de la Class DispenserCBT", "300");
+                throw new Exception(ex.Message);
+            }
+
+        }
 
         public void close()
         {
@@ -31,29 +56,18 @@ namespace LibreriaKioscoCash.Class
 
         }
 
-        public void open()
+        public void enable()
         {
             try
             {
                 string COM = ConfigurationManager.AppSettings.Get("COMComboT");
                 ComboT = ccTalk.openConnection(COM);
-                
-                if (ComboT.IsOpen)
-                {
-
-                    ccTalk.getIdDevice();
-                }
-                else
-                {
-                    throw new Exception("Error: Dispositivo Desconectado");
-                }
-                                                            
+                //checkStatusSensors();
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
-            
         }
 
         public void returnCash(int[] count)
@@ -91,23 +105,12 @@ namespace LibreriaKioscoCash.Class
                     this.ccTalk.sendMessage(code, serie);
                     count[2] = 0;
                 }
-            }
-
-            
-            
-           
+            }                                  
         }
+       
+        #endregion
 
-        private void enableContainerCoin(byte device)
-        {
-            byte[] code = { device, 0, 1, 164 };
-            byte[] data = {165};
-            this.ccTalk.sendMessage(code, data);
-
-        }
-
-        //Metodos de la clase
-        
+        #region Metodos de la clase
 
         // Encargado de obtener los numero de serie del dispositvo        
         private byte[] getNumberSerie(byte device)
@@ -144,18 +147,14 @@ namespace LibreriaKioscoCash.Class
             }
         }
 
-        public void enable()
+        private void enableContainerCoin(byte device)
         {
-            try
-            {
-                string COM = ConfigurationManager.AppSettings.Get("COMComboT");
-                ComboT = ccTalk.openConnection(COM);
-                //checkStatusSensors();
-            }
-            catch(Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            byte[] code = { device, 0, 1, 164 };
+            byte[] data = { 165 };
+            this.ccTalk.sendMessage(code, data);
+
         }
+        
+        #endregion
     }
 }

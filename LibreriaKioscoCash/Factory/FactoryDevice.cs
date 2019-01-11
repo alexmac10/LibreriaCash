@@ -11,6 +11,8 @@ namespace LibreriaKioscoCash.Factory
 {
    public class FactoryDevice
     {
+        private Log log = Log.GetInstance();
+
         public IDispenser GetBillDispenser()
         {
             IDispenser device = null;
@@ -19,11 +21,13 @@ namespace LibreriaKioscoCash.Factory
             {
                 case "F53":
                     device = new DispenserF53();
+                    log.registerLogAction("Se genera instancia de BillDispenser");
                     break;
             }
             return device;
 
         }
+
         public IAcceptor GetBillAcceptor()
         {
             IAcceptor device = null;
@@ -32,10 +36,12 @@ namespace LibreriaKioscoCash.Factory
             {
                 case "SCAdvance":
                     device = new AcceptorSCAd();
+                    log.registerLogAction("Se genera instancia de BillAcceptor");
                     break;
             }
             return device;
         }
+
         public IDispenser GetCoinDispenser()
         {
             IDispenser device = null;
@@ -44,11 +50,13 @@ namespace LibreriaKioscoCash.Factory
             {
                 case "ComboT":
                     device = new DispenserCBT();
+                    log.registerLogAction("Se genera instancia de CoinDispenser");
                     break;
             }
             return device;
 
         }
+
         public IAcceptor GetCoinAcceptor()
         {
             IAcceptor device = null;
@@ -57,6 +65,7 @@ namespace LibreriaKioscoCash.Factory
             {
                 case "ComboT":
                     device = new AcceptorCBT();
+                    log.registerLogAction("Se genera instancia de CoinAcceptor");
                     break;
             }
             return device;
