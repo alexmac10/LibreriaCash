@@ -101,7 +101,7 @@ namespace Test
         static void testBillDispenser()
         {
             Console.Clear();
-
+            
             /// <summary>
             /// Obtiene la instancia para el dispositivo bill dispenser
             /// </summary>            

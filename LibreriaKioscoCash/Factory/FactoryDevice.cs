@@ -49,7 +49,7 @@ namespace LibreriaKioscoCash.Factory
             switch (name)
             {
                 case "ComboT":
-                    device = new DispenserCBT();
+                    device = new RecyclerComboT();
                     log.registerLogAction("Se genera instancia de CoinDispenser");
                     break;
             }
@@ -64,7 +64,7 @@ namespace LibreriaKioscoCash.Factory
             switch (name)
             {
                 case "ComboT":
-                    device = new AcceptorCBT();
+                    device = new RecyclerComboT();
                     log.registerLogAction("Se genera instancia de CoinAcceptor");
                     break;
             }

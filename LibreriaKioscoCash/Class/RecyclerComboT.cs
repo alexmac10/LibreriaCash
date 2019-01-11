@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
@@ -14,44 +15,42 @@ namespace LibreriaKioscoCash.Class
 
     class RecyclerComboT : IAcceptor, IDispenser
     {
-
+        private Log log = Log.GetInstance();
         private CommunicationProtocol ccTalk = CommunicationProtocol.GetInstance();
         private SerialPort Recycler;
         private string COM;
         private List<byte> Sensors;
         private byte count_actual = 0;
+        private byte CoinAcceptor, HopperTop, HopperCenter, HopperDown, CoinBox;
+        private bool conection;
+
         //Funciones de la interfaz
-
-
         public void open()
         {
             try
             {
-                if (!Recycler.IsOpen)
-                {
-                    Recycler = ccTalk.openConnection(COM);
-                    COM = ConfigurationManager.AppSettings.Get("COMComboT");
-                    if (Recycler.IsOpen)
-                    {
-                        Console.WriteLine("Configurando ...");
-                        Console.WriteLine("");
-                        ccTalk.setDevices();
-                        clearCounterMoney();
-                        setInibitCoins();
-                        setConfigDefaultHoppers();
-                        count_actual = 0;
+                COM = ConfigurationManager.AppSettings.Get("COMComboT");
+                Recycler = ccTalk.openConnection(COM);
+                log.registerLogAction("Abriendo conexion con ComboT");
+                //if (Recycler.IsOpen)
+                //{
+                //    Console.WriteLine("Configurando ...");
+                //    Console.WriteLine("");
+                //    setDevices();
+                //    clearCounterMoney();
+                //    setInibitCoins();
+                //    setConfigDefaultHoppers();
+                //    count_actual = 0;
 
-                    }
-                    else
-                    {
-                        throw new Exception("Puerto Cerrado: ComboT ");
-                    }
-                }
-
-
+                //}
+                //else
+                //{
+                //    throw new Exception("Puerto Cerrado: ComboT ");
+                //}
             }
             catch (Exception ex)
             {
+                log.registerLogError("No se puede abrir puerto (" + ex.Message + ") : metodo open  de la Class RecyclerComboT", "300");
                 throw new Exception(ex.Message);
             }
         }
@@ -70,8 +69,8 @@ namespace LibreriaKioscoCash.Class
         public void enable()
         {
             byte[] data = { 4 };
-            byte[] parameter = { this.ccTalk.CoinAcceptor, 0, 1, 229 };
-            this.ccTalk.sendMessage(parameter, data);
+            byte[] parameter = { CoinAcceptor, 0, 1, 229 };
+            sendMessage(parameter, data);
         }
 
         public void disable()
@@ -126,44 +125,37 @@ namespace LibreriaKioscoCash.Class
 
         public void returnCash(int[] count)
         {
-            //Console.WriteLine("Retirando Efectivo ...");
-            //Console.WriteLine("");
             foreach (var j in count)
             {
                 if (count[0] > 0)
                 {
-                    this.enableContainerCoin(this.ccTalk.HopperDown);
-                    byte[] serie = this.getNumberSerie(this.ccTalk.HopperDown);
+                    this.enableContainerCoin(HopperDown);
+                    byte[] serie = this.getNumberSerie(HopperDown);
                     serie[3] = (byte)count[0];
-                    byte[] code = { this.ccTalk.HopperDown, 0, 1, 167 };
-                    this.ccTalk.sendMessage(code, serie);
+                    byte[] code = { HopperDown, 0, 1, 167 };
+                    sendMessage(code, serie);
                     count[0] = 0;
                 }
                 else if (count[1] > 0)
                 {
-
-                    this.enableContainerCoin(this.ccTalk.HopperCenter);
-                    byte[] serie = this.getNumberSerie(this.ccTalk.HopperCenter);
+                    this.enableContainerCoin(HopperCenter);
+                    byte[] serie = this.getNumberSerie(HopperCenter);
                     serie[3] = (byte)count[1];
-                    byte[] code = { this.ccTalk.HopperCenter, 0, 1, 167 };
-                    this.ccTalk.sendMessage(code, serie);
+                    byte[] code = { HopperCenter, 0, 1, 167 };
+                    sendMessage(code, serie);
                     count[1] = 0;
                 }
                 else if (count[2] > 0)
                 {
 
-                    this.enableContainerCoin(this.ccTalk.HopperTop);
-                    byte[] serie = this.getNumberSerie(this.ccTalk.HopperTop);
+                    this.enableContainerCoin(HopperTop);
+                    byte[] serie = this.getNumberSerie(HopperTop);
                     serie[3] = (byte)count[2];
-                    byte[] code = { this.ccTalk.HopperTop, 0, 1, 167 };
-                    this.ccTalk.sendMessage(code, serie);
+                    byte[] code = { HopperTop, 0, 1, 167 };
+                    sendMessage(code, serie);
                     count[2] = 0;
                 }
             }
-
-
-
-
         }
 
 
@@ -173,8 +165,7 @@ namespace LibreriaKioscoCash.Class
         {
             byte[] code = { device, 0, 1, 164 };
             byte[] data = { 165 };
-            this.ccTalk.sendMessage(code, data);
-
+            sendMessage(code, data);
         }
 
         private byte[] getNumberSerie(byte device)
@@ -182,7 +173,7 @@ namespace LibreriaKioscoCash.Class
             byte[] serie = new byte[4];
             byte[] code = { device, 0, 1, 242 };
 
-            this.ccTalk.sendMessage(code);
+            sendMessage(code);
 
             for (int i = 4, j = 0; i < this.ccTalk.resultmessage.Length - 1; i++, j++)
             {
@@ -194,15 +185,14 @@ namespace LibreriaKioscoCash.Class
         private void checkStatusSensors()
         {
             Console.WriteLine("Checando Estatus de los Contenedores....");
-            byte[] device = { this.ccTalk.HopperTop, this.ccTalk.HopperCenter, this.ccTalk.HopperDown };
+            byte[] device = { HopperTop, HopperCenter, HopperDown };
             string[] name_device = { "Conetenedor Superior", "Contenedor Central", "Contenedor Inferior" };
             Sensors = new List<byte>();
             for (byte i = 0; i < device.Length; i++)
             {
                 byte[] code = { device[i], 0, 1, 236 };
-                this.ccTalk.sendMessage(code);
+                sendMessage(code);
                 Sensors.Add(ccTalk.resultmessage[4]);
-
             }
 
             if ((Sensors[0] == 3) || (Sensors[1] == 3) || (Sensors[2] == 3))
@@ -213,38 +203,142 @@ namespace LibreriaKioscoCash.Class
 
         private void setConfigDefaultHoppers()
         {
-            byte[] parameter = { this.ccTalk.CoinAcceptor, 0, 1, 210 };
+            byte[] parameter = { CoinAcceptor, 0, 1, 210 };
 
-            this.ccTalk.sendMessage(parameter, new byte[] { 4, 2 });
-            this.ccTalk.sendMessage(parameter, new byte[] { 5, 0 });
-            this.ccTalk.sendMessage(parameter, new byte[] { 6, 3 });
-            this.ccTalk.sendMessage(parameter, new byte[] { 7, 5 });
-            this.ccTalk.sendMessage(parameter, new byte[] { 8, 5 });
+            sendMessage(parameter, new byte[] { 4, 2 });
+            sendMessage(parameter, new byte[] { 5, 0 });
+            sendMessage(parameter, new byte[] { 6, 3 });
+            sendMessage(parameter, new byte[] { 7, 5 });
+            sendMessage(parameter, new byte[] { 8, 5 });
 
         }
 
         private void setInibitCoins()
         {
             byte[] data = { 248, 255 };
-            byte[] parameter = { this.ccTalk.CoinAcceptor, 0, 1, 231 };
-            this.ccTalk.sendMessage(parameter, data);
-
+            byte[] parameter = { CoinAcceptor, 0, 1, 231 };
+            sendMessage(parameter, data);
         }
 
         private void clearCounterMoney()
         {
-            byte[] parameter = { this.ccTalk.CoinAcceptor, 0, 1, 1 };
-            this.ccTalk.sendMessage(parameter);
+            byte[] parameter = { CoinAcceptor, 0, 1, 1 };
+            sendMessage(parameter);
         }
 
         private void emptyMoneyBox()
         {
             //si data = 1 se vacia por atras
             //si data = 2 se vacia por enfrente
-            byte[] parameter = { this.ccTalk.CoinBox, 0, 1, 70 };
+            byte[] parameter = { CoinBox, 0, 1, 70 };
             byte[] data = { 1 };
-            this.ccTalk.sendMessage(parameter, data);
+            sendMessage(parameter, data);
 
+        }
+
+        private byte[] setChecksum(byte[] parameter, byte[] data)
+        {
+            List<byte> list1 = new List<byte>();
+            byte sum = 0;
+            if (data.Length > 0)
+            {
+                parameter[1] = (byte)data.Length;
+            }
+            list1.AddRange(parameter);
+            list1.AddRange(data);
+
+            foreach (byte i in list1)
+            {
+                sum += i;
+            }
+
+            sum = (byte)(256 - (sum % 256));
+
+
+            list1.Add(sum);
+            byte[] code = list1.ToArray();
+
+            return code;
+        }
+
+        public bool getIdDevice()
+        {
+            try
+            {
+                byte[] code = { 0, 0, 1, 253 };
+                sendMessage(code);
+                if (ccTalk.resultmessage.Length == 0)
+                {
+                    return conection = false;
+                }
+                return conection = true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public void setDevices()
+        {
+            try
+            {
+                getIdDevice();
+                foreach (var j in ccTalk.resultmessage)
+                {
+                    byte[] code = { j, 0, 1, 245 };
+                    sendMessage(code);
+                    var str = Encoding.Default.GetString(ccTalk.resultmessage);
+
+                    if (str.Contains("Coin Acceptor"))
+                    {
+                        CoinAcceptor = j;
+
+                    }
+                    else if (str.Contains("Payoutt"))
+                    {
+                        HopperTop = j;
+                    }
+                    else if (str.Contains("Payoutr"))
+                    {
+                        HopperCenter = j;
+                    }
+                    else if (str.Contains("Payoutq"))
+                    {
+                        HopperDown = j;
+                    }
+                    else if (str.Contains("Dongle"))
+                    {
+                        CoinBox = j;
+                    }
+                }
+            }
+            catch (IOException ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+            //Console.WriteLine("{0}: {1}: {2}: {3}: {4}:", CoinAcceptor, HopperTop, HopperCenter, HopperDown, CoinBox);
+        }
+
+        public void sendMessage(byte[] parameters, byte[] data = null)
+        {
+            data = (data == null) ? new byte[] { } : data;
+            byte[] parameter = this.setChecksum(parameters, data);
+            while (true)
+            {
+                ccTalk.setMessage(parameter);
+                Thread.Sleep(350);
+                ccTalk.getMessage();
+                if (ccTalk.resultmessage.Length > 0)
+                {
+                    break;
+                }
+                else if (conection == false)
+                {
+                    break;
+                }
+            }
         }
 
 
