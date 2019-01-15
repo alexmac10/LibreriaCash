@@ -20,6 +20,7 @@ namespace LibreriaKioscoCash.Class
         private SerialPort F53;
         private CommunicationProtocol ccTalk = CommunicationProtocol.GetInstance();
         private string COM;
+        private int sumMoney;
 
         //RS232C(Comunicación)
         private byte[] startoftext = new byte[] { 0x10, 0x02, 0x00 };
@@ -87,17 +88,18 @@ namespace LibreriaKioscoCash.Class
 
         public void returnCash(int[] count)
         {
-            int sum = count[0] + count[1] + count[2];
+            sumMoney = count[0] + count[1] + count[2];
             money = true;
+
+            if (sumMoney > 15)
+            {
+                throw new CashException(new byte[] { 0, 0, 0 });
+            }
 
             DispenserBill[5] = IsoCodes[count[0]];
             DispenserBill[7] = IsoCodes[count[1]];
             DispenserBill[9] = IsoCodes[count[2]];
 
-            if (sum > 15)
-            {
-                throw new CashException(new byte[] { 0, 0, 0 });
-            }
 
             createCode(DispenserBill);
             sendMessage(mensaje_final);
@@ -210,7 +212,8 @@ namespace LibreriaKioscoCash.Class
         {
             if (money == true)
             {
-                this.setStructureDevice(parameter, 9000);
+                int time = (sumMoney < 7) ? 9000 : 15000;
+                this.setStructureDevice(parameter, time);
             }
             else if (config == true)
             {
@@ -225,15 +228,23 @@ namespace LibreriaKioscoCash.Class
 
         private void setStructureDevice(byte[] parameter, int time)
         {
-            ccTalk.setMessage(parameter);
-            Thread.Sleep(200);
-            ccTalk.getMessage();
-            Thread.Sleep(time);
-            ccTalk.getMessage();
-            ccTalk.setMessage(releaseRequest);
-            Thread.Sleep(200);
-            ccTalk.getMessage();
-            ccTalk.setMessage(releaseRequest);
+            try
+            {
+                ccTalk.setMessage(parameter);
+                Thread.Sleep(200);
+                ccTalk.getMessage();
+                Thread.Sleep(time);
+                ccTalk.getMessage();
+                ccTalk.setMessage(releaseRequest);
+                Thread.Sleep(200);
+                ccTalk.getMessage();
+                ccTalk.setMessage(releaseRequest);
+            }
+            catch (Exception ex)
+            {
+                log.registerLogError(@"\DispenserF53\setStructureDevice() : " + ex.Message, "200");
+                throw new Exception(@"\DispenserF53\setStructureDevice() : " + ex.Message);
+            }
         }
 
         private void validateCassets()
@@ -267,27 +278,32 @@ namespace LibreriaKioscoCash.Class
 
         private void searchError(int[] count)
         {
+            int initialPosition;
             byte[] bill_codes = { };
+            byte[] response = { 0x10, 0x05 };
+            ccTalk.search(ccTalk.resultmessage, response);
+
+            if(ccTalk.status==true)
+            {
+                initialPosition = 9;
+            }
+            else
+            {
+                initialPosition = 7;
+            }
+
             byte[] error_answer = { 0x8c };
             ccTalk.search(ccTalk.resultmessage, error_answer);
 
             Error = new List<byte>();
-            for (int i = 7, m = 0; i < ccTalk.position; i++, m++)
+            for (int i = initialPosition, m = 0; i < ccTalk.position; i++, m++)
             {
                 Error.Add(ccTalk.resultmessage[i]);
             }
 
-
             if (!((Error[0] == 0) && (Error[1] == 0)))
             {
-                if ((count[0] <= 2) && (count[1] <= 2) && (count[2] <= 2))
-                {
-                    bill_codes = new byte[] { ccTalk.resultmessage[46], ccTalk.resultmessage[48], ccTalk.resultmessage[50] };
-                }
-                else
-                {
-                    bill_codes = new byte[] { ccTalk.resultmessage[44], ccTalk.resultmessage[46], ccTalk.resultmessage[48] };
-                }
+                bill_codes = new byte[] { ccTalk.resultmessage[44], ccTalk.resultmessage[46], ccTalk.resultmessage[48] };
 
                 byte[] entrega = getPositions(IsoCodes, bill_codes);
                 log.registerLogError("No se entrego todo el efectivo", "303");

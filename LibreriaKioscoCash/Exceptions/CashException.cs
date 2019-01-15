@@ -12,7 +12,6 @@ namespace LibreriaKioscoCash.Exceptions
 
         public CashException(byte[] count)
         {
-
             countCash = count;
         }
 
