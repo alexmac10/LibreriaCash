@@ -18,7 +18,7 @@ namespace LibreriaKioscoCash.Class
     {
         private Log log = Log.GetInstance();
         private SerialPort F53;
-        private CCTalk ccTalk = CCTalk.GetInstance();
+        private CommunicationProtocol ccTalk = CommunicationProtocol.GetInstance();
         private string COM;
 
         //RS232C(Comunicación)
@@ -28,9 +28,7 @@ namespace LibreriaKioscoCash.Class
         private byte[] statusRequest = new byte[] { 0x10, 0x05 };
         private byte[] releaseRequest = new byte[] { 0x10, 0x06 };
 
-        //Variables
-        private int position;
-        private bool status = false;
+        //Variables        
         private bool money = false;
         private bool config = false;
         private List<byte> Sensors, Error, positions;
@@ -61,7 +59,7 @@ namespace LibreriaKioscoCash.Class
             }
             catch (Exception ex)
             {
-                log.registerLogError("No se puede abrir puerto (" + ex.Message + ") :  metodo open  de la Class DispenserF53", "300");
+                log.registerLogError("Error con puerto (" + ex.Message + @") : Class\DispenserF53\open()", "300");
                 throw new Exception(ex.Message);
             }
         }
@@ -89,12 +87,18 @@ namespace LibreriaKioscoCash.Class
 
         public void returnCash(int[] count)
         {
+            int sum = count[0] + count[1] + count[2];
             money = true;
 
             DispenserBill[5] = IsoCodes[count[0]];
             DispenserBill[7] = IsoCodes[count[1]];
             DispenserBill[9] = IsoCodes[count[2]];
-            
+
+            if (sum > 15)
+            {
+                throw new CashException(new byte[] { 0, 0, 0 });
+            }
+
             createCode(DispenserBill);
             sendMessage(mensaje_final);
 
@@ -189,9 +193,9 @@ namespace LibreriaKioscoCash.Class
         {
             ccTalk.setMessage(statusRequest);
             ccTalk.getMessage();
-            search(ccTalk.resultmessage, releaseRequest);
+            ccTalk.search(ccTalk.resultmessage, releaseRequest);
 
-            if ((status == true) && (ccTalk.resultmessage.Length == 2))
+            if ((ccTalk.status == true) && (ccTalk.resultmessage.Length == 2))
             {
                 this.launchActionDevice(parameter);
             }
@@ -235,9 +239,9 @@ namespace LibreriaKioscoCash.Class
         private void validateCassets()
         {
             byte[] cassets = new byte[] { 0x8C, 0x89, 0x8A };
-            search(ccTalk.resultmessage, cassets);
+            ccTalk.search(ccTalk.resultmessage, cassets);
 
-            if (status == false)
+            if (ccTalk.status == false)
             {
                 log.registerLogError("Cassets no estan colocados", "303");
                 throw new Exception("Cassets no estan colocados");
@@ -247,8 +251,8 @@ namespace LibreriaKioscoCash.Class
         private void validateConfig()
         {
             byte[] config = new byte[] { 130, 110, 137, 117, 147, 127 };
-            search(ccTalk.resultmessage, config);
-            if (status == false)
+            ccTalk.search(ccTalk.resultmessage, config);
+            if (ccTalk.status == false)
             {
                 config_inicial();
             }
@@ -262,18 +266,18 @@ namespace LibreriaKioscoCash.Class
         }
 
         private void searchError(int[] count)
-        {            
+        {
             byte[] bill_codes = { };
             byte[] error_answer = { 0x8c };
-            search(ccTalk.resultmessage, error_answer);
+            ccTalk.search(ccTalk.resultmessage, error_answer);
 
             Error = new List<byte>();
-            for (int i = 7, m = 0; i < position; i++, m++)
+            for (int i = 7, m = 0; i < ccTalk.position; i++, m++)
             {
                 Error.Add(ccTalk.resultmessage[i]);
             }
 
-            
+
             if (!((Error[0] == 0) && (Error[1] == 0)))
             {
                 if ((count[0] <= 2) && (count[1] <= 2) && (count[2] <= 2))
@@ -288,41 +292,6 @@ namespace LibreriaKioscoCash.Class
                 byte[] entrega = getPositions(IsoCodes, bill_codes);
                 log.registerLogError("No se entrego todo el efectivo", "303");
                 throw new CashException(entrega);
-            }
-        }
-
-        //Funciones complementarias de programación
-        private int search(byte[] haystack, byte[] needle)
-        {
-            for (int i = 0; i <= haystack.Length - needle.Length; i++)
-            {
-                if (match(haystack, needle, i))
-                {
-                    position = i;
-                    return i;
-                }
-            }
-            return -1;
-        }
-
-        private bool match(byte[] haystack, byte[] needle, int start)
-        {
-            if (needle.Length + start > haystack.Length)
-            {
-                return false;
-            }
-            else
-            {
-                for (int i = 0; i < needle.Length; i++)
-                {
-                    if (needle[i] != haystack[i + start])
-                    {
-                        status = false;
-                        return false;
-                    }
-                }
-                status = true;
-                return true;
             }
         }
 
@@ -376,16 +345,16 @@ namespace LibreriaKioscoCash.Class
 
         private void SensorLevelInformation()
         {
-            
+
             Console.WriteLine("Checando Estatus de los Sensores....");
 
             createCode(StatusDeviceInit);
             sendMessage(mensaje_final);
             byte[] positive_answer = { 0x1C, 0x10, 0x03 };
-            search(ccTalk.resultmessage, positive_answer);
-            
+            ccTalk.search(ccTalk.resultmessage, positive_answer);
+
             Sensors = new List<byte>();
-            for (int l = 43, m = 0; l < position; l++, m++)
+            for (int l = 43, m = 0; l < ccTalk.position; l++, m++)
             {
                 Sensors.Add(ccTalk.resultmessage[l]);
             }
@@ -409,7 +378,7 @@ namespace LibreriaKioscoCash.Class
                 }
             }
         }
-       
+
         #endregion
 
     }

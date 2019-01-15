@@ -31,26 +31,21 @@ namespace LibreriaKioscoCash.Class
             {
                 COM = ConfigurationManager.AppSettings.Get("COMComboT");
                 Recycler = ccTalk.openConnection(COM);
-                log.registerLogAction("Abriendo conexion con ComboT");
-                //if (Recycler.IsOpen)
-                //{
-                //    Console.WriteLine("Configurando ...");
-                //    Console.WriteLine("");
-                //    setDevices();
-                //    clearCounterMoney();
-                //    setInibitCoins();
-                //    setConfigDefaultHoppers();
-                //    count_actual = 0;
+                log.registerLogAction("Abriendo conexion con ComboT");                
 
-                //}
-                //else
-                //{
-                //    throw new Exception("Puerto Cerrado: ComboT ");
-                //}
+                if (Recycler.IsOpen)
+                {                    
+                    setDevices();
+                    clearCounterMoney();
+                    setInibitCoins();
+                    setConfigDefaultHoppers();
+                    count_actual = 0;
+                }
+
             }
             catch (Exception ex)
             {
-                log.registerLogError("No se puede abrir puerto (" + ex.Message + ") : metodo open  de la Class RecyclerComboT", "300");
+                log.registerLogError("Error con puerto (" + ex.Message + @") : Class\RecyclerComboT\open()", "300");
                 throw new Exception(ex.Message);
             }
         }
@@ -58,12 +53,12 @@ namespace LibreriaKioscoCash.Class
         public void close()
         {
             Recycler.Close();
+            ccTalk.close(this.COM);
         }
 
         public bool isConnection()
         {
             return Recycler.IsOpen;
-
         }
 
         public void enable()

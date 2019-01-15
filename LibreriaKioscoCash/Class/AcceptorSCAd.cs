@@ -37,8 +37,8 @@ namespace LibreriaKioscoCash
             }
             catch (IOException ex)
             {
-                log.registerLogError("No se puede abrir puerto (" + ex.Message + ") : metodo open  de la Class AcceptorSCAd", "300");
-                throw new Exception("Error de comunicacion: " + ex.Message);
+                log.registerLogError("Error con puerto (" + ex.Message + @") : Class\AcceptorSCAd\open()", "300");
+                throw new Exception(ex.Message);
             }
         }
 

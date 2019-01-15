@@ -21,7 +21,7 @@ namespace LibreriaKioscoCash.Class
         public byte[] resultmessage;
         private byte[] parameters;
         public int position;
-        public bool status;        
+        public bool status;
 
         private static CommunicationProtocol instance = null;
 
@@ -34,7 +34,6 @@ namespace LibreriaKioscoCash.Class
         {
             if (instance == null)
             {
-
                 instance = new CommunicationProtocol();
             }
 
@@ -59,30 +58,41 @@ namespace LibreriaKioscoCash.Class
                 if (Devices.ContainsKey(this.COM))
                 {
                     device = (SerialPort)Devices[this.COM];
+                    log.registerLogError("OpenConnection isOpen :" + device.IsOpen, "300");
                     if (!device.IsOpen)
                     {
                         device.Open();
                         log.registerLogAction("El puerto " + this.COM + " abre conexión desde CCTAlk.");
                     }
-                    log.registerLogAction("El puerto " + this.COM + " ya esta registrado y abre conexión desde CCTAlk.");
+                    log.registerLogAction("El puerto " + this.COM + " ya esta registrado y abre conexión desde CommunicationProtocol.");
                 }
                 else
                 {
                     device = GetNameDevice() == "COMBillDispenser" ? new SerialPort(this.COM, 9600, Parity.Even) : new SerialPort(this.COM, 9600);
                     device.Open();
                     Devices.Add(this.COM, device);
-                    log.registerLogAction("El puerto " + this.COM + " abre conexión desde CCTAlk.");
+                    log.registerLogAction("El puerto " + this.COM + " abre conexión desde CommunicationProtocol.");
                 }
 
                 return device;
             }
             catch (IOException ex)
             {
-                throw new Exception(ex.Message + " : metodo openConnection  de la Class CCTalk");
+                throw new Exception(@" Class\CommunicationProtocol\openConnection() : " + ex.Message);
             }
 
         }
-        
+
+        public void close(string COM)
+        {
+            if (Devices.ContainsKey(this.COM))
+            {
+                device = (SerialPort)Devices[this.COM];
+                log.registerLogError("close de CommunicationProtocol:" + device.IsOpen, "300");
+                device.Close();
+            }
+        }
+
         public void setMessage(byte[] parameters)
         {
             string TX = "TX: ";
@@ -112,12 +122,13 @@ namespace LibreriaKioscoCash.Class
             for (int i = 0, j = 0; i < result.Length; i++, j++)
             {
                 resultmessage[j] = result[i];
-                RX += i + " ";
+                RX += result[i] + " ";
             }
-            CleanEcho();
+            //Console.WriteLine(RX);
             //Console.WriteLine("RX: " + ByteArrayToString(resultmessage));
+            CleanEcho();
             Thread.Sleep(150);
-            
+
 
         }
 
@@ -126,6 +137,7 @@ namespace LibreriaKioscoCash.Class
             string RX = "RX :";
             byte[] temp;
             search(resultmessage, this.parameters);
+
             if (status)
             {
                 temp = new byte[this.resultmessage.Length - parameters.Length];
@@ -135,63 +147,53 @@ namespace LibreriaKioscoCash.Class
 
                 }
                 resultmessage = temp;
-
-
             }
+
             foreach (var i in resultmessage)
             {
                 RX += i + " ";
-
-
             }
             //Console.WriteLine("RX: " + ByteArrayToString(resultmessage));
-            //Console.WriteLine(RX);
+            //Console.WriteLine("Clean echo :" + RX);
 
         }
 
         public int search(byte[] haystack, byte[] needle)
         {
 
-            for (int i = 0; i <= haystack.Length - needle.Length; i++)
+            for (int i = 0; i <= Math.Abs(haystack.Length - needle.Length); i++)
             {
-
                 if (match(haystack, needle, i))
                 {
                     position = i;
-                    //Console.WriteLine("Status:{0}\nPosición:{1}", status, position);
                     return i;
                 }
 
             }
-
-
             return -1;
 
         }
 
         public bool match(byte[] haystack, byte[] needle, int start)
         {
+            status = false;
+
             if (needle.Length + start > haystack.Length)
             {
-
-
-                return false;
+                return status;
             }
-            else
+            else if (haystack.Length > 0)
             {
                 for (int i = 0; i < needle.Length; i++)
                 {
                     if (needle[i] != haystack[i + start])
                     {
-                        status = false;
-                        return false;
-
+                        return status;
                     }
                 }
                 status = true;
-                return true;
             }
-
+            return status;
         }
 
         private string ByteArrayToString(byte[] ba)
@@ -200,6 +202,6 @@ namespace LibreriaKioscoCash.Class
             foreach (byte b in ba)
                 hex.AppendFormat("{0:X2}" + " ", b);
             return hex.ToString();
-        }        
+        }
     }
 }
