@@ -58,20 +58,20 @@ namespace LibreriaKioscoCash.Class
                 if (Devices.ContainsKey(this.COM))
                 {
                     device = (SerialPort)Devices[this.COM];
-                    log.registerLogError("OpenConnection isOpen :" + device.IsOpen, "300");
+                    log.registerLogAction(@"\CommunicationProtocol\OpenConnection() : El puerto " + this.COM + " esta \"" + device.IsOpen + "\"");
                     if (!device.IsOpen)
                     {
                         device.Open();
-                        log.registerLogAction("El puerto " + this.COM + " abre conexión desde CCTAlk.");
+                        log.registerLogAction(@"\CommunicationProtocol\OpenConnection() : Abre conexión puerto " + this.COM);
                     }
-                    log.registerLogAction("El puerto " + this.COM + " ya esta registrado y abre conexión desde CommunicationProtocol.");
+                    log.registerLogAction(@"\CommunicationProtocol\OpenConnection() : Ya esta registrado y abre conexión puerto " + this.COM);
                 }
                 else
                 {
                     device = GetNameDevice() == "COMBillDispenser" ? new SerialPort(this.COM, 9600, Parity.Even) : new SerialPort(this.COM, 9600);
                     device.Open();
                     Devices.Add(this.COM, device);
-                    log.registerLogAction("El puerto " + this.COM + " abre conexión desde CommunicationProtocol.");
+                    log.registerLogAction(@"\CommunicationProtocol\OpenConnection() : Abre conexión puerto " + this.COM + " para F53 ");
                 }
 
                 return device;
@@ -88,7 +88,7 @@ namespace LibreriaKioscoCash.Class
             if (Devices.ContainsKey(this.COM))
             {
                 device = (SerialPort)Devices[this.COM];
-                log.registerLogError("close de CommunicationProtocol:" + device.IsOpen, "300");
+                log.registerLogError(@"CommunicationProtocol\close(): " + device.IsOpen, "300");
                 device.Close();
             }
         }

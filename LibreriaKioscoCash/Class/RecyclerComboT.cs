@@ -31,10 +31,10 @@ namespace LibreriaKioscoCash.Class
             {
                 COM = ConfigurationManager.AppSettings.Get("COMComboT");
                 Recycler = ccTalk.openConnection(COM);
-                log.registerLogAction("Abriendo conexion con ComboT");                
+                log.registerLogAction("Abriendo conexion con ComboT");
 
                 if (Recycler.IsOpen)
-                {                    
+                {
                     setDevices();
                     clearCounterMoney();
                     setInibitCoins();
@@ -52,8 +52,16 @@ namespace LibreriaKioscoCash.Class
 
         public void close()
         {
-            Recycler.Close();
-            ccTalk.close(this.COM);
+            try
+            {
+                log.registerLogAction(@"RecyclerComboT\close() (" + Recycler.IsOpen + ") : cerrando puerto");
+                Recycler.Close();
+                //ccTalk.close(this.COM);
+            }
+            catch (Exception ex)
+            {
+                log.registerLogError(@"RecyclerComboT\close() (" + Recycler.IsOpen +") : "+ ex.Message, "300");
+            }
         }
 
         public bool isConnection()
@@ -152,7 +160,6 @@ namespace LibreriaKioscoCash.Class
                 }
             }
         }
-
 
         //Metodos de la clase
 

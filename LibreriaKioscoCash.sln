@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibreriaKioscoCash", "Libre
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{B8445E73-47ED-4633-8CF2-10952CE89741}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSimulator", "TestSimulator\TestSimulator.csproj", "{A8F79E17-74BC-4BE9-B5FE-5F129A2D15EC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{B8445E73-47ED-4633-8CF2-10952CE89741}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B8445E73-47ED-4633-8CF2-10952CE89741}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B8445E73-47ED-4633-8CF2-10952CE89741}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8F79E17-74BC-4BE9-B5FE-5F129A2D15EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8F79E17-74BC-4BE9-B5FE-5F129A2D15EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8F79E17-74BC-4BE9-B5FE-5F129A2D15EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8F79E17-74BC-4BE9-B5FE-5F129A2D15EC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
