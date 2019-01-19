@@ -33,7 +33,7 @@ namespace LibreriaKioscoCash
             try
             {
                 billAcceptor.Open(COMSCAd, PowerUp.A);
-                log.registerLogAction("Abriendo conexion con SCAd");
+                log.registerLogAction("Abriendo conexion con SCAd : onConnnect " + billAcceptor.Connected);
             }
             catch (IOException ex)
             {
@@ -44,11 +44,19 @@ namespace LibreriaKioscoCash
 
         public void close()
         {
-            billAcceptor.Close();
+            try
+            {
+                billAcceptor.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("AcceptorSCAd error : " + ex.Message);
+            }
         }
 
         public bool isConnection()
         {
+            log.registerLogAction("onConnnect :  " + billAcceptor.Connected);
             if (billAcceptor.Connected)
             {
                 //log.registerLogAction("El dispositivo SCAd esta Conectado");
@@ -110,6 +118,8 @@ namespace LibreriaKioscoCash
 
         private void connectedHandle(object sender, EventArgs e)
         {
+            log.registerLogAction("Evento : DeviceState " + billAcceptor.DeviceState);
+
             if (billAcceptor.DeviceState == State.Idling)
             {
                 configDefault();
@@ -119,6 +129,7 @@ namespace LibreriaKioscoCash
                 billAcceptor.EscrowStack();
                 configDefault();
             }
+            log.registerLogAction("Esta evento de que conectado para SCAd");
         }
 
         private void configDefault()

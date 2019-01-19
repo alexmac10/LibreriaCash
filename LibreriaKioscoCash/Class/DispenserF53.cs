@@ -67,7 +67,14 @@ namespace LibreriaKioscoCash.Class
 
         public void close()
         {
-            F53.Close();
+            try
+            {
+                F53.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("F53 error : " + ex.Message);
+            }
         }
 
         public bool isConnection()
@@ -283,7 +290,7 @@ namespace LibreriaKioscoCash.Class
             byte[] response = { 0x10, 0x05 };
             ccTalk.search(ccTalk.resultmessage, response);
 
-            if(ccTalk.status==true)
+            if (ccTalk.status == true)
             {
                 initialPosition = 9;
             }

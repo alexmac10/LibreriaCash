@@ -23,6 +23,7 @@ namespace LibreriaKioscoCash.Class
         private byte count_actual = 0;
         private byte CoinAcceptor, HopperTop, HopperCenter, HopperDown, CoinBox;
         private bool conection;
+        private volatile bool countOpen = true;
 
         //Funciones de la interfaz
         public void open()
@@ -33,13 +34,14 @@ namespace LibreriaKioscoCash.Class
                 Recycler = ccTalk.openConnection(COM);
                 log.registerLogAction("Abriendo conexion con ComboT");
 
-                if (Recycler.IsOpen)
+                if (Recycler.IsOpen && countOpen)
                 {
                     setDevices();
                     clearCounterMoney();
                     setInibitCoins();
                     setConfigDefaultHoppers();
                     count_actual = 0;
+                    countOpen = false;
                 }
 
             }
@@ -54,13 +56,15 @@ namespace LibreriaKioscoCash.Class
         {
             try
             {
-                log.registerLogAction(@"RecyclerComboT\close() (" + Recycler.IsOpen + ") : cerrando puerto");
+                log.registerLogAction(@"RecyclerComboT\close() (" + Recycler.IsOpen + ") : cerrando puerto");                
                 Recycler.Close();
+                countOpen = true;
                 //ccTalk.close(this.COM);
             }
             catch (Exception ex)
             {
                 log.registerLogError(@"RecyclerComboT\close() (" + Recycler.IsOpen +") : "+ ex.Message, "300");
+                Console.WriteLine("RecyclerComboT error : " + ex.Message);
             }
         }
 

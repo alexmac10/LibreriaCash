@@ -25,6 +25,7 @@ namespace Test
         /// </remarks>
         static FactoryDevice factory = new FactoryDevice();
         static int extraMoney = 0;
+        static double cambio = 0;
         static Hashtable stored;
         static Hashtable returnMoney;
 
@@ -34,7 +35,12 @@ namespace Test
         static IDispenser coinDispenser = null;
         static bool continuarMain = true;
         static bool _isTransactionCompleted = false;
-
+        static bool _isConnects = false;
+        static bool _isDevicesConnected = false;
+        static bool _isAceptandoOperacion = false;
+        static bool _isCancelandoOperacion = false;
+        static bool _isOperacionTerminada = false;
+        static bool repeat = false;
 
         static void Main(string[] args)
         {
@@ -83,6 +89,8 @@ namespace Test
                         testAllDevices();
                         break;
                     case 6:
+                        continuarMain = true;
+                        _isTransactionCompleted = false;
                         testAllDevicesThread();
                         break;
                     case 7:
@@ -783,21 +791,54 @@ namespace Test
         static void testAllDevicesThread()
         {
             int count = 0;
-            Console.Clear();
-            Console.WriteLine("Empezando el proceso con hilos");
+
             while (continuarMain)
             {
-
                 if (count == 0)
                 {
+                    Console.Clear();
+                    Console.WriteLine("Empezando el proceso con hilos");
+                    List<Task> tasksIniciales = new List<Task>();
 
-                    iniciandoInstancias();
-
-                    Task.Factory.StartNew(() =>
+                    tasksIniciales.Add(Task.Factory.StartNew(() =>
                     {
-                        cobrar();
-                    });
+                        iniciandoInstancias();
+                    }));
+
+                    tasksIniciales.Add(Task.Factory.StartNew(() =>
+                    {
+                        abrirDipositvos();
+                    }));
+
+                    Task.Factory.ContinueWhenAll(tasksIniciales.ToArray(), completeTask =>
+                     {
+                         Console.WriteLine("Termina proceso despues de abrir los dispositivos");
+
+                         Task.Factory.StartNew(() =>
+                         {
+                             cobrar();
+                         });
+
+                         Task.Factory.StartNew(() =>
+                         {
+                             aceptar();
+                         });
+
+                         Task.Factory.StartNew(() =>
+                         {
+                             cancelar();
+                         });
+                     });
+
+
                     count = 1;
+                }
+
+                if (repeat)
+                {
+                    count = 0;
+                    repeat = false;
+
                 }
             }
 
@@ -903,20 +944,40 @@ namespace Test
 
         static void iniciandoInstancias()
         {
-            Console.WriteLine("------- Generando Instancias -------");
 
             ///<remarks>
             ///Creando las instancias de los dispositivos
             ///</remarks>
-            if (billAcceptor == null && coinAcceptor == null && coinDispenser == null)
+            if (billAcceptor == null && coinAcceptor == null && coinDispenser == null && billDispenser == null)
             {
+                Console.WriteLine("------- Generando Instancias -------");
                 billDispenser = factory.GetBillDispenser();
                 billAcceptor = factory.GetBillAcceptor();
                 coinAcceptor = factory.GetCoinAcceptor();
                 coinDispenser = factory.GetCoinDispenser();
+                _isConnects = true;
+                Console.WriteLine("------- Termina Generando Instancias -------");
             }
 
-            Console.WriteLine("------- Termina Generando Instancias -------");
+        }
+
+        static void abrirDipositvos()
+        {
+            bool continuar = true;
+            while (continuar)
+            {
+                if (_isConnects)
+                {
+                    Console.WriteLine("------- Abriendo conexión con dispositivos ---------");
+                    billAcceptor.open();
+                    //billDispenser.open();
+                    coinAcceptor.open();
+                    coinDispenser.open();
+                    Console.WriteLine("----- Terminando conexión con dispositivos ---------");
+                    continuar = false;
+                    _isDevicesConnected = true;
+                }
+            }
         }
 
         static void cobrar()
@@ -935,20 +996,14 @@ namespace Test
             ///</remarks>                        
             int count = 0;
             double depositado = 0;
-            bool continuar = true;
+            bool continuar = true, continuarOperacion = true;
             double count_actual = 0;
 
             try
             {
                 ///<remarks>
                 ///Abriendo conexion con los puertos de los dispositivos
-                ///</remarks>
-                if (billAcceptor != null && coinAcceptor != null)
-                {
-                    billAcceptor.open();
-                    coinAcceptor.open();
-                }
-
+                ///</remarks>    
                 while (continuar)
                 {
                     depositado = 0;
@@ -957,6 +1012,11 @@ namespace Test
                     ///<remarks>
                     ///Solicitando efectivo a depositar en el dispositvo bill Acceptor
                     ///</remarks>
+                    if (!_isDevicesConnected)
+                    {
+                        continue;
+                    }
+
                     Console.WriteLine("********** PRUEBA DE TRANSACCIÓN **********");
                     Console.Write("Indique el efectivo a depositar: ");
                     double total = Int32.Parse(Console.ReadLine());
@@ -964,14 +1024,14 @@ namespace Test
                     Console.WriteLine("Espere ...");
                     Console.WriteLine("");
 
-                    //coinAcceptor.open();
+
                     //Deposito de efectivo
-                    while (!_isTransactionCompleted)
+                    while (depositado < total)
                     {
                         //    ///<remarks>
                         //    ///Validar antes si el dispositivo ya esta conectado
                         //    ///antes de activarse.
-                        //    ///</remarks>
+                        //    ///</remarks>                            
                         if (!billAcceptor.isConnection())
                         {
                             continue;
@@ -1048,14 +1108,6 @@ namespace Test
                                     break;
                             }
                         }
-
-                        //Console.WriteLine("¿Quieres seguir depositando ?");
-                        //string respCash = Console.ReadLine();
-
-                        //if (respCash == "n" || respCash == "N")
-                        //{
-                        //    _isTransactionCompleted = true;
-                        //}
                     }
 
                     ///<remarks>
@@ -1063,52 +1115,126 @@ namespace Test
                     ///</remarks>
                     billAcceptor.disable();
 
-
-                    //Regresando cambio
-                    double cambio = depositado - total;
+                    //Regresando cambio                    
+                    cambio = depositado - total;
                     Console.WriteLine("Depositado: " + depositado);
                     Console.WriteLine("Cambio: " + cambio);
+                    continuar = false;
 
-                    if (validateExtraMoney((int)cambio))
+                    while (continuarOperacion)
                     {
-                        int[] moneyExtra = getMoneyExtra();
+                        Console.WriteLine("¿ Deseas Aceptar (A) o Cancelar (C) la operación?");
+                        string respuesta = Console.ReadLine();
 
-                        int[] billExtra = { moneyExtra[3], moneyExtra[4], moneyExtra[5] };
-                        int[] coinExtra = { moneyExtra[0], moneyExtra[1], moneyExtra[2] };
-                        Console.WriteLine(" ");
-                        Console.WriteLine("Retirando Efectivo...");
-                        ///<remarks>
-                        ///Funcion para entregar cambio en los dispositivos
-                        ///</remarks>
-                        if (coinExtra[0] + coinExtra[1] + coinExtra[2] != 0)
+                        if (respuesta == "a" || respuesta == "A")
                         {
-                            coinDispenser.open();
-                            coinDispenser.returnCash(coinExtra);
+                            _isAceptandoOperacion = true;
+                            continuarOperacion = false;
                         }
-                        if (billExtra[0] + billExtra[1] + billExtra[2] != 0)
+                        else if (respuesta == "c" || respuesta == "C")
                         {
-                            billDispenser.open();
-                            billDispenser.returnCash(billExtra);
+                            cambio = depositado;
+                            _isCancelandoOperacion = true;
+                            continuarOperacion = false;
                         }
+                        else
+                        {
+                            Console.WriteLine("Debes seleccionar una opción");
+                        }
+                    }
+
+                    _isTransactionCompleted = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("cobrar error:" + ex.Message);
+                Console.ReadLine();
+                Environment.Exit(0);
+            }
+
+        }
+
+        static void aceptar()
+        {
+            Console.WriteLine("_isAceptandoOperacion : {0}", _isAceptandoOperacion);
+            Console.WriteLine("_isOperacionTerminada : {0}", _isOperacionTerminada);
+            bool continuar = true;
+            while (continuar)
+            {
+                if (_isAceptandoOperacion)
+                {
+                    if (cambio != 0)
+                    {                        
+                        entregarCambio();
                     }
                     else
                     {
-                        Console.WriteLine("No se puedo integrar el dinero completo");
+                        Console.WriteLine("Terminando la operación");
                     }
 
-                    Console.WriteLine("¿ Deseas realizar otra operación  (Y/N) ?");
-                    string respuesta = Console.ReadLine();
+                    _isOperacionTerminada = true;
+                    terminar();
+                }
 
-                    if (respuesta == "n" || respuesta == "N")
+                if (_isOperacionTerminada)
+                {
+                    continuar = false;
+                }
+            }
+        }
+
+        static void cancelar()
+        {
+            bool continuar = true;
+            while (continuar)
+            {
+                if (_isCancelandoOperacion)
+                {
+                    _isOperacionTerminada = true;                   
+                    entregarCambio();
+                    terminar();
+                }
+
+                if (_isOperacionTerminada)
+                {
+                    continuar = false;
+                }
+            }
+        }
+
+        static void entregarCambio()
+        {
+            try
+            {
+                if (validateExtraMoney((int)cambio))
+                {
+                    int[] moneyExtra = getMoneyExtra();
+
+                    int[] billExtra = { moneyExtra[3], moneyExtra[4], moneyExtra[5] };
+                    int[] coinExtra = { moneyExtra[0], moneyExtra[1], moneyExtra[2] };
+                    Console.WriteLine(" ");
+                    Console.WriteLine("Entregando Efectivo...");
+
+                    ///<remarks>
+                    ///Funcion para entregar cambio en los dispositivos
+                    ///</remarks>
+                    if (coinExtra[0] + coinExtra[1] + coinExtra[2] != 0)
                     {
-                        continuar = false;
-
-                        ///<remarks>
-                        ///Cierra la conexion de los dispositivos
-                        ///</remarks>
-
+                        //coinDispenser.open();
+                        coinDispenser.returnCash(coinExtra);
                     }
 
+                    if (billExtra[0] + billExtra[1] + billExtra[2] != 0)
+                    {
+                        billDispenser.open();
+                        billDispenser.returnCash(billExtra);
+                    }
+
+                }
+                else
+                {
+                    Console.WriteLine("No se puedo entregar el cambio");
                 }
             }
             catch (CashException ex)
@@ -1124,15 +1250,50 @@ namespace Test
                 Console.ReadLine();
                 Environment.Exit(0);
             }
+        }
+
+        static void terminar()
+        {
+            try
+            {
+                Console.WriteLine("---------- Cerrando los dispositivos ---------"); 
+                billDispenser.close();                
+                billAcceptor.close();                
+                coinDispenser.close();                
+                coinAcceptor.close();
+
+                Console.WriteLine("---------- Destruyendo las instancias ---------");
+                billDispenser = null;
+                billAcceptor = null;
+                coinDispenser = null;
+                coinAcceptor = null;
+
+                Console.WriteLine("¿ Deseas realizar otra operación  (Y/N) ?");
+                string respuesta = Console.ReadLine();
+
+                if (respuesta == "n" || respuesta == "N")
+                {
+                    continuarMain = false;
+                    repeat = false;
+                }
+
+                repeat = true;
+                _isConnects = false;
+                _isTransactionCompleted = false;
+                _isConnects = false;
+                _isDevicesConnected = false;
+                _isAceptandoOperacion = false;
+                _isCancelandoOperacion = false;
+                _isOperacionTerminada = false;
+            }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
-                Console.ReadLine();
-                Environment.Exit(0);
+                Console.WriteLine("Funcion terminar() : " + ex.Message);
             }
-
         }
-        #endregion
 
     }
+    #endregion
+
 }
+
